@@ -1,0 +1,1001 @@
+"","species","input","matched_name","SYNONYM","contributor","review_flag","match_code","match_sim","SPECIES_NR","VALID_NR"
+"1","acianthera adirii","acianthera adirii","Acianthera adiri","Accepted","GBIF2026","CHECK_fuzzy",2,0.966666666666667,15255,15255
+"2","acianthera angustipetala","acianthera angustipetala","Acianthera angustisepala","Accepted","ATRIUM2017; CUZ2025","CHECK_fuzzy",2,0.952564102564102,55,55
+"3","acianthera calopedilo","acianthera calopedilo","Acianthera calopedilon","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,3227,3227
+"4","acianthera klotzcheana","acianthera klotzcheana","Acianthera klotzschiana","Accepted","GBIF2026","CHECK_fuzzy",2,0.948484848484848,15615,15615
+"5","acianthera sonderana","acianthera sonderana","Acianthera sonderiana","Accepted","GBIF2026","CHECK_fuzzy",2,0.98,15888,15888
+"6","adelobotrys boissierianus","adelobotrys boissierianus","Adelobotrys boissieriana","Accepted","INABIOEC","CHECK_fuzzy",2,0.952564102564102,16044,16044
+"7","adelobotrys linearifolius","adelobotrys linearifolius","Adelobotrys linearifolia","Accepted","HUA2025","CHECK_fuzzy",2,0.952564102564102,16054,16054
+"8","adelobotrys marginatus","adelobotrys marginatus","Adelobotrys marginata","Accepted","HUA2025","CHECK_fuzzy",2,0.937777777777778,16057,16057
+"9","adelobotrys rotundifolia","adelobotrys rotundifolia","Adelobotrys rotundifolius","Accepted","GUYN2008","CHECK_fuzzy",2,0.952564102564102,16063,16063
+"10","adelobotrys spruceanus","adelobotrys spruceanus","Adelobotrys spruceana","Accepted","HUA2025","CHECK_fuzzy",2,0.937777777777778,16070,16070
+"11","adiantum teratophyllum","adiantum teratophyllum","Adiantum tetraphyllum","Accepted","INABIOEC","CHECK_fuzzy",2,0.946153846153846,16107,16107
+"12","aechmea aripoensis","aechmea aripoensis","Aechmea aripensis","Accepted","GBIF2026","CHECK_fuzzy",2,0.98,1923,1923
+"13","aechmea brachystachya","aechmea brachystachya","Aechmea brachystachys","Accepted","INABIOEC","CHECK_fuzzy",2,0.969230769230769,16178,16178
+"14","aechmea brevicolis","aechmea brevicolis","Aechmea brevicollis","Accepted","GUYN2008","CHECK_fuzzy",2,0.981818181818182,16197,16197
+"15","aechmea correia-araujoi","aechmea correia-araujoi","Aechmea correia-arauji","Accepted","AssisI; GBIF2026; SEL2021","CHECK_fuzzy",2,0.986666666666667,16270,16270
+"16","aechmea correiaaraujoi","aechmea correiaaraujoi","Aechmea correia-arauji","Accepted","ZizkaA","CHECK_fuzzy",2,0.971428571428571,16270,16270
+"17","aechmea disticantha","aechmea disticantha","Aechmea distichantha","Accepted","GBIF2026","CHECK_fuzzy",2,0.946969696969697,16294,16294
+"18","aechmea lamarckei","aechmea lamarckei","Aechmea lamarchei","Accepted","GBIF2026","CHECK_fuzzy",2,0.955555555555556,251,251
+"19","aechmea leonardkentiana","aechmea leonardkentiana","Aechmea leonard-kentiana","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,16441,16441
+"20","aechmea luddemanniana","aechmea luddemanniana","Aechmea lueddemanniana","Accepted","GBIF2026","CHECK_fuzzy",2,0.96043956043956,16455,16455
+"21","aechmea lueddemaniana","aechmea lueddemaniana","Aechmea lueddemanniana","Accepted","CR2024","CHECK_fuzzy",2,0.962637362637362,16455,16455
+"22","aechmea mariaereginae","aechmea mariaereginae","Aechmea mariae-reginae","Accepted","ZizkaA","CHECK_fuzzy",2,0.985714285714286,16486,16486
+"23","aechmea matudai","aechmea matudai","Aechmea matudae","Accepted","HEM2025","CHECK_fuzzy",2,0.942857142857143,16495,16495
+"24","aechmea melionii","aechmea melionii","Aechmea melinonii","Accepted","literature2021","CHECK_fuzzy",2,0.952777777777778,16499,16499
+"25","aechmea polystachya","aechmea polystachya","Aechmea polystachia var. excavata","Synonym","BA2025; GBIF2026","CHECK_fuzzy",2,0.963636363636364,16297,16294
+"26","aechmea robertoanselmoi","aechmea robertoanselmoi","Aechmea roberto-anselmoi","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,16653,16653
+"27","aechmea robertoseidelii","aechmea robertoseidelii","Aechmea roberto-seidelii","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,16655,16655
+"28","aechmea rodrigueziana","aechmea rodrigueziana","Aechmea rodriguesiana","Accepted","GBIF2026","CHECK_fuzzy",2,0.969230769230769,16660,16660
+"29","aechmea tillandsiodes","aechmea tillandsiodes","Aechmea tillandsioides","Accepted","literature2021","CHECK_fuzzy",2,0.985714285714286,16724,16724
+"30","aerangis collumcygni","aerangis collumcygni","Aerangis collum-cygni","Accepted","SEL2021","CHECK_fuzzy",2,0.983333333333333,16861,16861
+"31","ananthacorus angustifolia","ananthacorus angustifolia","Ananthacorus angustifolius","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.952564102564102,551,551
+"32","andinia monstis-rotundi","andinia monstis-rotundi","Andinia montis-rotundi","Accepted","CAUP2023","CHECK_fuzzy",2,0.959444444444444,10770,10770
+"33","andinia spilaris","andinia spilaris","Andinia spiralis","Accepted","CPUN2025","CHECK_fuzzy",2,0.970833333333333,81660,81660
+"34","andreettaea rojohniae","andreettaea rojohniae","Andreettaea rojohnii","Accepted","GBIF2026","CHECK_fuzzy",2,0.930555555555556,80719,80719
+"35","anthurium abelaezii","anthurium abelaezii","Anthurium arbelaezii","Accepted","GBIF2026","CHECK_fuzzy",2,0.97,684,684
+"36","anthurium altissimum","anthurium altissimum","Anthurium latissimum","Accepted","GBIF2026","CHECK_fuzzy",2,0.966666666666667,20160,20160
+"37","anthurium angusticalom","anthurium angusticalom","Anthurium angustilobum","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,19537,19537
+"38","anthurium attenuatifolium","anthurium attenuatifolium","Anthurium attenuatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,19798,19793
+"39","anthurium benavidesae","anthurium benavidesae","Anthurium benavidesiae","Accepted","GBIF2026","CHECK_fuzzy",2,0.983333333333333,19594,19594
+"40","anthurium binotii","anthurium binotii","Anthurium binoti","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.971428571428571,19605,19605
+"41","anthurium carmenense","anthurium carmenense","Anthurium armeniense","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,19557,19557
+"42","anthurium chiriacoense","anthurium chiriacoense","Anthurium chacoense","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,19695,19695
+"43","anthurium clavigerun","anthurium clavigerun","Anthurium clavigerum","Accepted","GUYN2008","CHECK_fuzzy",2,0.96,691,691
+"44","anthurium coipaense","anthurium coipaense","Anthurium coripatense","Accepted","GBIF2026","CHECK_fuzzy",2,0.951515151515152,19775,19775
+"45","anthurium epunctatum","anthurium epunctatum","Anthurium punctatum","Synonym","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.966666666666667,20555,20554
+"46","anthurium flexible","anthurium flexible","Anthurium flexile","Accepted","literature2021","CHECK_fuzzy",2,0.975,19904,19904
+"47","anthurium fortunense","anthurium fortunense","Anthurium fortinense","Synonym","GBIF2026","CHECK_fuzzy",2,0.96,86726,86724
+"48","anthurium friedrichii","anthurium friedrichii","Anthurium friedrichsthalii","Accepted","GBIF2026","CHECK_fuzzy",2,0.9375,19919,19919
+"49","anthurium friedrichsthalli","anthurium friedrichsthalli","Anthurium friedrichsthalii","Accepted","literature2021","CHECK_fuzzy",2,0.975,19919,19919
+"50","anthurium friedrichsthallii","anthurium friedrichsthallii","Anthurium friedrichsthalii","Accepted","literature2021","CHECK_fuzzy",2,0.988235294117647,19919,19919
+"51","anthurium grubbi","anthurium grubbi","Anthurium grubbii","Accepted","literature2021","CHECK_fuzzy",2,0.971428571428571,88944,88944
+"52","anthurium gustavii","anthurium gustavii","Anthurium gustavi","Accepted","GBIF2026; INABIOEC; JimenezA","CHECK_fuzzy",2,0.975,20002,20002
+"53","anthurium holmnielsenii","anthurium holmnielsenii","Anthurium holm-nielsenii","Accepted","INABIOEC","CHECK_fuzzy",2,0.985714285714286,20044,20044
+"54","anthurium hooveri","anthurium hooveri","Anthurium hookeri","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.933333333333333,20046,20046
+"55","anthurium huacoense","anthurium huacoense","Anthurium huacamayoense","Accepted","GBIF2026","CHECK_fuzzy",2,0.938461538461538,20057,20057
+"56","anthurium hutchinsonii","anthurium hutchinsonii","Anthurium hutchisonii","Accepted","SEL2021","CHECK_fuzzy",2,0.956060606060606,20069,20069
+"57","anthurium incomtum","anthurium incomtum","Anthurium incomptum","Accepted","literature2024","CHECK_fuzzy",2,0.977777777777778,20080,20080
+"58","anthurium lamanense","anthurium lamanense","Anthurium laminense","Accepted","GBIF2026","CHECK_fuzzy",2,0.948148148148148,20149,20149
+"59","anthurium lennardii","anthurium lennardii","Anthurium lennartii","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,20164,20164
+"60","anthurium lievensii","anthurium lievensii","Anthurium lievenii","Accepted","GBIF2026","CHECK_fuzzy",2,0.977777777777778,20173,20173
+"61","anthurium llewelynii","anthurium llewelynii","Anthurium llewellynii","Accepted","SEL2021","CHECK_fuzzy",2,0.981818181818182,20192,20192
+"62","anthurium macleanii","anthurium macleanii","Anthurium macleani","Accepted","AMAZ2024; ATRIUM2017; CUZ2025; GBIF2026; HUA2025; INABIOEC; LPB2024; ZuluagaA","CHECK_fuzzy",2,0.977777777777778,20241,20241
+"63","anthurium martinellii","anthurium martinellii","Anthurium martinezii","Synonym","GBIF2026","CHECK_fuzzy",2,0.943636363636364,20870,20867
+"64","anthurium mendozae","anthurium mendozae","Anthurium mendoncae","Synonym","GBIF2026; HUA2025","CHECK_fuzzy",2,0.930555555555556,20495,20493
+"65","anthurium mongonense","anthurium mongonense","Anthurium monzonense","Accepted","GBIF2026","CHECK_fuzzy",2,0.953333333333333,20328,20328
+"66","anthurium mourai","anthurium mourai","Anthurium mourae","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,20334,20334
+"67","anthurium nymphaefolium","anthurium nymphaefolium","Anthurium nymphaeaefolium var. ornatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.973333333333333,20388,20381
+"68","anthurium oerstedianum","anthurium oerstedianum","Anthurium oerstedtianum","Accepted","CR2024; GBIF2026","CHECK_fuzzy",2,0.984615384615385,20408,20408
+"69","anthurium pallidifibrum","anthurium pallidifibrum","Anthurium pallidiflorum","Accepted","GBIF2026","CHECK_fuzzy",2,0.938461538461538,20461,20461
+"70","anthurium pastazanum","anthurium pastazanum","Anthurium pastasanum","Accepted","GBIF2026","CHECK_fuzzy",2,0.96,20498,20498
+"71","anthurium penthaphyllum","anthurium penthaphyllum","Anthurium pentaphyllum","Synonym","literature2021","CHECK_fuzzy",2,0.959615384615385,733,729
+"72","anthurium pitteri","anthurium pitteri","Anthurium pittieri","Accepted","literature2021","CHECK_fuzzy",2,0.932142857142857,20537,20537
+"73","anthurium piurensis","anthurium piurensis","Anthurium piurense","Accepted","GBIF2026","CHECK_fuzzy",2,0.930555555555556,20538,20538
+"74","anthurium prolongatum","anthurium prolongatum","Anthurium prolatum","Accepted","INABIOEC","CHECK_fuzzy",2,0.945454545454546,20568,20568
+"75","anthurium quayaguilense","anthurium quayaguilense","Anthurium guayaquilense","Accepted","literature2024","CHECK_fuzzy",2,0.974358974358974,20000,20000
+"76","anthurium ratonense","anthurium ratonense","Anthurium ramonense","Accepted","GBIF2026","CHECK_fuzzy",2,0.940740740740741,20609,20609
+"77","anthurium ravenni","anthurium ravenni","Anthurium ravenii","Accepted","ICESI2024","CHECK_fuzzy",2,0.942857142857143,20616,20616
+"78","anthurium rioacimensis","anthurium rioacimensis","Anthurium rioacimense","Accepted","GBIF2026","CHECK_fuzzy",2,0.948484848484848,20639,20639
+"79","anthurium sagitttum","anthurium sagitttum","Anthurium sagittatum","Accepted","AMAZ2024","CHECK_fuzzy",2,0.98,736,736
+"80","anthurium salviniae","anthurium salviniae","Anthurium salvinii","Accepted","CR2024; GBIF2026; literature2021","CHECK_fuzzy",2,0.930555555555556,20673,20673
+"81","anthurium santaritensis","anthurium santaritensis","Anthurium santaritense","Accepted","ZuluagaA","CHECK_fuzzy",2,0.952564102564102,14055,14055
+"82","anthurium schlechtendallii","anthurium schlechtendallii","Anthurium schlechtendalii","Accepted","literature2021","CHECK_fuzzy",2,0.9875,750,750
+"83","anthurium silvicolum","anthurium silvicolum","Anthurium silvicola","Accepted","HUA2025","CHECK_fuzzy",2,0.937777777777778,20751,20751
+"84","anthurium sknappiae","anthurium sknappiae","Anthurium knappiae","Accepted","GBIF2026","CHECK_fuzzy",2,0.962962962962963,20139,20139
+"85","anthurium terracolum","anthurium terracolum","Anthurium terracola","Accepted","HUA2025; INABIOEC; SEL2021","CHECK_fuzzy",2,0.937777777777778,757,757
+"86","anthurium toasae","anthurium toasae","Anthurium tomasiae","Accepted","GBIF2026; HUA2025; INABIOEC","CHECK_fuzzy",2,0.933333333333333,20839,20839
+"87","anthurium truncicolum","anthurium truncicolum","Anthurium truncicola","Accepted","HUA2025; literature2021","CHECK_fuzzy",2,0.943636363636364,20867,20867
+"88","anthurium uasadiense","anthurium uasadiense","Anthurium uasadiensis","Accepted","GBIF2026","CHECK_fuzzy",2,0.943636363636364,20877,20877
+"89","anthurium yatuense","anthurium yatuense","Anthurium yatacuense","Accepted","GBIF2026","CHECK_fuzzy",2,0.953333333333333,20946,20946
+"90","anthurium zuloagae","anthurium zuloagae","Anthurium zuluagae","Accepted","GBIF2026","CHECK_fuzzy",2,0.941666666666667,766,766
+"91","anthurium zuluagai","anthurium zuluagai","Anthurium zuluagae","Accepted","HUA2025","CHECK_fuzzy",2,0.95,766,766
+"92","antrophyum urbani","antrophyum urbani","Antrophyum urbanii","Synonym","GBIF2026","CHECK_fuzzy",2,0.971428571428571,68264,68263
+"93","ascogrammitis columbiensis","ascogrammitis columbiensis","Ascogrammitis colombiensis","Synonym","KesslerM","CHECK_fuzzy",2,0.961111111111111,21310,21309
+"94","asplenium arcanum","asplenium arcanum","Asplenium africanum","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,21385,21385
+"95","asplenium barbadense","asplenium barbadense","Asplenium barbaense","Accepted","GBIF2026","CHECK_fuzzy",2,0.98,21448,21448
+"96","asplenium concinnum","asplenium concinnum","Asplenium concisum","Synonym","INABIOEC","CHECK_fuzzy",2,0.930555555555556,81783,81782
+"97","asplenium cuspidata","asplenium cuspidata","Asplenium cuspidatum","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.937777777777778,931,931
+"98","asplenium dalhousiae","asplenium dalhousiae","Asplenium dalhousieae","Accepted","GBIF2026","CHECK_fuzzy",2,0.961818181818182,81775,81775
+"99","asplenium dentatum","asplenium dentatum","Asplenium bidentatum","Synonym","GBIF2026; HEM2025; JimenezDA","CHECK_fuzzy",2,0.933333333333333,21432,21427
+"100","asplenium foeniculatum","asplenium foeniculatum","Asplenium foeniculaceum","Synonym","literature2021","CHECK_fuzzy",2,0.952564102564102,21929,21917
+"101","asplenium fragans","asplenium fragans","Asplenium fragrans var. mexicanum","Synonym","literature2021","CHECK_fuzzy",2,0.975,939,931
+"102","asplenium heterochroum","asplenium heterochroum","Asplenium heterocarpum","Synonym","GBIF2026; JimenezDA","CHECK_fuzzy",2,0.933333333333333,11931,11929
+"103","asplenium inaequale","asplenium inaequale","Asplenium inaequalidens","Synonym","GBIF2026","CHECK_fuzzy",2,0.938461538461538,15777,15774
+"104","asplenium indusiatum","asplenium indusiatum","Asplenium induratum","Synonym","GBIF2026","CHECK_fuzzy",2,0.937777777777778,22144,22141
+"105","asplenium junglandifolium","asplenium junglandifolium","Asplenium juglandifolium","Accepted","literature2024","CHECK_fuzzy",2,0.944126984126984,22009,22009
+"106","asplenium longicaudatum","asplenium longicaudatum","Asplenium longicauda","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.953846153846154,22032,22032
+"107","asplenium macrodictyon","asplenium macrodictyon","Asplenium macrodon","Synonym","INABIOEC","CHECK_fuzzy",2,0.933333333333333,22211,22206
+"108","asplenium preamorsum","asplenium preamorsum","Asplenium praemorsum","Accepted","EBUM2024","CHECK_fuzzy",2,0.973333333333333,22193,22193
+"109","asplenium sessifolium","asplenium sessifolium","Asplenium sessilifolium","Accepted","literature2021","CHECK_fuzzy",2,0.932867132867133,14819,14819
+"110","asplenium stubelianum","asplenium stubelianum","Asplenium stuebelianum","Accepted","GBIF2026","CHECK_fuzzy",2,0.959343434343434,80798,80798
+"111","asplenium tricholepsis","asplenium tricholepsis","Asplenium tricholepis","Accepted","literature2021","CHECK_fuzzy",2,0.965151515151515,22357,22357
+"112","asplenium trilobatum","asplenium trilobatum","Asplenium trilobum","Accepted","GBIF2026","CHECK_fuzzy",2,0.96,81873,81873
+"113","asplenium wagneri","asplenium wagneri","Asplenium wageneri","Synonym","GBIF2026","CHECK_fuzzy",2,0.9375,86172,86168
+"114","balmea stormiae","balmea stormiae","Balmea stormae","Accepted","GBIF2026; JimenezDA","CHECK_fuzzy",2,0.975,81878,81878
+"115","baptistonia albinoi","baptistonia albinoi","Baptistonia albini","Synonym","GBIF2026","CHECK_fuzzy",2,0.971428571428571,47434,47433
+"116","baptistonia riograndensis","baptistonia riograndensis","Baptistonia riograndense","Synonym","GBIF2026","CHECK_fuzzy",2,0.952564102564102,47817,47815
+"117","barbosella cucullate","barbosella cucullate","Barbosella cucullata","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,14822,14822
+"118","batemannia leferentzii","batemannia leferentzii","Batemannia leferenzii","Accepted","literature2021","CHECK_fuzzy",2,0.981818181818182,14834,14834
+"119","beclardia macrostachya","beclardia macrostachya","Beclardia macrostachys","Accepted","ATRIUM2017; CUZ2025; GBIF2026; SEL2021","CHECK_fuzzy",2,0.966666666666667,22767,22767
+"120","begonia caroliniifolia","begonia caroliniifolia","Begonia carolineifolia","Accepted","GBIF2026; JimenezDA","CHECK_fuzzy",2,0.940659340659341,16491,16491
+"121","begonia cuatrecasana","begonia cuatrecasana","Begonia cuatrecasasiana","Accepted","GBIF2026","CHECK_fuzzy",2,0.943333333333333,1048,1048
+"122","begonia elata","begonia elata","Begonia velata","Accepted","GBIF2026","CHECK_fuzzy",2,0.944444444444444,81880,81880
+"123","begonia heracliifolia","begonia heracliifolia","Begonia heracleifolia","Accepted","GBIF2026","CHECK_fuzzy",2,0.935897435897436,22874,22874
+"124","begonia hirta","begonia hirta","Begonia hirsuta","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,22906,22906
+"125","begonia mamedeana","begonia mamedeana","Begonia mameiana","Synonym","GBIF2026","CHECK_fuzzy",2,0.930555555555556,22915,22906
+"126","begonia microphylla","begonia microphylla","Begonia macrophylla","Synonym","GBIF2026","CHECK_fuzzy",2,0.945454545454546,22955,22950
+"127","begonia vellozoana","begonia vellozoana","Begonia velloziana","Synonym","GBIF2026","CHECK_fuzzy",2,0.96,1053,1049
+"128","billbergia alfonsijoannis","billbergia alfonsijoannis","Billbergia alfonsi-joannis","Accepted","literature2024","CHECK_fuzzy",2,0.986666666666667,23209,23209
+"129","blakea cuatrecasasii","blakea cuatrecasasii","Blakea cuatrecasii","Accepted","GBIF2026; HUA2025; JimenezA","CHECK_fuzzy",2,0.969230769230769,23431,23431
+"130","blakea dodsonorum","blakea dodsonorum","Blakea dodsoniorum","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.981818181818182,74973,74973
+"131","blakea sessilifolia","blakea sessilifolia","Blakea sessiliflora","Synonym","GBIF2026; HUA2025","CHECK_fuzzy",2,0.948484848484848,1098,1096
+"132","blakea subanduriformis","blakea subanduriformis","Blakea subpanduriformis","Accepted","INABIOEC","CHECK_fuzzy",2,0.985416666666667,86547,86547
+"133","blakea subpanduriforme","blakea subpanduriforme","Blakea subpanduriformis","Accepted","literature2021","CHECK_fuzzy",2,0.961666666666667,86547,86547
+"134","blechnum gracilipes","blechnum gracilipes","Blechnum gracile","Accepted","GBIF2026","CHECK_fuzzy",2,0.94,1122,1122
+"135","blechnum herminieri","blechnum herminieri","Blechnum lherminieri","Accepted","GBIF2026","CHECK_fuzzy",2,0.96969696969697,86159,86159
+"136","blechnum stipitatum","blechnum stipitatum","Blechnum stipitellatum","Accepted","GBIF2026","CHECK_fuzzy",2,0.953846153846154,78297,78297
+"137","bletia purpurea","bletia purpurea","Bletia purpurata","Synonym","ATRIUM2017; CUZ2025; HUA2025; HUAP2024; INABIOEC; JimenezDA; literature2024; OAX2025; RoseroJ; SEL2021","CHECK_fuzzy",2,0.930555555555556,29423,29420
+"138","bollea lawrenciana","bollea lawrenciana","Bollea lawrenceana","Synonym","SEL2021","CHECK_fuzzy",2,0.963636363636364,63194,63193
+"139","bomarea densifolia","bomarea densifolia","Bomarea densiflora","Accepted","ATRIUM2017; CUZ2025","CHECK_fuzzy",2,0.937777777777778,86475,86475
+"140","brachionidium andreetae","brachionidium andreetae","Brachionidium andreettae","Accepted","literature2021","CHECK_fuzzy",2,0.98,23655,23655
+"141","brachionidium cruzae","brachionidium cruzae","Brachionidium cruziae","Accepted","GBIF2026","CHECK_fuzzy",2,0.971428571428571,1137,1137
+"142","brachionidium pterogloussum","brachionidium pterogloussum","Brachionidium pteroglossum","Accepted","literature2021","CHECK_fuzzy",2,0.967948717948718,23710,23710
+"143","brassavola cebolleta","brassavola cebolleta","Brassavola ceboletta","Accepted","SEL2021","CHECK_fuzzy",2,0.955555555555556,1144,1144
+"144","brassia caudate","brassia caudate","Brassia caudata","Accepted","literature2021","CHECK_fuzzy",2,0.942857142857143,23828,23828
+"145","brassia warszewiczi","brassia warszewiczi","Brassia warszewiczii","Accepted","INABIOEC","CHECK_fuzzy",2,0.983333333333333,14835,14835
+"146","brocchinia acumunata","brocchinia acumunata","Brocchinia acuminata","Accepted","GUYN2008","CHECK_fuzzy",2,0.955555555555556,23944,23944
+"147","bulbophyllum calamarium","bulbophyllum calamarium","Bulbophyllum calabaricum","Synonym","SEL2021","CHECK_fuzzy",2,0.943636363636364,41812,41811
+"148","bulbophyllum fritillariflorum","bulbophyllum fritillariflorum","Bulbophyllum fritillariiflorum","Accepted","SEL2021","CHECK_fuzzy",2,0.988235294117647,25344,25344
+"149","bulbophyllum fusco-purpureum","bulbophyllum fusco-purpureum","Bulbophyllum fuscopurpureum","Accepted","SEL2021","CHECK_fuzzy",2,0.986666666666667,25363,25363
+"150","bulbophyllum neilgherensis","bulbophyllum neilgherensis","Bulbophyllum neilgherrense","Synonym","SEL2021","CHECK_fuzzy",2,0.938461538461538,27433,27431
+"151","bulbophyllum tentaculigerum","bulbophyllum tentaculigerum","Bulbophyllum tentaculiferum","Accepted","SEL2021","CHECK_fuzzy",2,0.971428571428571,27528,27528
+"152","bulbophyllum weddelii","bulbophyllum weddelii","Bulbophyllum weddellii","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,14842,14842
+"153","cadetia taylori","cadetia taylori","Cadetia taylorii","Synonym","SEL2021","CHECK_fuzzy",2,0.975,38303,38301
+"154","campylocentrum dutraei","campylocentrum dutraei","Campylocentrum dutrae","Synonym","GBIF2026","CHECK_fuzzy",2,0.971428571428571,28088,28087
+"155","campylocentrum micrantum","campylocentrum micrantum","Campylocentrum micranthum","Accepted","literature2024","CHECK_fuzzy",2,0.98,28112,28112
+"156","campyloneurum amazonensis","campyloneurum amazonensis","Campyloneurum amazonense","Accepted","GBIF2026","CHECK_fuzzy",2,0.943636363636364,82148,82148
+"157","campyloneurum amphostemon","campyloneurum amphostemon","Campyloneurum amphostenon","Accepted","literature2021","CHECK_fuzzy",2,0.943636363636364,1699,1699
+"158","campyloneurum amphostenin","campyloneurum amphostenin","Campyloneurum amphostenon","Accepted","literature2021","CHECK_fuzzy",2,0.963636363636364,1699,1699
+"159","campyloneurum chrysopodium","campyloneurum chrysopodium","Campyloneurum chrysopodum","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.983333333333333,28179,28179
+"160","campyloneurum coartatum","campyloneurum coartatum","Campyloneurum coarctatum","Accepted","literature2021","CHECK_fuzzy",2,0.98,28181,28181
+"161","campyloneurum ophiocaulom","campyloneurum ophiocaulom","Campyloneurum ophiocaulon","Accepted","CUZ2025","CHECK_fuzzy",2,0.963636363636364,28212,28212
+"162","campyloneurum pascoensis","campyloneurum pascoensis","Campyloneurum pascoense","Accepted","literature2021","CHECK_fuzzy",2,0.937777777777778,28214,28214
+"163","campyloneurum phylitidis","campyloneurum phylitidis","Campyloneurum phyllitidis var. latum","Synonym","KesslerM","CHECK_fuzzy",2,0.981818181818182,1746,1744
+"164","campyloneurum phylliditis","campyloneurum phylliditis","Campyloneurum phyllitidis var. latum","Synonym","literature2021","CHECK_fuzzy",2,0.981818181818182,1746,1744
+"165","campyloneurum phyllitidi","campyloneurum phyllitidi","Campyloneurum phyllitidis var. latum","Synonym","literature2021","CHECK_fuzzy",2,0.981818181818182,1746,1744
+"166","campyloneurum sphenoides","campyloneurum sphenoides","Campyloneurum sphenodes","Accepted","GBIF2026","CHECK_fuzzy",2,0.98,28248,28248
+"167","campyloneurum spheodes","campyloneurum spheodes","Campyloneurum sphenodes","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,28248,28248
+"168","canistropsis correiaaraujoi","canistropsis correiaaraujoi","Canistropsis correia-araujoi","Accepted","ZizkaA","CHECK_fuzzy",2,0.986666666666667,54197,54197
+"169","capanemia theresiae","capanemia theresiae","Capanemia theresae","Accepted","GBIF2026","CHECK_fuzzy",2,0.977777777777778,1766,1766
+"170","capanemia thereziae","capanemia thereziae","Capanemia theresae","Accepted","GBIF2026","CHECK_fuzzy",2,0.930555555555556,1766,1766
+"171","caraguata berteroana","caraguata berteroana","Caraguata berteroniana","Synonym","GBIF2026","CHECK_fuzzy",2,0.946666666666667,48338,48337
+"172","catasetum fimbriatun","catasetum fimbriatun","Catasetum fimbriatum","Accepted","literature2021","CHECK_fuzzy",2,0.96,28422,28422
+"173","catasetum intergerrimum","catasetum intergerrimum","Catasetum integerrimum","Accepted","literature2021","CHECK_fuzzy",2,0.959615384615385,28472,28472
+"174","catasetum roseoalbum","catasetum roseoalbum","Catasetum roseo-album","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,86630,86630
+"175","catasetum stevensoni","catasetum stevensoni","Catasetum stevensonii","Accepted","INABIOEC","CHECK_fuzzy",2,0.981818181818182,28642,28642
+"176","catasetum xroseo-album","catasetum xroseo-album","Catasetum roseo-album","Accepted","AssisI","CHECK_fuzzy",2,0.972222222222222,86630,86630
+"177","catopsis mooreniana","catopsis mooreniana","Catopsis morreniana","Accepted","literature2021","CHECK_fuzzy",2,0.946666666666666,28689,28689
+"178","catopsis wawranea","catopsis wawranea","Catopsis wawreana","Accepted","GBIF2026; HEM2025; JimenezDA; ZizkaA","CHECK_fuzzy",2,0.9625,28738,28738
+"179","cattleya luteolaa","cattleya luteolaa","Cattleya luteola","Accepted","literature2021","CHECK_fuzzy",2,0.975,29226,29226
+"180","cattleya warszewiczii","cattleya warszewiczii","Cattleya warscewiczii","Accepted","GBIF2026","CHECK_fuzzy",2,0.948484848484848,29642,29642
+"181","ceratostema lanigera","ceratostema lanigera","Ceratostema lanigerum","Accepted","INABIOEC","CHECK_fuzzy",2,0.930555555555556,30168,30168
+"182","ceratostema macbrydiorum","ceratostema macbrydiorum","Ceratostema macbrydeorum","Accepted","GBIF2026","CHECK_fuzzy",2,0.966666666666667,30170,30170
+"183","ceratostema nubigenum","ceratostema nubigenum","Ceratostema nubigena","Accepted","INABIOEC","CHECK_fuzzy",2,0.930555555555556,30174,30174
+"184","chelyorchis ampliatum","chelyorchis ampliatum","Chelyorchis ampliata","Synonym","GUYN2008","CHECK_fuzzy",2,0.930555555555556,70977,70976
+"185","chrysocycnis ecuadorense","chrysocycnis ecuadorense","Chrysocycnis ecuadorensis","Synonym","HUA2025; SEL2021","CHECK_fuzzy",2,0.948484848484848,12532,12531
+"186","chrysocycnis lehmannii","chrysocycnis lehmannii","Chrysocycnis lehmanii","Synonym","literature2021","CHECK_fuzzy",2,0.977777777777778,12378,12377
+"187","clidemia garciabarrigae","clidemia garciabarrigae","Clidemia garcia-barrigae","Synonym","INABIOEC","CHECK_fuzzy",2,0.986666666666667,24693,24692
+"188","clowesia warczewiczii","clowesia warczewiczii","Clowesia warczewitzii","Accepted","GBIF2026","CHECK_fuzzy",2,0.966666666666667,1941,1941
+"189","clusia nigroleneata","clusia nigroleneata","Clusia nigrolineata","Accepted","KUELAP2024","CHECK_fuzzy",2,0.948484848484848,1945,1945
+"190","clusia valerioi","clusia valerioi","Clusia valerii","Accepted","literature2021","CHECK_fuzzy",2,0.975,32022,32022
+"191","clusia venulosa","clusia venulosa","Clusia venosa","Synonym","HUA2025","CHECK_fuzzy",2,0.941666666666667,31931,31923
+"192","cochlidium serrulatim","cochlidium serrulatim","Cochlidium serrulatum","Synonym","literature2021","CHECK_fuzzy",2,0.96,1970,1967
+"193","codonanthe caliarata","codonanthe caliarata","Codonanthe calcarata","Synonym","HFCF2019","CHECK_fuzzy",2,0.948148148148148,25001,24999
+"194","coelogyne rochussenii","coelogyne rochussenii","Coelogyne rochusseni","Accepted","SEL2021","CHECK_fuzzy",2,0.981818181818182,32403,32403
+"195","columnea floribunda","columnea floribunda","Columnea florida","Accepted","GBIF2026","CHECK_fuzzy",2,0.94,32753,32753
+"196","columnea kahlbreyeriana","columnea kahlbreyeriana","Columnea kalbreyeriana","Accepted","CR2024","CHECK_fuzzy",2,0.980952380952381,32809,32809
+"197","columnea katzensteinii","columnea katzensteinii","Columnea katzensteiniae","Accepted","GBIF2026","CHECK_fuzzy",2,0.956043956043956,25589,25589
+"198","columnea warscewicziana","columnea warscewicziana","Columnea warszewicziana","Synonym","GBIF2026","CHECK_fuzzy",2,0.956043956043956,32620,32616
+"199","coppensia longicorna","coppensia longicorna","Coppensia longicornu","Synonym","GBIF2026","CHECK_fuzzy",2,0.96,42337,42335
+"200","cosmibuena valerii","cosmibuena valerii","Cosmibuena valerioi","Accepted","CR2024; GBIF2026; literature2021","CHECK_fuzzy",2,0.975,2114,2114
+"201","coussapoa longipedunculata","coussapoa longipedunculata","Coussapoa longepedunculata","Accepted","ATRIUM2017; CUZ2025; GBIF2026","CHECK_fuzzy",2,0.961666666666667,26277,26277
+"202","coussapoa purpussi","coussapoa purpussi","Coussapoa purpusii","Accepted","literature2021","CHECK_fuzzy",2,0.95,2128,2128
+"203","crepidomanes schmidtianum","crepidomanes schmidtianum","Crepidomanes schmidianum","Accepted","GBIF2026","CHECK_fuzzy",2,0.983333333333333,89005,89005
+"204","cryptocentrum escobari","cryptocentrum escobari","Cryptocentrum escobarii","Synonym","SEL2021","CHECK_fuzzy",2,0.977777777777778,12421,12420
+"205","cryptocentrum lehmanni","cryptocentrum lehmanni","Cryptocentrum lehmannii","Synonym","literature2021","CHECK_fuzzy",2,0.977777777777778,12464,12460
+"206","cryptochilus sanguineus","cryptochilus sanguineus","Cryptochilus sanguinea","Accepted","SEL2021","CHECK_fuzzy",2,0.937777777777778,33622,33622
+"207","cryptophoranthus cunabulus","cryptophoranthus cunabulus","Cryptophoranthus cunabulum","Synonym","SEL2021","CHECK_fuzzy",2,0.955555555555556,60162,60161
+"208","cyclopogon prasophyllum","cyclopogon prasophyllum","Cyclopogon prasophyllus","Accepted","CR2024; JimenezDA; OAX2025; SEL2021","CHECK_fuzzy",2,0.966666666666667,33710,33710
+"209","cycnoches chlorochilum","cycnoches chlorochilum","Cycnoches chlorochilon","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,33723,33723
+"210","cycnoches thurstonorum","cycnoches thurstonorum","Cycnoches thurstoniorum","Accepted","INABIOEC","CHECK_fuzzy",2,0.984615384615385,33757,33757
+"211","cyrtochiloides panduriforme","cyrtochiloides panduriforme","Cyrtochiloides panduriformis","Accepted","SEL2021","CHECK_fuzzy",2,0.952564102564102,34022,34022
+"212","cyrtochilum dicoratum","cyrtochilum dicoratum","Cyrtochilum diceratum","Accepted","SEL2021","CHECK_fuzzy",2,0.948148148148148,34144,34144
+"213","cyrtochilum exaspertum","cyrtochilum exaspertum","Cyrtochilum exasperatum","Accepted","SEL2021","CHECK_fuzzy",2,0.981818181818182,34175,34175
+"214","cyrtochilum macranthun","cyrtochilum macranthun","Cyrtochilum macranthum","Accepted","KUELAP2024","CHECK_fuzzy",2,0.96,34305,34305
+"215","cyrtochilum microxiphion","cyrtochilum microxiphion","Cyrtochilum microxiphium","Accepted","SEL2021","CHECK_fuzzy",2,0.933333333333333,34357,34357
+"216","cyrtochilum pusilum","cyrtochilum pusilum","Cyrtochilum pusillum","Accepted","ATRIUM2017; CUZ2025","CHECK_fuzzy",2,0.975,34410,34410
+"217","cyrtochilum racemosissimum","cyrtochilum racemosissimum","Cyrtochilum ramosissimum","Accepted","INABIOEC","CHECK_fuzzy",2,0.961904761904762,34414,34414
+"218","cyrtochilum tricornis","cyrtochilum tricornis","Cyrtochilum tricorne","Accepted","SEL2021","CHECK_fuzzy",2,0.930555555555556,82380,82380
+"219","cyrtopodium saitlegerianum","cyrtopodium saitlegerianum","Cyrtopodium saintlegerianum","Accepted","literature2021","CHECK_fuzzy",2,0.984444444444444,85837,85837
+"220","cyrtorchis monteiroae","cyrtorchis monteiroae","Cyrtorchis monteirae","Accepted","SEL2021","CHECK_fuzzy",2,0.98,34676,34676
+"221","danaea moritiziana","danaea moritiziana","Danaea moritziana","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.961818181818182,81138,81138
+"222","dendrobium calcarium","dendrobium calcarium","Dendrobium calcariferum","Accepted","SEL2021","CHECK_fuzzy",2,0.95,2469,2469
+"223","dendrobium delicatum","dendrobium delicatum","Dendrobium delicatulum subsp. parvulum","Synonym","SEL2021","CHECK_fuzzy",2,0.963636363636364,2804,2803
+"224","dendrobium frigidum","dendrobium frigidum","Dendrobium rigidum","Accepted","SEL2021","CHECK_fuzzy",2,0.958333333333333,37810,37810
+"225","dendrobium fusco-pilosum","dendrobium fusco-pilosum","Dendrobium fuscopilosum","Synonym","SEL2021","CHECK_fuzzy",2,0.984615384615385,2623,2620
+"226","dendrobium kelsalli","dendrobium kelsalli","Dendrobium kelsallii","Synonym","SEL2021","CHECK_fuzzy",2,0.977777777777778,87139,87136
+"227","dendrobium luteochilum","dendrobium luteochilum","Dendrobium luteolum","Accepted","SEL2021","CHECK_fuzzy",2,0.945454545454546,36923,36923
+"228","dendrobium luteocilium","dendrobium luteocilium","Dendrobium luteolum","Accepted","SEL2021","CHECK_fuzzy",2,0.945454545454546,36923,36923
+"229","dendrobium uncinatum","dendrobium uncinatum","Dendrobium uncatum","Accepted","SEL2021","CHECK_fuzzy",2,0.948148148148148,38499,38499
+"230","dendropanax arboreum","dendropanax arboreum","Dendropanax arboreus","Accepted","INABIOEC","CHECK_fuzzy",2,0.95,80886,80886
+"231","dichaea acroblephara","dichaea acroblephara","Dichaea acroblepara","Accepted","CR2024; GBIF2026","CHECK_fuzzy",2,0.983333333333333,38933,38933
+"232","dichaea anchoraelabia","dichaea anchoraelabia","Dichaea ancoraelabia","Accepted","GBIF2026","CHECK_fuzzy",2,0.982051282051282,38940,38940
+"233","dichaea brachypodaa","dichaea brachypodaa","Dichaea brachypoda","Synonym","literature2021","CHECK_fuzzy",2,0.981818181818182,3064,3063
+"234","dichaea gluaca","dichaea gluaca","Dichaea glauca","Accepted","SEL2021","CHECK_fuzzy",2,0.955555555555556,38984,38984
+"235","dichaea graminodes","dichaea graminodes","Dichaea graminoides","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,38996,38996
+"236","dichaea morisii","dichaea morisii","Dichaea morrisii","Accepted","GerberJP","CHECK_fuzzy",2,0.970833333333333,3051,3051
+"237","dichaea morrisiia","dichaea morrisiia","Dichaea morrisii","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,3051,3051
+"238","didymoglossum kraussii","didymoglossum kraussii","Didymoglossum krausii","Synonym","GBIF2026; JimenezDA; literature2021","CHECK_fuzzy",2,0.975,3125,3123
+"239","didymoglossum pinnatinervium","didymoglossum pinnatinervium","Didymoglossum pinnatinervum","Accepted","GBIF2026; literature2021","CHECK_fuzzy",2,0.985714285714286,89007,89007
+"240","dimerandra isthmi","dimerandra isthmi","Dimerandra isthmii","Synonym","GBIF2026","CHECK_fuzzy",2,0.971428571428571,39252,39251
+"241","disterigma alternoides","disterigma alternoides","Disterigma alaternoides","Accepted","HFCF2019","CHECK_fuzzy",2,0.977777777777778,39638,39638
+"242","disterigma popenoei","disterigma popenoei","Disterigma popenoi","Synonym","GBIF2026","CHECK_fuzzy",2,0.975,39640,39638
+"243","dracula benedicti","dracula benedicti","Dracula benedictii","Accepted","GBIF2026","CHECK_fuzzy",2,0.98,39756,39756
+"244","dracula navarroorum","dracula navarroorum","Dracula navarrorum","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,3228,3228
+"245","drymonia microphylla","drymonia microphylla","Drymonia macrophylla","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.945454545454546,40773,40773
+"246","drymonia parviflora","drymonia parviflora","Drymonia parvifolia","Synonym","ATRIUM2017; CR2024; literature2021","CHECK_fuzzy",2,0.937777777777778,82669,82648
+"247","drymonia pendulata","drymonia pendulata","Drymonia pendula","Accepted","HFCF2019","CHECK_fuzzy",2,0.955555555555556,85850,85850
+"248","drymonia punctulata","drymonia punctulata","Drymonia punctata","Synonym","ATRIUM2017; INABIOEC","CHECK_fuzzy",2,0.96,39771,39768
+"249","dryopteris muenchii","dryopteris muenchii","Dryopteris munchii","Accepted","HUAP2024","CHECK_fuzzy",2,0.966666666666667,80918,80918
+"250","dyssochroma atlantica","dyssochroma atlantica","Dyssochroma atlanticum","Accepted","GBIF2026","CHECK_fuzzy",2,0.937777777777778,50431,50431
+"251","elaphoglossum actinotricum","elaphoglossum actinotricum","Elaphoglossum actinotrichum","Accepted","GBIF2026","CHECK_fuzzy",2,0.984615384615385,40941,40941
+"252","elaphoglossum alansmithii","elaphoglossum alansmithii","Elaphoglossum alan-smithii","Accepted","JimenezDA","CHECK_fuzzy",2,0.983333333333333,82682,82682
+"253","elaphoglossum ayopayaense","elaphoglossum ayopayaense","Elaphoglossum ayopayense","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,3259,3259
+"254","elaphoglossum backhousianum","elaphoglossum backhousianum","Elaphoglossum backhouseanum","Accepted","CR2024; literature2021","CHECK_fuzzy",2,0.969230769230769,41016,41016
+"255","elaphoglossum caridadaei","elaphoglossum caridadaei","Elaphoglossum caridadae","Accepted","CR2024","CHECK_fuzzy",2,0.98,82693,82693
+"256","elaphoglossum decorum","elaphoglossum decorum","Elaphoglossum decoratum","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,41161,41161
+"257","elaphoglossum erinoceum","elaphoglossum erinoceum","Elaphoglossum erinaceum","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,41195,41195
+"258","elaphoglossum eximiforme","elaphoglossum eximiforme","Elaphoglossum eximiiforme","Accepted","CR2024; literature2021","CHECK_fuzzy",2,0.981818181818182,41208,41208
+"259","elaphoglossum gayasnum","elaphoglossum gayasnum","Elaphoglossum gayanum","Accepted","INABIOEC","CHECK_fuzzy",2,0.975,41266,41266
+"260","elaphoglossum inaequifolium","elaphoglossum inaequifolium","Elaphoglossum inaequalifolium","Accepted","LPB2024","CHECK_fuzzy",2,0.942564102564103,41351,41351
+"261","elaphoglossum ipsookense","elaphoglossum ipsookense","Elaphoglossum ipshookense","Accepted","HEM2025","CHECK_fuzzy",2,0.978787878787879,82713,82713
+"262","elaphoglossum mathewssi","elaphoglossum mathewssi","Elaphoglossum mathewsii","Accepted","HCCL2025","CHECK_fuzzy",2,0.955555555555556,82716,82716
+"263","elaphoglossum moritzanium","elaphoglossum moritzanium","Elaphoglossum moritzianum","Accepted","INABIOEC","CHECK_fuzzy",2,0.972727272727273,41506,41506
+"264","elaphoglossum orbygnianum","elaphoglossum orbygnianum","Elaphoglossum orbignyanum","Accepted","literature2021","CHECK_fuzzy",2,0.978787878787879,14853,14853
+"265","elaphoglossum ruficomus","elaphoglossum ruficomus","Elaphoglossum ruficomum","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.955555555555556,41637,41637
+"266","elaphoglossum sphoradolepis","elaphoglossum sphoradolepis","Elaphoglossum sporadolepis","Accepted","CR2024","CHECK_fuzzy",2,0.97948717948718,41684,41684
+"267","elaphoglossum squamicostatum","elaphoglossum squamicostatum","Elaphoglossum squamocostatum","Accepted","GBIF2026","CHECK_fuzzy",2,0.956043956043956,41698,41698
+"268","elaphoglossum trorrubens","elaphoglossum trorrubens","Elaphoglossum atrorubens","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,3288,3285
+"269","elaphoglossum urbani","elaphoglossum urbani","Elaphoglossum urbanii","Accepted","GBIF2026","CHECK_fuzzy",2,0.971428571428571,41764,41764
+"270","elleanthus albertii","elleanthus albertii","Elleanthus alberti","Synonym","SEL2021","CHECK_fuzzy",2,0.975,41999,41998
+"271","elleanthus capitalus","elleanthus capitalus","Elleanthus capitatus","Accepted","INABIOEC","CHECK_fuzzy",2,0.955555555555556,41923,41923
+"272","elleanthus conifera","elleanthus conifera","Elleanthus conifer","Accepted","literature2021","CHECK_fuzzy",2,0.975,41953,41953
+"273","elleanthus cynarocephallus","elleanthus cynarocephallus","Elleanthus cynarocephalus","Synonym","literature2021","CHECK_fuzzy",2,0.986666666666667,41927,41923
+"274","elleanthus wagenerii","elleanthus wagenerii","Elleanthus wageneri","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,42095,42095
+"275","elleanthus werklei","elleanthus werklei","Elleanthus wercklei","Accepted","SEL2021","CHECK_fuzzy",2,0.970833333333333,42099,42099
+"276","encyclia adenocarpos","encyclia adenocarpos","Encyclia adenocarpon","Synonym","GBIF2026; SEL2021","CHECK_fuzzy",2,0.963636363636364,42121,42120
+"277","encyclia grisebachiana","encyclia grisebachiana","Encyclia grisebachianum","Synonym","GBIF2026","CHECK_fuzzy",2,0.956043956043956,64271,64270
+"278","encyclia linearifoloides","encyclia linearifoloides","Encyclia linearifolioides","Accepted","literature2021","CHECK_fuzzy",2,0.974166666666667,85861,85861
+"279","encyclia macrochila","encyclia macrochila","Encyclia macrochyla","Synonym","CR2024","CHECK_fuzzy",2,0.96,42250,42242
+"280","encyclia trachychila","encyclia trachychila","Encyclia brachychila","Synonym","GBIF2026; SEL2021","CHECK_fuzzy",2,0.939393939393939,68642,68640
+"281","encyclia vespaa","encyclia vespaa","Encyclia vespa subsp. triandra","Synonym","literature2021","CHECK_fuzzy",2,0.966666666666667,68710,68703
+"282","encyclia vittelina","encyclia vittelina","Encyclia vitellina","Synonym","literature2021","CHECK_fuzzy",2,0.948148148148148,69112,69111
+"283","encyclia xipheres","encyclia xipheres","Encyclia xipheroides","Accepted","GBIF2026","CHECK_fuzzy",2,0.945454545454546,89119,89119
+"284","epidendrum actinoglossum","epidendrum actinoglossum","Epidendrum anoglossum","Accepted","SEL2021","CHECK_fuzzy",2,0.930769230769231,42723,42723
+"285","epidendrum acutiflorum","epidendrum acutiflorum","Epidendrum arcuiflorum","Synonym","SEL2021","CHECK_fuzzy",2,0.945454545454546,44157,44156
+"286","epidendrum alberti","epidendrum alberti","Epidendrum albertii","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.975,42639,42639
+"287","epidendrum albiflorum","epidendrum albiflorum","Epidendrum albiforum","Accepted","GBIF2026","CHECK_fuzzy",2,0.98,14861,14861
+"288","epidendrum alopecurium","epidendrum alopecurium","Epidendrum alopecurum","Accepted","SEL2021","CHECK_fuzzy",2,0.981818181818182,14862,14862
+"289","epidendrum alpicolum","epidendrum alpicolum","Epidendrum alpicola","Accepted","literature2021; LPB2024; SEL2021","CHECK_fuzzy",2,0.930555555555556,11590,11590
+"290","epidendrum anthoceros","epidendrum anthoceros","Epidendrum anthoceroides","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.953846153846154,42724,42724
+"291","epidendrum azulensis","epidendrum azulensis","Epidendrum azulense","Accepted","GBIF2026","CHECK_fuzzy",2,0.930555555555556,42773,42773
+"292","epidendrum bachybotrys","epidendrum bachybotrys","Epidendrum brachybotrys","Accepted","SEL2021","CHECK_fuzzy",2,0.975,42842,42842
+"293","epidendrum boothiana","epidendrum boothiana","Epidendrum boothianum","Synonym","literature2021","CHECK_fuzzy",2,0.937777777777778,68630,68620
+"294","epidendrum brachystelestachyum","epidendrum brachystelestachyum","Epidendrum brachystachyum","Synonym","GBIF2026; INABIOEC; SEL2021","CHECK_fuzzy",2,0.947368421052632,22774,22767
+"295","epidendrum capricornum","epidendrum capricornum","Epidendrum capricornu","Accepted","KUELAP2024","CHECK_fuzzy",2,0.981818181818182,42905,42905
+"296","epidendrum cardenasi","epidendrum cardenasi","Epidendrum cardenasii","Accepted","KUELAP2024","CHECK_fuzzy",2,0.98,42909,42909
+"297","epidendrum cardiomorphum","epidendrum cardiomorphum","Epidendrum cardiophorum","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.934615384615385,86670,86670
+"298","epidendrum chinchaoense","epidendrum chinchaoense","Epidendrum chinense var. naevosum","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,22707,22705
+"299","epidendrum chingazaense","epidendrum chingazaense","Epidendrum chinense var. naevosum","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,22707,22705
+"300","epidendrum citrinanthum","epidendrum citrinanthum","Epidendrum citrinum","Synonym","INABIOEC","CHECK_fuzzy",2,0.933333333333333,8585,8580
+"301","epidendrum colanense","epidendrum colanense","Epidendrum colonense","Synonym","GBIF2026; SEL2021","CHECK_fuzzy",2,0.948148148148148,3609,3606
+"302","epidendrum columbianum","epidendrum columbianum","Epidendrum colombianum","Accepted","KUELAP2024","CHECK_fuzzy",2,0.957575757575758,42995,42995
+"303","epidendrum coronantherum","epidendrum coronantherum","Epidendrum coronatum","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.938461538461538,43026,43026
+"304","epidendrum coronatuma","epidendrum coronatuma","Epidendrum coronatum","Accepted","literature2021","CHECK_fuzzy",2,0.98,43026,43026
+"305","epidendrum crescentilobium","epidendrum crescentilobium","Epidendrum crescentilobum","Accepted","GBIF2026","CHECK_fuzzy",2,0.986666666666667,11592,11592
+"306","epidendrum dendrobii","epidendrum dendrobii","Epidendrum dendrobioides","Accepted","CUZ2025; GBIF2026; HUA2025; ICESI2024","CHECK_fuzzy",2,0.938461538461538,36147,36147
+"307","epidendrum dukei","epidendrum dukei","Epidendrum duckei","Synonym","GBIF2026","CHECK_fuzzy",2,0.955555555555556,43428,43427
+"308","epidendrum ellemaniae","epidendrum ellemaniae","Epidendrum ellemanniae","Accepted","SEL2021","CHECK_fuzzy",2,0.981818181818182,43186,43186
+"309","epidendrum epens","epidendrum epens","Epidendrum repens","Accepted","INABIOEC","CHECK_fuzzy",2,0.944444444444444,44261,44261
+"310","epidendrum exisum","epidendrum exisum","Epidendrum excisum","Accepted","SEL2021","CHECK_fuzzy",2,0.961904761904762,82806,82806
+"311","epidendrum fasbergii","epidendrum fasbergii","Epidendrum fosbergii","Accepted","SEL2021","CHECK_fuzzy",2,0.933333333333333,43315,43315
+"312","epidendrum flabellilobatum","epidendrum flabellilobatum","Epidendrum flabellatum","Synonym","GBIF2026; RoseroJ","CHECK_fuzzy",2,0.946666666666667,42292,42291
+"313","epidendrum flexousissimum","epidendrum flexousissimum","Epidendrum flexuosissimum","Accepted","SEL2021","CHECK_fuzzy",2,0.985714285714286,43309,43309
+"314","epidendrum flexuossisimum","epidendrum flexuossisimum","Epidendrum flexuosissimum","Accepted","SEL2021","CHECK_fuzzy",2,0.985714285714286,43309,43309
+"315","epidendrum fruticulus","epidendrum fruticulus","Epidendrum fruticulum","Accepted","CUZ2025; KUELAP2024; SEL2021","CHECK_fuzzy",2,0.96,43328,43328
+"316","epidendrum funckii","epidendrum funckii","Epidendrum funkii","Synonym","ATRIUM2017; CUZ2025; GBIF2026; LPB2024","CHECK_fuzzy",2,0.966666666666667,42828,42822
+"317","epidendrum garayii","epidendrum garayii","Epidendrum garayi","Accepted","INABIOEC","CHECK_fuzzy",2,0.971428571428571,43344,43344
+"318","epidendrum gracilimum","epidendrum gracilimum","Epidendrum gracillimum","Accepted","literature2021","CHECK_fuzzy",2,0.981818181818182,43367,43367
+"319","epidendrum grayii","epidendrum grayii","Epidendrum grayi","Accepted","INABIOEC","CHECK_fuzzy",2,0.966666666666667,43371,43371
+"320","epidendrum haenkeanum","epidendrum haenkeanum","Epidendrum haenkianum","Accepted","ATRIUM2017; CUZ2025; GBIF2026; SEL2021","CHECK_fuzzy",2,0.96,43384,43384
+"321","epidendrum imatophyllum","epidendrum imatophyllum","Epidendrum imantophyllum","Synonym","GBIF2026; INABIOEC; literature2021; SEL2021","CHECK_fuzzy",2,0.982051282051282,3527,3525
+"322","epidendrum jaramilloi","epidendrum jaramilloi","Epidendrum jaramilloae","Accepted","GBIF2026; INABIOEC; SEL2021","CHECK_fuzzy",2,0.943636363636364,43484,43484
+"323","epidendrum klotzschianum","epidendrum klotzschianum","Epidendrum klotzscheanum","Accepted","HUA2025; SEL2021","CHECK_fuzzy",2,0.969230769230769,3544,3544
+"324","epidendrum lehmani","epidendrum lehmani","Epidendrum lehmannii","Accepted","KUELAP2024","CHECK_fuzzy",2,0.955555555555556,43544,43544
+"325","epidendrum leonoriae","epidendrum leonoriae","Epidendrum leonorae","Accepted","HUA2025","CHECK_fuzzy",2,0.977777777777778,43549,43549
+"326","epidendrum leucohilum","epidendrum leucohilum","Epidendrum leucochilum","Synonym","CAUP2023","CHECK_fuzzy",2,0.981818181818182,43515,43514
+"327","epidendrum linderi","epidendrum linderi","Epidendrum lindbergii","Accepted","GBIF2026; INABIOEC; SEL2021","CHECK_fuzzy",2,0.94,43567,43567
+"328","epidendrum linearidifforme","epidendrum linearidifforme","Epidendrum linearidiforme","Accepted","SEL2021","CHECK_fuzzy",2,0.986666666666667,43568,43568
+"329","epidendrum luerorum","epidendrum luerorum","Epidendrum caluerorum","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,42889,42889
+"330","epidendrum macrophysum","epidendrum macrophysum","Epidendrum macrocyphum","Accepted","GBIF2026","CHECK_fuzzy",2,0.933636363636364,3548,3548
+"331","epidendrum macropodium","epidendrum macropodium","Epidendrum macropodum","Accepted","INABIOEC","CHECK_fuzzy",2,0.981818181818182,43627,43627
+"332","epidendrum magelhaesii","epidendrum magelhaesii","Epidendrum magalhaesii","Accepted","GBIF2026","CHECK_fuzzy",2,0.934242424242424,3550,3550
+"333","epidendrum marciae","epidendrum marciae","Epidendrum mariae","Synonym","INABIOEC","CHECK_fuzzy",2,0.966666666666667,8594,8592
+"334","epidendrum martianum","epidendrum martianum","Epidendrum marginatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.937777777777778,67745,67744
+"335","epidendrum matudaei","epidendrum matudaei","Epidendrum matudae","Accepted","SEL2021","CHECK_fuzzy",2,0.975,43699,43699
+"336","epidendrum melinanthuma","epidendrum melinanthuma","Epidendrum melinanthum","Accepted","literature2021","CHECK_fuzzy",2,0.983333333333333,43724,43724
+"337","epidendrum mesograstropodium","epidendrum mesograstropodium","Epidendrum mesogastropodium","Accepted","CAUP2023","CHECK_fuzzy",2,0.963235294117647,43728,43728
+"338","epidendrum micro-cattleya","epidendrum micro-cattleya","Epidendrum microcattleya","Accepted","KUELAP2024; SEL2021","CHECK_fuzzy",2,0.985714285714286,43732,43732
+"339","epidendrum microanoglossum","epidendrum microanoglossum","Epidendrum microglossum","Accepted","CR2024; GBIF2026","CHECK_fuzzy",2,0.935,43740,43740
+"340","epidendrum microtigriphyllum","epidendrum microtigriphyllum","Epidendrum microphyllum","Accepted","SEL2021","CHECK_fuzzy",2,0.941176470588235,43742,43742
+"341","epidendrum misserrimum","epidendrum misserrimum","Epidendrum miserrimum","Accepted","GUYN2008","CHECK_fuzzy",2,0.978787878787879,43860,43860
+"342","epidendrum montiargentatum","epidendrum montiargentatum","Epidendrum montigenum","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,85933,85933
+"343","epidendrum montigena","epidendrum montigena","Epidendrum montigenum","Accepted","GBIF2026","CHECK_fuzzy",2,0.937777777777778,85933,85933
+"344","epidendrum motozintlensis","epidendrum motozintlensis","Epidendrum motozintlense","Accepted","GBIF2026","CHECK_fuzzy",2,0.956043956043956,43891,43891
+"345","epidendrum neogaliciense","epidendrum neogaliciense","Epidendrum neogaliciensis","Accepted","GBIF2026","CHECK_fuzzy",2,0.956043956043956,43920,43920
+"346","epidendrum nubigena","epidendrum nubigena","Epidendrum nubigenum","Synonym","GBIF2026","CHECK_fuzzy",2,0.930555555555556,3524,3523
+"347","epidendrum numbatense","epidendrum numbatense","Epidendrum numbalense","Accepted","SEL2021","CHECK_fuzzy",2,0.96,91330,91330
+"348","epidendrum oblongialpicolum","epidendrum oblongialpicolum","Epidendrum oblongialpicola","Accepted","INABIOEC; SEL2021","CHECK_fuzzy",2,0.961666666666667,43967,43967
+"349","epidendrum odontostachyum","epidendrum odontostachyum","Epidendrum odontospathum","Accepted","GBIF2026; INABIOEC; SEL2021","CHECK_fuzzy",2,0.939377289377289,43978,43978
+"350","epidendrum parathicum","epidendrum parathicum","Epidendrum paranthicum","Accepted","HEM2025","CHECK_fuzzy",2,0.981818181818182,3575,3575
+"351","epidendrum physophus","epidendrum physophus","Epidendrum physopus","Accepted","SEL2021","CHECK_fuzzy",2,0.977777777777778,3578,3578
+"352","epidendrum podocarpophyllum","epidendrum podocarpophyllum","Epidendrum podocarpophilum","Accepted","INABIOEC","CHECK_fuzzy",2,0.961666666666667,44125,44125
+"353","epidendrum polyanthemum","epidendrum polyanthemum","Epidendrum polyanthum var. densiflorum","Synonym","SEL2021","CHECK_fuzzy",2,0.946666666666667,43109,43107
+"354","epidendrum praeteritum","epidendrum praeteritum","Epidendrum praetervisum","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.948484848484848,44159,44159
+"355","epidendrum pseudobarbeyanum","epidendrum pseudobarbeyanum","Epidendrum pseudobarbeyanurn","Accepted","GBIF2026","CHECK_fuzzy",2,0.963970588235294,44195,44195
+"356","epidendrum racemosum","epidendrum racemosum","Epidendrum ramosum var. lanceolatum","Synonym","GBIF2026; HEM2025","CHECK_fuzzy",2,0.940740740740741,42727,42726
+"357","epidendrum rhodochilum","epidendrum rhodochilum","Epidendrum rhombochilum","Accepted","GBIF2026; HUA2025; JimenezA","CHECK_fuzzy",2,0.93989898989899,44281,44281
+"358","epidendrum rigiduma","epidendrum rigiduma","Epidendrum rigidum var. angustisegmentum","Synonym","literature2021","CHECK_fuzzy",2,0.975,42711,42710
+"359","epidendrum saxicolum","epidendrum saxicolum","Epidendrum saxicola","Accepted","LPB2024","CHECK_fuzzy",2,0.930555555555556,44348,44348
+"360","epidendrum sophronites","epidendrum sophronites","Epidendrum sophronitis","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.963636363636364,44430,44430
+"361","epidendrum stanfordianum","epidendrum stanfordianum","Epidendrum stamfordianum var. leeanum","Synonym","SEL2021","CHECK_fuzzy",2,0.964102564102564,43543,43542
+"362","epidendrum stangeatum","epidendrum stangeatum","Epidendrum stangeanum","Accepted","literature2021","CHECK_fuzzy",2,0.96,44459,44459
+"363","epidendrum stenoselaginellum","epidendrum stenoselaginellum","Epidendrum stenoselaginella","Accepted","SEL2021","CHECK_fuzzy",2,0.963970588235294,44469,44469
+"364","epidendrum subbliberum","epidendrum subbliberum","Epidendrum subliberum","Accepted","KUELAP2024","CHECK_fuzzy",2,0.943787878787879,66590,66590
+"365","epidendrum tamaense","epidendrum tamaense","Epidendrum tampense var. amesianum","Synonym","GBIF2026; SEL2021","CHECK_fuzzy",2,0.941666666666667,42181,42179
+"366","epidendrum teretifolium","epidendrum teretifolium","Epidendrum testifolium","Synonym","GBIF2026","CHECK_fuzzy",2,0.931313131313131,62940,62935
+"367","epidendrum theodori","epidendrum theodori","Epidendrum theodorii","Accepted","GBIF2026","CHECK_fuzzy",2,0.977777777777778,44560,44560
+"368","epidendrum trullatum","epidendrum trullatum","Epidendrum trulla","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,69089,69085
+"369","epidendrum tungurahuae","epidendrum tungurahuae","Epidendrum tunguraguae","Synonym","GBIF2026","CHECK_fuzzy",2,0.963636363636364,44632,44630
+"370","epidendrum tuxtlenses","epidendrum tuxtlenses","Epidendrum tuxtlense","Accepted","OAX2025","CHECK_fuzzy",2,0.98,44646,44646
+"371","epidendrum uleinanoides","epidendrum uleinanoides","Epidendrum uleinanodes","Accepted","KUELAP2024","CHECK_fuzzy",2,0.983333333333333,44648,44648
+"372","epidendrum verrucosa","epidendrum verrucosa","Epidendrum verrucosum","Synonym","literature2021","CHECK_fuzzy",2,0.937777777777778,42127,42122
+"373","epidendrum viejii","epidendrum viejii","Epidendrum vieji","Synonym","SEL2021","CHECK_fuzzy",2,0.966666666666667,43327,43324
+"374","epidendrum viejoi","epidendrum viejoi","Epidendrum vieji","Synonym","SEL2021","CHECK_fuzzy",2,0.966666666666667,43327,43324
+"375","epidendrum viridiflavum","epidendrum viridiflavum","Epidendrum viridiflorum","Synonym","RoseroJ; SURCO2025","CHECK_fuzzy",2,0.933333333333333,3460,3457
+"376","epidendrum x-foulquieri","epidendrum x-foulquieri","Epidendrum foulquieri","Accepted","GBIF2026","CHECK_fuzzy",2,0.944444444444444,43316,43316
+"377","epiphyllum anguligerum","epiphyllum anguligerum","Epiphyllum anguliger","Synonym","GBIF2026","CHECK_fuzzy",2,0.963636363636364,39724,39722
+"378","erycina crita-galli","erycina crita-galli","Erycina crista-galli","Accepted","literature2021","CHECK_fuzzy",2,0.980555555555556,44896,44896
+"379","eupatorium articulatum","eupatorium articulatum","Eupatorium reticulatum","Synonym","INABIOEC","CHECK_fuzzy",2,0.939393939393939,10911,10910
+"380","eupatorium molinaei","eupatorium molinaei","Eupatorium molinae","Synonym","GBIF2026","CHECK_fuzzy",2,0.975,58201,58200
+"381","eurystyles ananassocomos","eurystyles ananassocomos","Eurystyles ananassocomus","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.969230769230769,3672,3672
+"382","eurystyles cotyledom","eurystyles cotyledom","Eurystyles cotyledon","Accepted","KUELAP2024","CHECK_fuzzy",2,0.955555555555556,44995,44995
+"383","fernandezia pasti","fernandezia pasti","Fernandezia pastii","Accepted","CR2024","CHECK_fuzzy",2,0.966666666666667,11676,11676
+"384","ficus cotopaxensis","ficus cotopaxensis","Ficus cotopaxiensis","Accepted","INABIOEC","CHECK_fuzzy",2,0.951282051282051,45526,45526
+"385","ficus cuatrecasana","ficus cuatrecasana","Ficus cuatrecasasiana","Accepted","ATRIUM2017; CUZ2025; ICESI2024; INABIOEC","CHECK_fuzzy",2,0.943333333333333,45569,45569
+"386","ficus cuatrecasasina","ficus cuatrecasasina","Ficus cuatrecasasiana","Accepted","INABIOEC","CHECK_fuzzy",2,0.972380952380952,45569,45569
+"387","ficus glabrata","ficus glabrata","Ficus glabra","Synonym","OAX2025","CHECK_fuzzy",2,0.95,45741,45737
+"388","ficus guianensis","ficus guianensis","Ficus guineensis","Synonym","ATRIUM2017; CUZ2025; HUA2025; INABIOEC; literature2021","CHECK_fuzzy",2,0.953333333333333,46651,46642
+"389","ficus killippii","ficus killippii","Ficus killipii","Synonym","literature2021","CHECK_fuzzy",2,0.977777777777778,45442,45440
+"390","ficus macrosyce","ficus macrosyce","Ficus microsyce","Accepted","HUA2025; INABIOEC","CHECK_fuzzy",2,0.933333333333333,46122,46122
+"391","ficus nymphaeaefolia","ficus nymphaeaefolia","Ficus nymphaeifolia","Accepted","literature2021","CHECK_fuzzy",2,0.939377289377289,46178,46178
+"392","ficus paranensis","ficus paranensis","Ficus paraensis","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.957777777777778,46276,46276
+"393","fuchsia macrophylla","fuchsia macrophylla","Fuchsia microphylla","Accepted","ATRIUM2017; CUZ2025","CHECK_fuzzy",2,0.945454545454546,46957,46957
+"394","gaultheria setulosa","gaultheria setulosa","Gaultheria setosa","Synonym","GBIF2026","CHECK_fuzzy",2,0.941666666666667,47166,47163
+"395","geranium chiloense","geranium chiloense","Geranium chilloense","Accepted","HCCL2025","CHECK_fuzzy",2,0.98,86264,86264
+"396","gomesa fisheri","gomesa fisheri","Gomesa fischeri","Accepted","SEL2021","CHECK_fuzzy",2,0.970833333333333,47597,47597
+"397","gomesa gomesoides","gomesa gomesoides","Gomesa gomezoides","Accepted","GBIF2026","CHECK_fuzzy",2,0.96,47619,47619
+"398","gongora batemanii","gongora batemanii","Gongora batemanni","Accepted","GBIF2026","CHECK_fuzzy",2,0.955555555555556,42527,42527
+"399","gongora ceras","gongora ceras","Gongora aceras","Accepted","INABIOEC","CHECK_fuzzy",2,0.944444444444444,4202,4202
+"400","gongora galeana","gongora galeana","Gongora galeata","Accepted","OAX2025","CHECK_fuzzy",2,0.942857142857143,47931,47931
+"401","goniophlebium menisciifolium","goniophlebium menisciifolium","Goniophlebium meniscifolium var. adnatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.954945054945055,9410,9408
+"402","grammitis leptopodon","grammitis leptopodon","Grammitis leptopoda","Accepted","GBIF2026","CHECK_fuzzy",2,0.937777777777778,48140,48140
+"403","grammitis melanotricha","grammitis melanotricha","Grammitis melanotrichia","Accepted","GBIF2026","CHECK_fuzzy",2,0.984615384615385,5058,5058
+"404","grammitis subsesilis","grammitis subsesilis","Grammitis subsessilis","Accepted","GUYN2008","CHECK_fuzzy",2,0.941818181818182,5067,5067
+"405","gregbrownia lymansmithii","gregbrownia lymansmithii","Gregbrownia lyman-smithii","Accepted","ZizkaA","CHECK_fuzzy",2,0.984615384615385,52194,52194
+"406","gregbrownia lymansnithii","gregbrownia lymansnithii","Gregbrownia lyman-smithii","Accepted","INABIOEC","CHECK_fuzzy",2,0.952564102564102,52194,52194
+"407","guarea grandifolia","guarea grandifolia","Guarea grandifoliola","Synonym","CUZ2025; HUAP2024; INABIOEC","CHECK_fuzzy",2,0.969230769230769,86487,86483
+"408","guzmania alborosae","guzmania alborosae","Guzmania alborosea","Accepted","INABIOEC","CHECK_fuzzy",2,0.977777777777778,48315,48315
+"409","guzmania brasiliense","guzmania brasiliense","Guzmania brasiliensis","Accepted","literature2021","CHECK_fuzzy",2,0.948484848484848,48348,48348
+"410","guzmania eduardii","guzmania eduardii","Guzmania eduardi","Accepted","INABIOEC; literature2021; ZizkaA","CHECK_fuzzy",2,0.975,11851,11851
+"411","guzmania gracilior","guzmania gracilior","Guzmania gracilis","Accepted","GBIF2026; HUA2025; ICESI2024; INABIOEC; SEL2021; ZizkaA","CHECK_fuzzy",2,0.930555555555556,48432,48432
+"412","guzmania killipiani","guzmania killipiani","Guzmania killipiana","Accepted","literature2021","CHECK_fuzzy",2,0.96,48452,48452
+"413","guzmania leonardkentiana","guzmania leonardkentiana","Guzmania leonard-kentiana","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,48462,48462
+"414","guzmania melinonii","guzmania melinonii","Guzmania melinonis","Accepted","GBIF2026","CHECK_fuzzy",2,0.955555555555556,48487,48487
+"415","guzmania monostachya","guzmania monostachya","Guzmania monostachia","Accepted","GBIF2026; literature2021","CHECK_fuzzy",2,0.963636363636364,48492,48492
+"416","guzmania pattersonae","guzmania pattersonae","Guzmania pattersoniae","Accepted","INABIOEC","CHECK_fuzzy",2,0.983333333333333,48552,48552
+"417","guzmania poortmani","guzmania poortmani","Guzmania poortmanii","Accepted","INABIOEC","CHECK_fuzzy",2,0.98,48564,48564
+"418","guzmania roetzlii","guzmania roetzlii","Guzmania roezlii","Accepted","literature2021","CHECK_fuzzy",2,0.970833333333333,14867,14867
+"419","guzmania vanvolxemii","guzmania vanvolxemii","Guzmania van-volxemii","Accepted","GBIF2026; INABIOEC; literature2021; ZizkaA","CHECK_fuzzy",2,0.980555555555556,48654,48654
+"420","hatiora salicornoides","hatiora salicornoides","Hatiora salicornioides","Accepted","GBIF2026","CHECK_fuzzy",2,0.97032967032967,4387,4387
+"421","heteranthocidium surinamensis","heteranthocidium surinamensis","Heteranthocidium surinamense","Synonym","SEL2021","CHECK_fuzzy",2,0.948484848484848,84014,84013
+"422","heteropsis reticulada","heteropsis reticulada","Heteropsis reticulata","Accepted","HUA2025","CHECK_fuzzy",2,0.96,48861,48861
+"423","heteropsis spruceanum","heteropsis spruceanum","Heteropsis spruceana var. robusta","Synonym","ATRIUM2017","CHECK_fuzzy",2,0.937777777777778,48864,48863
+"424","hillia ilustris","hillia ilustris","Hillia illustris","Accepted","literature2021","CHECK_fuzzy",2,0.97037037037037,48879,48879
+"425","hillia valerii","hillia valerii","Hillia valerioi","Synonym","GBIF2026","CHECK_fuzzy",2,0.975,2117,2114
+"426","hohenbergia burlemarxii","hohenbergia burlemarxii","Hohenbergia burle-marxii","Accepted","ZizkaA","CHECK_fuzzy",2,0.983333333333333,49008,49008
+"427","hohenbergia correia-araujoi","hohenbergia correia-araujoi","Hohenbergia correia-arauji","Accepted","GBIF2026","CHECK_fuzzy",2,0.986666666666667,49015,49015
+"428","hohenbergia correiaaraujoi","hohenbergia correiaaraujoi","Hohenbergia correia-arauji","Accepted","ZizkaA","CHECK_fuzzy",2,0.971428571428571,49015,49015
+"429","homalopetalum pachphyllum","homalopetalum pachphyllum","Homalopetalum pachyphyllum","Accepted","EBUM2024","CHECK_fuzzy",2,0.956060606060606,49122,49122
+"430","huperzia acifolia","huperzia acifolia","Huperzia acutifolia","Synonym","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.946666666666666,13351,13350
+"431","huperzia campania","huperzia campania","Huperzia campiana","Accepted","literature2021","CHECK_fuzzy",2,0.9625,13077,13077
+"432","huperzia dichotomaa","huperzia dichotomaa","Huperzia dichotoma","Accepted","literature2021","CHECK_fuzzy",2,0.98,7612,7612
+"433","huperzia pringeli","huperzia pringeli","Huperzia pringlei","Accepted","GBIF2026","CHECK_fuzzy",2,0.975,10295,10295
+"434","hymenophyllum asplenoides","hymenophyllum asplenoides","Hymenophyllum asplenioides","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.965151515151515,49582,49582
+"435","hymenophyllum axilare","hymenophyllum axilare","Hymenophyllum axillare","Accepted","literature2021","CHECK_fuzzy",2,0.975,49586,49586
+"436","hymenophyllum dependes","hymenophyllum dependes","Hymenophyllum dependens","Accepted","GUYN2008","CHECK_fuzzy",2,0.977777777777778,49694,49694
+"437","hymenophyllum fuscoides","hymenophyllum fuscoides","Hymenophyllum fucoides","Accepted","GBIF2026","CHECK_fuzzy",2,0.97037037037037,4659,4659
+"438","hymenophyllum hirssutum","hymenophyllum hirssutum","Hymenophyllum hirsutum","Accepted","GUYN2008","CHECK_fuzzy",2,0.977777777777778,4674,4674
+"439","hymenophyllum laminatum","hymenophyllum laminatum","Hymenophyllum lanatum","Accepted","GBIF2026","CHECK_fuzzy",2,0.940740740740741,49776,49776
+"440","hymenophyllum matthewsii","hymenophyllum matthewsii","Hymenophyllum mathewsii","Accepted","INABIOEC; LPB2024","CHECK_fuzzy",2,0.976666666666667,86873,86873
+"441","hymenophyllum polyanthes","hymenophyllum polyanthes","Hymenophyllum polyanthos var. mildbraedii","Synonym","literature2021","CHECK_fuzzy",2,0.96,11987,11983
+"442","hymenophyllum thunbrigense","hymenophyllum thunbrigense","Hymenophyllum tunbrigense var. exsertum","Synonym","literature2021","CHECK_fuzzy",2,0.975,4722,4710
+"443","hymenophyllum urbani","hymenophyllum urbani","Hymenophyllum urbanii","Accepted","GBIF2026","CHECK_fuzzy",2,0.971428571428571,50012,50012
+"444","ionopsis satyroides","ionopsis satyroides","Ionopsis satyrioides","Accepted","GBIF2026","CHECK_fuzzy",2,0.961818181818182,50104,50104
+"445","ionopsis urticularioides","ionopsis urticularioides","Ionopsis utricularioides","Accepted","literature2021","CHECK_fuzzy",2,0.98,50114,50114
+"446","ionopsis utricularoides","ionopsis utricularoides","Ionopsis utricularioides","Accepted","literature2021","CHECK_fuzzy",2,0.972380952380952,50114,50114
+"447","isochilus unilaterale","isochilus unilaterale","Isochilus unilateralis","Accepted","literature2021","CHECK_fuzzy",2,0.948484848484848,50183,50183
+"448","kefersteinia koechlinorum","kefersteinia koechlinorum","Kefersteinia koechliniorum","Accepted","CUZ2025","CHECK_fuzzy",2,0.984615384615385,50456,50456
+"449","laelia ostermayeri","laelia ostermayeri","Laelia ostermayerii","Synonym","SEL2021","CHECK_fuzzy",2,0.983333333333333,28979,28975
+"450","lellingeria mitchellae","lellingeria mitchellae","Lellingeria mitchelliae","Synonym","HEM2025","CHECK_fuzzy",2,0.981818181818182,5408,5406
+"451","lellingeria prionoodes","lellingeria prionoodes","Lellingeria prionodes","Accepted","literature2021","CHECK_fuzzy",2,0.98,91111,91111
+"452","lepanthes attenuate","lepanthes attenuate","Lepanthes attenuata","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,51010,51010
+"453","lepanthes capitanea","lepanthes capitanea","Lepanthes capitana","Accepted","INABIOEC; SEL2021","CHECK_fuzzy",2,0.977777777777778,51092,51092
+"454","lepanthes cochleariifolia","lepanthes cochleariifolia","Lepanthes cochlearifolia","Accepted","GBIF2026","CHECK_fuzzy",2,0.958095238095238,51141,51141
+"455","lepanthes dictyon","lepanthes dictyon","Lepanthes dictydion","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,51228,51228
+"456","lepanthes guttula-sanguinis","lepanthes guttula-sanguinis","Lepanthes gutula-sanguinis","Accepted","GBIF2026","CHECK_fuzzy",2,0.986274509803922,51398,51398
+"457","lepanthes homotaxi","lepanthes homotaxi","Lepanthes homotaxis","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,51424,51424
+"458","lepanthes ilex","lepanthes ilex","Lepanthes illex","Accepted","CAUP2023","CHECK_fuzzy",2,0.946666666666666,51443,51443
+"459","lepanthes intosa","lepanthes intosa","Lepanthes intonsa","Accepted","literature2021","CHECK_fuzzy",2,0.971428571428571,51463,51463
+"460","lepanthes micorglottis","lepanthes micorglottis","Lepanthes microglottis","Accepted","SEL2021","CHECK_fuzzy",2,0.980555555555556,51603,51603
+"461","lepanthes obcuneiformis","lepanthes obcuneiformis","Lepanthes cuneiformis","Accepted","GBIF2026","CHECK_fuzzy",2,0.948717948717949,51188,51188
+"462","lepanthes paiveana","lepanthes paiveana","Lepanthes paivana","Accepted","SEL2021","CHECK_fuzzy",2,0.975,51733,51733
+"463","lepanthes stenophora","lepanthes stenophora","Lepanthes ctenophora","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,51183,51183
+"464","lepanthes wagenerii","lepanthes wagenerii","Lepanthes wageneri","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,52282,52282
+"465","lepanthes wagneri","lepanthes wagneri","Lepanthes wageneri","Accepted","literature2021","CHECK_fuzzy",2,0.9375,52282,52282
+"466","lepanthopsis dominguensis","lepanthopsis dominguensis","Lepanthopsis domingensis","Synonym","SEL2021","CHECK_fuzzy",2,0.983333333333333,52311,52310
+"467","lepanthopsis micheleae","lepanthopsis micheleae","Lepanthopsis micheliae","Accepted","SEL2021","CHECK_fuzzy",2,0.930555555555556,52364,52364
+"468","leucotrichum pseudomitchellae","leucotrichum pseudomitchellae","Leucotrichum pseudomitchelliae","Accepted","CR2024","CHECK_fuzzy",2,0.988235294117647,89010,89010
+"469","liparis rheedii","liparis rheedii","Liparis rheedei","Accepted","SEL2021","CHECK_fuzzy",2,0.942857142857143,53453,53453
+"470","lockhartia biserrata","lockhartia biserrata","Lockhartia biserra","Synonym","literature2021","CHECK_fuzzy",2,0.955555555555556,53675,53670
+"471","loefgrenianthus blancheamesii","loefgrenianthus blancheamesii","Loefgrenianthus blanche-amesiae","Accepted","GBIF2026","CHECK_fuzzy",2,0.944615384615385,5596,5596
+"472","lomagramma guianense","lomagramma guianense","Lomagramma guianensis","Accepted","literature2021","CHECK_fuzzy",2,0.937777777777778,87837,87837
+"473","lomariopsis guianensis","lomariopsis guianensis","Lomariopsis guineensis","Accepted","GBIF2026","CHECK_fuzzy",2,0.953333333333333,83503,83503
+"474","lophiaris cosymbephorum","lophiaris cosymbephorum","Lophiaris cosymbephora","Synonym","literature2021","CHECK_fuzzy",2,0.952564102564102,86348,86347
+"475","lophiaris lindenii","lophiaris lindenii","Lophiaris lindeni","Synonym","GBIF2026; HEM2025; SEL2021","CHECK_fuzzy",2,0.975,78278,78277
+"476","lutheria bibeatricis","lutheria bibeatricis","Lutheria bi-beatricis","Accepted","ZizkaA","CHECK_fuzzy",2,0.977777777777778,76484,76484
+"477","lycopodium albidum","lycopodium albidum","Lycopodium albidulum var. majus","Synonym","INABIOEC","CHECK_fuzzy",2,0.955555555555556,72051,72045
+"478","lycopodium schwendeneri","lycopodium schwendeneri","Lycopodium schwendenerii","Synonym","GBIF2026","CHECK_fuzzy",2,0.984615384615385,13379,13371
+"479","macrocentrum brevipedicellat","macrocentrum brevipedicellat","Macrocentrum brevipedicellatum","Accepted","GUYN2008","CHECK_fuzzy",2,0.976470588235294,54307,54307
+"480","macroclinium dalstromii","macroclinium dalstromii","Macroclinium dalstroemii","Accepted","GBIF2026; INABIOEC; SEL2021","CHECK_fuzzy",2,0.981818181818182,54335,54335
+"481","macroclinium villenaorum","macroclinium villenaorum","Macroclinium villenarum","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,54375,54375
+"482","macroclinium xyphophorus","macroclinium xyphophorus","Macroclinium xiphophorus","Accepted","HUA2025","CHECK_fuzzy",2,0.945454545454546,54378,54378
+"483","malaxis brachystachys","malaxis brachystachys","Malaxis brachystachya","Synonym","GBIF2026; OAX2025","CHECK_fuzzy",2,0.969230769230769,6483,6476
+"484","malaxis carnosa","malaxis carnosa","Malaxis carnosula","Synonym","GBIF2026; OAX2025; SEL2021","CHECK_fuzzy",2,0.955555555555556,39192,39172
+"485","malaxis uncata","malaxis uncata","Malaxis uncinata","Synonym","SEL2021","CHECK_fuzzy",2,0.941666666666667,54449,54439
+"486","markea camponoti","markea camponoti","Markea camponotii","Synonym","INABIOEC; literature2021","CHECK_fuzzy",2,0.98,54594,54593
+"487","markea crosbyana","markea crosbyana","Markea crosbiana","Synonym","GBIF2026","CHECK_fuzzy",2,0.955555555555556,71964,71963
+"488","masdevallia carrusthersiana","masdevallia carrusthersiana","Masdevallia carruthersiana","Accepted","literature2021","CHECK_fuzzy",2,0.950952380952381,54774,54774
+"489","masdevallia livinstoneana","masdevallia livinstoneana","Masdevallia livingstoneana","Accepted","literature2021","CHECK_fuzzy",2,0.985714285714286,55187,55187
+"490","masdevallia luziae-mariae","masdevallia luziae-mariae","Masdevallia luziaemariae","Accepted","SEL2021","CHECK_fuzzy",2,0.984615384615385,14881,14881
+"491","masdevallia yungasensi","masdevallia yungasensi","Masdevallia yungasensis","Accepted","INABIOEC","CHECK_fuzzy",2,0.981818181818182,55831,55831
+"492","maxillaria acutiflora","maxillaria acutiflora","Maxillaria acutifolia","Accepted","SEL2021","CHECK_fuzzy",2,0.937777777777778,10251,10251
+"493","maxillaria amesianum","maxillaria amesianum","Maxillaria amesiana","Synonym","UIS2024","CHECK_fuzzy",2,0.930555555555556,12501,12500
+"494","maxillaria densiflora","maxillaria densiflora","Maxillaria densifolia","Accepted","SEL2021","CHECK_fuzzy",2,0.937777777777778,51839,51839
+"495","maxillaria luteo-grandiflora","maxillaria luteo-grandiflora","Maxillaria luteograndiflora","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.988235294117647,56059,56059
+"496","maxillaria luteo-rubra","maxillaria luteo-rubra","Maxillaria luteorubra","Synonym","SEL2021","CHECK_fuzzy",2,0.981818181818182,51538,51528
+"497","maxillaria mariaisabelae","maxillaria mariaisabelae","Maxillaria mariaisabeliae","Accepted","SEL2021","CHECK_fuzzy",2,0.985714285714286,64970,64970
+"498","maxillaria maripiensis","maxillaria maripiensis","Maxillaria mapiriensis","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.975757575757576,56183,56183
+"499","maxillaria notyloglossa","maxillaria notyloglossa","Maxillaria notylioglossa","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.984615384615385,5785,5785
+"500","maxillaria schlechteriana","maxillaria schlechteriana","Maxillaria schlechteri","Accepted","CR2024; SEL2021","CHECK_fuzzy",2,0.957142857142857,21767,21767
+"501","maxillaria scorpioides","maxillaria scorpioides","Maxillaria scorpioidea","Accepted","SEL2021","CHECK_fuzzy",2,0.963636363636364,64985,64985
+"502","melpomene moniloformis","melpomene moniloformis","Melpomene moniliformis","Synonym","KesslerM","CHECK_fuzzy",2,0.93030303030303,5902,5899
+"503","melpomene wolffii","melpomene wolffii","Melpomene wolfii","Synonym","KesslerM","CHECK_fuzzy",2,0.971428571428571,5921,5917
+"504","miconia bracteata","miconia bracteata","Miconia ebracteata","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.966666666666667,61825,61825
+"505","miconia cristata","miconia cristata","Miconia cristulata","Synonym","GBIF2026","CHECK_fuzzy",2,0.96,88775,88753
+"506","miconia garcia-barrigae","miconia garcia-barrigae","Miconia garciabarrigae","Accepted","GBIF2026; JimenezA","CHECK_fuzzy",2,0.986666666666667,24692,24692
+"507","miconia glandulosa","miconia glandulosa","Miconia biglandulosa","Accepted","GBIF2026","CHECK_fuzzy",2,0.944444444444444,81410,81410
+"508","miconia microphylla","miconia microphylla","Miconia macrophylla","Synonym","ATRIUM2017; GBIF2026","CHECK_fuzzy",2,0.945454545454546,88777,88753
+"509","miconia mucronata","miconia mucronata","Miconia mucronulata","Synonym","GBIF2026","CHECK_fuzzy",2,0.963636363636364,88778,88753
+"510","miconia neoepiphyitca","miconia neoepiphyitca","Miconia neoepiphytica","Accepted","GBIF2026; JimenezA","CHECK_fuzzy",2,0.984615384615385,24681,24681
+"511","miconia paradisica","miconia paradisica","Miconia parasitica","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.937777777777778,24696,24696
+"512","miconia regnellii","miconia regnellii","Miconia regelii","Accepted","GBIF2026","CHECK_fuzzy",2,0.948148148148148,81412,81412
+"513","miconia rufescens","miconia rufescens","Miconia rubescens","Accepted","ATRIUM2017; CAUP2023; CUZ2025; GBIF2026; HUA2025; ICESI2024; INABIOEC","CHECK_fuzzy",2,0.940740740740741,56408,56408
+"514","microgramma acatella","microgramma acatella","Microgramma acatallela","Accepted","literature2021","CHECK_fuzzy",2,0.935,87863,87863
+"515","microgramma acatellela","microgramma acatellela","Microgramma acatallela","Accepted","INABIOEC","CHECK_fuzzy",2,0.937777777777778,87863,87863
+"516","microgramma lycopodiodes","microgramma lycopodiodes","Microgramma lycopodioides","Accepted","BAR2025; GBIF2026; literature2021","CHECK_fuzzy",2,0.984615384615385,5960,5960
+"517","microgramma megalophy","microgramma megalophy","Microgramma megalophylla","Accepted","literature2021","CHECK_fuzzy",2,0.95,14885,14885
+"518","microgramma percusa","microgramma percusa","Microgramma percussa","Accepted","INABIOEC; literature2021","CHECK_fuzzy",2,0.975,6012,6012
+"519","microgramma vaccinifolia","microgramma vaccinifolia","Microgramma vacciniifolia","Accepted","GBIF2026","CHECK_fuzzy",2,0.951282051282051,14894,14894
+"520","miltoniopsis santanaei","miltoniopsis santanaei","Miltoniopsis santanae","Synonym","GBIF2026","CHECK_fuzzy",2,0.977777777777778,57517,57513
+"521","monstera deliciosaa","monstera deliciosaa","Monstera deliciosa","Accepted","literature2021","CHECK_fuzzy",2,0.98,57582,57582
+"522","monstera oblicua","monstera oblicua","Monstera obliqua","Accepted","KUELAP2024; literature2021","CHECK_fuzzy",2,0.942857142857143,57619,57619
+"523","monstera obliquua","monstera obliquua","Monstera obliqua","Accepted","literature2021","CHECK_fuzzy",2,0.975,57619,57619
+"524","monstera planadaensis","monstera planadaensis","Monstera planadensis","Accepted","HUA2025","CHECK_fuzzy",2,0.983333333333333,57634,57634
+"525","monstera tenui","monstera tenui","Monstera tenuis","Accepted","literature2021","CHECK_fuzzy",2,0.966666666666667,57647,57647
+"526","mormodes oestlundiana","mormodes oestlundiana","Mormodes oestlundianum","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.952564102564102,57757,57757
+"527","mormodes rolfeanum","mormodes rolfeanum","Mormodes rolfeana","Accepted","INABIOEC","CHECK_fuzzy",2,0.930555555555556,57770,57770
+"528","mormodes stenoglossa","mormodes stenoglossa","Mormodes stenoglossum","Synonym","GBIF2026","CHECK_fuzzy",2,0.948484848484848,57699,57690
+"529","mormodes warscewiczii","mormodes warscewiczii","Mormodes warszewiczii","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.948484848484848,57792,57792
+"530","mormolyca fuchsii","mormolyca fuchsii","Mormolyca fuchii","Synonym","SEL2021","CHECK_fuzzy",2,0.971428571428571,12568,12561
+"531","myoxanthus affinoides","myoxanthus affinoides","Myoxanthus affinis","Accepted","SEL2021","CHECK_fuzzy",2,0.94,57887,57887
+"532","myrmecophila tibicinus","myrmecophila tibicinus","Myrmecophila tibicinis","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,58077,58077
+"533","neoregelia macwilliamsii","neoregelia macwilliamsii","Neoregelia mcwilliamsii","Accepted","GBIF2026; ZizkaA","CHECK_fuzzy",2,0.976923076923077,58402,58402
+"534","neoregelia silvomontana","neoregelia silvomontana","Neoregelia silvimontana","Accepted","ZizkaA","CHECK_fuzzy",2,0.948484848484848,58471,58471
+"535","nidema bothii","nidema bothii","Nidema boothii","Accepted","literature2021","CHECK_fuzzy",2,0.961904761904762,58646,58646
+"536","nidularium bocainense","nidularium bocainense","Nidularium bocainensis","Accepted","AssisI; GBIF2026","CHECK_fuzzy",2,0.943636363636364,58686,58686
+"537","nidularium burchelli","nidularium burchelli","Nidularium burchellii","Synonym","ZizkaA","CHECK_fuzzy",2,0.98,54178,54173
+"538","nidularium campo-alegrense","nidularium campo-alegrense","Nidularium campo-alegrensis","Accepted","GBIF2026","CHECK_fuzzy",2,0.961666666666667,58687,58687
+"539","nidularium campoalegrense","nidularium campoalegrense","Nidularium campo-alegrensis","Accepted","ZizkaA","CHECK_fuzzy",2,0.948214285714286,58687,58687
+"540","nidularium camposportoi","nidularium camposportoi","Nidularium campos-portoi","Accepted","GBIF2026; ZizkaA","CHECK_fuzzy",2,0.984615384615385,58688,58688
+"541","nidularium ferdinandocoburgii","nidularium ferdinandocoburgii","Nidularium ferdinando-coburgii","Accepted","literature2024","CHECK_fuzzy",2,0.989473684210526,58695,58695
+"542","nidularium picinguabense","nidularium picinguabense","Nidularium picinguabensis","Accepted","ZizkaA","CHECK_fuzzy",2,0.956043956043956,58732,58732
+"543","niphidium amocarpos","niphidium amocarpos","Niphidium anocarpos","Synonym","literature2021","CHECK_fuzzy",2,0.933333333333333,58778,58777
+"544","niphidium carinetum","niphidium carinetum","Niphidium carinatum","Synonym","ATRIUM2017","CHECK_fuzzy",2,0.955555555555556,58783,58782
+"545","notylia trullulifera","notylia trullulifera","Notylia trullifera","Synonym","GBIF2026","CHECK_fuzzy",2,0.966666666666667,58865,58864
+"546","octomeria breviflolia","octomeria breviflolia","Octomeria brevifolia","Synonym","literature2021","CHECK_fuzzy",2,0.961818181818182,6735,6732
+"547","odontoglossum coradinae","odontoglossum coradinae","Odontoglossum coradinei","Synonym","SEL2021","CHECK_fuzzy",2,0.955555555555556,59909,59908
+"548","odontoglossum kegeljanii","odontoglossum kegeljanii","Odontoglossum kegeljani","Synonym","SEL2021","CHECK_fuzzy",2,0.98,60156,60155
+"549","odontoglossum ramosisimum","odontoglossum ramosisimum","Odontoglossum ramosissimum","Synonym","literature2021","CHECK_fuzzy",2,0.983333333333333,34418,34414
+"550","odontoglossum trimasutum","odontoglossum trimasutum","Odontoglossum trinasutum","Synonym","SEL2021","CHECK_fuzzy",2,0.953333333333333,60732,60731
+"551","oerstedella thurstoniorum","oerstedella thurstoniorum","Oerstedella thurstonorum","Synonym","INABIOEC","CHECK_fuzzy",2,0.984615384615385,43075,43074
+"552","oncidium allenii","oncidium allenii","Oncidium allemanii","Synonym","SEL2021","CHECK_fuzzy",2,0.955555555555556,3664,3659
+"553","oncidium ceboletta","oncidium ceboletta","Oncidium cebolleta f. purum","Synonym","literature2021","CHECK_fuzzy",2,0.955555555555556,10001,9995
+"554","oncidium clotzschianum","oncidium clotzschianum","Oncidium klotzschianum","Synonym","INABIOEC","CHECK_fuzzy",2,0.948717948717949,6776,6770
+"555","oncidium dactiliferum","oncidium dactiliferum","Oncidium dactyliferum","Accepted","SEL2021","CHECK_fuzzy",2,0.948484848484848,59962,59962
+"556","oncidium graminifoliumm","oncidium graminifoliumm","Oncidium graminifolium","Accepted","OAX2025","CHECK_fuzzy",2,0.985714285714286,60061,60061
+"557","oncidium klotzscheanum","oncidium klotzscheanum","Oncidium klotzschianum","Synonym","literature2021","CHECK_fuzzy",2,0.969230769230769,6776,6770
+"558","oncidium lentiginosum","oncidium lentiginosum","Oncidium lentiginusum","Accepted","SEL2021","CHECK_fuzzy",2,0.948484848484848,60336,60336
+"559","oncidium majevskyae","oncidium majevskyae","Oncidium majevskyi","Synonym","GBIF2026","CHECK_fuzzy",2,0.937777777777778,11759,11756
+"560","oncidium murinun","oncidium murinun","Oncidium murinum","Synonym","literature2021","CHECK_fuzzy",2,0.942857142857143,34370,34367
+"561","oncidium ornithorrynchum","oncidium ornithorrynchum","Oncidium ornithorhynchum","Accepted","literature2021","CHECK_fuzzy",2,0.944761904761905,12738,12738
+"562","oncidium universitas-cuencae","oncidium universitas-cuencae","Oncidium universitascuencae","Accepted","INABIOEC","CHECK_fuzzy",2,0.989473684210526,60745,60745
+"563","oncidium warscewiczii","oncidium warscewiczii","Oncidium warszewiczii","Accepted","SEL2021","CHECK_fuzzy",2,0.948484848484848,60764,60764
+"564","ophidion pleurothalloides","ophidion pleurothalloides","Ophidion pleurothallopsis","Accepted","SEL2021","CHECK_fuzzy",2,0.935714285714286,60190,60190
+"565","oreanthes buxifloius","oreanthes buxifloius","Oreanthes buxifolius","Accepted","literature2021","CHECK_fuzzy",2,0.98,60779,60779
+"566","oreanthes glandulifer","oreanthes glandulifer","Oreanthes glanduliferus","Accepted","GBIF2026","CHECK_fuzzy",2,0.969230769230769,60784,60784
+"567","oreanthes hypogaea","oreanthes hypogaea","Oreanthes hypogaeus","Accepted","INABIOEC","CHECK_fuzzy",2,0.930555555555556,60785,60785
+"568","oreopanax diguense","oreopanax diguense","Oreopanax diguensis","Accepted","GBIF2026; HUA2025","CHECK_fuzzy",2,0.930555555555556,60810,60810
+"569","oreopanax eriocephalus","oreopanax eriocephalus","Oreopanax meiocephalus","Synonym","GBIF2026; HCCL2025; INABIOEC","CHECK_fuzzy",2,0.944444444444444,6841,6824
+"570","oreopanax macrocephalus","oreopanax macrocephalus","Oreopanax microcephalus","Synonym","GBIF2026; HUA2025","CHECK_fuzzy",2,0.953846153846154,6842,6824
+"571","oreopanax sandianus","oreopanax sandianus","Oreopanax sanderianus","Accepted","ATRIUM2017; CUZ2025; GBIF2026","CHECK_fuzzy",2,0.963636363636364,60816,60816
+"572","ornithidium aggregata","ornithidium aggregata","Ornithidium aggregatum","Synonym","UIS2024","CHECK_fuzzy",2,0.937777777777778,56127,56124
+"573","ornithidium jenischiana","ornithidium jenischiana","Ornithidium jenischianum","Synonym","UIS2024","CHECK_fuzzy",2,0.948484848484848,56024,56022
+"574","ornithocephalus bryostachyus","ornithocephalus bryostachyus","Ornithocephalus bryostachys","Accepted","SEL2021","CHECK_fuzzy",2,0.983333333333333,60843,60843
+"575","osmoglossum egertonii","osmoglossum egertonii","Osmoglossum egertoni","Synonym","CR2024; GBIF2026; SEL2021","CHECK_fuzzy",2,0.977777777777778,33656,33649
+"576","ossaea rufescens","ossaea rufescens","Ossaea rubescens","Synonym","GBIF2026","CHECK_fuzzy",2,0.940740740740741,56415,56408
+"577","otoglossum weberbaueranum","otoglossum weberbaueranum","Otoglossum weberbauerianum","Accepted","CUZ2025; SEL2021","CHECK_fuzzy",2,0.986666666666667,6864,6864
+"578","pabstiella bowmannii","pabstiella bowmannii","Pabstiella bowmanni","Synonym","AssisI","CHECK_fuzzy",2,0.977777777777778,62028,62027
+"579","pabstiella miniatolineolata","pabstiella miniatolineolata","Pabstiella miniato-lineolata","Accepted","AssisI; GBIF2026","CHECK_fuzzy",2,0.988235294117647,62556,62556
+"580","pachyphyllum cristallinum","pachyphyllum cristallinum","Pachyphyllum crystallinum","Synonym","literature2021","CHECK_fuzzy",2,0.955555555555556,11625,11624
+"581","pachyphyllum pasti","pachyphyllum pasti","Pachyphyllum pastii","Synonym","literature2021","CHECK_fuzzy",2,0.966666666666667,11677,11676
+"582","parietaria macrophylla","parietaria macrophylla","Parietaria microphylla","Synonym","HUAP2024","CHECK_fuzzy",2,0.945454545454546,64815,64813
+"583","pecluma hoehnei","pecluma hoehnei","Pecluma hoehnii","Accepted","GBIF2026","CHECK_fuzzy",2,0.942857142857143,61546,61546
+"584","peperomia acumianta","peperomia acumianta","Peperomia acuminata","Accepted","CAUP2023","CHECK_fuzzy",2,0.977777777777778,6940,6940
+"585","peperomia agravescens","peperomia agravescens","Peperomia aggravescens","Synonym","HEM2025","CHECK_fuzzy",2,0.977777777777778,62190,62189
+"586","peperomia andina","peperomia andina","Peperomia andinacea","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,62006,62004
+"587","peperomia antoniana","peperomia antoniana","Peperomia antoni var. reducta","Synonym","GBIF2026; HUA2025; INABIOEC; peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,7242,7241
+"588","peperomia antonii","peperomia antonii","Peperomia antoni var. reducta","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.971428571428571,7242,7241
+"589","peperomia argumentosa","peperomia argumentosa","Peperomia argumentos","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.981818181818182,6997,6997
+"590","peperomia argyraea","peperomia argyraea","Peperomia argyrea","Synonym","GBIF2026","CHECK_fuzzy",2,0.946428571428571,61730,61729
+"591","peperomia asperula","peperomia asperula","Peperomia asperulata","Synonym","GBIF2026; HCCL2025; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.96,7000,6999
+"592","peperomia austinii","peperomia austinii","Peperomia austini","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.975,62248,62247
+"593","peperomia bangroana","peperomia bangroana","Peperomia bangrooana","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.98,61758,61758
+"594","peperomia bayajana","peperomia bayajana","Peperomia bayatana","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.95,7243,7241
+"595","peperomia brachystachyos","peperomia brachystachyos","Peperomia brachystachya","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.956043956043956,62065,62064
+"596","peperomia carthaginensis","peperomia carthaginensis","Peperomia catharinensis","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.93992673992674,89218,89218
+"597","peperomia cilifolia","peperomia cilifolia","Peperomia circulifolia","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,7300,7297
+"598","peperomia coatzacoalcosensis","peperomia coatzacoalcosensis","Peperomia coatzalcoalcosensis","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.967251461988304,61900,61900
+"599","peperomia cordata","peperomia cordata","Peperomia cordulata","Accepted","GBIF2026; HUA2025; INABIOEC; peperomia_net2025","CHECK_fuzzy",2,0.955555555555556,84229,84229
+"600","peperomia cordifolia","peperomia cordifolia","Peperomia cornifolia","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.953333333333333,62477,62475
+"601","peperomia cordilimba","peperomia cordilimba","Peperomia cordulilimba","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.946666666666667,61927,61927
+"602","peperomia costulata","peperomia costulata","Peperomia costata","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.955555555555556,61928,61928
+"603","peperomia cylindrica","peperomia cylindrica","Peperomia cylindribacca","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.933846153846154,7291,7285
+"604","peperomia damazioi","peperomia damazioi","Peperomia damazii","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.975,7017,7017
+"605","peperomia davidsonii","peperomia davidsonii","Peperomia davisii","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.94,7384,7376
+"606","peperomia denticularis","peperomia denticularis","Peperomia lenticularis","Synonym","GBIF2026","CHECK_fuzzy",2,0.944444444444444,7016,7015
+"607","peperomia duartei","peperomia duartei","Peperomia duartensis","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.94,6966,6959
+"608","peperomia ellipticorhombea","peperomia ellipticorhombea","Peperomia elliptico-rhombea","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.988235294117647,62000,62000
+"609","peperomia endlichii","peperomia endlichii","Peperomia endlicheri","Synonym","GBIF2026; HUA2025","CHECK_fuzzy",2,0.937777777777778,7397,7396
+"610","peperomia flavescens","peperomia flavescens","Peperomia fulvescens","Accepted","ATRIUM2017; GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.94,62097,62097
+"611","peperomia fragilissima","peperomia fragilissima","Peperomia fragilis","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,62096,62096
+"612","peperomia gilbertii","peperomia gilbertii","Peperomia gilberti","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.977777777777778,62410,62406
+"613","peperomia glabellata","peperomia glabellata","Peperomia glabella","Accepted","literature2021","CHECK_fuzzy",2,0.96,7086,7086
+"614","peperomia glaziovii","peperomia glaziovii","Peperomia glazioui","Accepted","GBIF2026","CHECK_fuzzy",2,0.930555555555556,62111,62111
+"615","peperomia gloriosifolia","peperomia gloriosifolia","Peperomia gloriosaefolia","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.939377289377289,13010,13007
+"616","peperomia gracilispica","peperomia gracilispica","Peperomia gracilis","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,62123,62123
+"617","peperomia guanensis","peperomia guanensis","Peperomia gatunensis","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.936666666666667,7292,7285
+"618","peperomia guttata","peperomia guttata","Peperomia guttulata","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,62151,62151
+"619","peperomia herbert-smithii","peperomia herbert-smithii","Peperomia herbertsmithii","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.986666666666667,62495,62494
+"620","peperomia hernandifolia","peperomia hernandifolia","Peperomia hernandiifolia","Accepted","literature2021","CHECK_fuzzy",2,0.954945054945055,62176,62176
+"621","peperomia humillis","peperomia humillis","Peperomia humilis","Accepted","HEM2025","CHECK_fuzzy",2,0.975,62237,62237
+"622","peperomia inaequalilimba","peperomia inaequalilimba","Peperomia inaequalifolia var. galioides","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.942857142857143,7070,7044
+"623","peperomia johnsonii","peperomia johnsonii","Peperomia johnstonii","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.98,62240,62237
+"624","peperomia lanceolato-peltata","peperomia lanceolato-peltata","Peperomia lanceolatopeltata","Accepted","OAX2025","CHECK_fuzzy",2,0.988888888888889,62292,62292
+"625","peperomia lancifolioidea","peperomia lancifolioidea","Peperomia lancifolia","Accepted","CR2024; GBIF2026; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.942857142857143,7162,7162
+"626","peperomia lateovata","peperomia lateovata","Peperomia late-ovata","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.98,63028,63027
+"627","peperomia leptostachyos","peperomia leptostachyos","Peperomia leptostachyoides","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.9625,62318,62318
+"628","peperomia liebmanni","peperomia liebmanni","Peperomia liebmannii","Accepted","HEM2025","CHECK_fuzzy",2,0.98,62323,62323
+"629","peperomia liliifolia","peperomia liliifolia","Peperomia lilifolia","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.935555555555556,62337,62333
+"630","peperomia longeacuminata","peperomia longeacuminata","Peperomia longiacuminata","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.932967032967033,7115,7086
+"631","peperomia longemucronata","peperomia longemucronata","Peperomia longimucronata","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.971428571428571,61709,61706
+"632","peperomia longespicata","peperomia longespicata","Peperomia longispicata","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.939393939393939,6987,6982
+"633","peperomia longipila","peperomia longipila","Peperomia longispica","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.937777777777778,7072,7044
+"634","peperomia macrostachia","peperomia macrostachia","Peperomia macrostachya","Accepted","literature2021","CHECK_fuzzy",2,0.966666666666667,7185,7185
+"635","peperomia magnoliaefolia","peperomia magnoliaefolia","Peperomia magnoliifolia var. emarginulata","Synonym","GBIF2026","CHECK_fuzzy",2,0.939377289377289,7258,7241
+"636","peperomia magnoliafolia","peperomia magnoliafolia","Peperomia magnoliifolia var. emarginulata","Synonym","ICESI2024","CHECK_fuzzy",2,0.952564102564102,7258,7241
+"637","peperomia mandonii","peperomia mandonii","Peperomia mannii","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.941666666666667,62736,62732
+"638","peperomia matlalucaensi","peperomia matlalucaensi","Peperomia matlalucaensis","Accepted","literature2021","CHECK_fuzzy",2,0.985714285714286,7236,7236
+"639","peperomia microphyllophora","peperomia microphyllophora","Peperomia microphylla","Accepted","GBIF2026; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.9375,62406,62406
+"640","peperomia microstachya","peperomia microstachya","Peperomia macrostachya","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.95,7185,7185
+"641","peperomia monticola","peperomia monticola","Peperomia mornicola","Synonym","GBIF2026; HUAP2024; iNat2026; peperomia_net2025","CHECK_fuzzy",2,0.940740740740741,62242,62237
+"642","peperomia moyebambana","peperomia moyebambana","Peperomia moyobambana","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.957575757575758,89229,89229
+"643","peperomia multifolia","peperomia multifolia","Peperomia multifida","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.937777777777778,62256,62247
+"644","peperomia naevifolia","peperomia naevifolia","Peperomia laevifolia","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,62279,62279
+"645","peperomia nigro-oculata","peperomia nigro-oculata","Peperomia nigrooculata","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.984615384615385,84233,84233
+"646","peperomia nigroungulata","peperomia nigroungulata","Peperomia nigro-ungulata","Accepted","GBIF2026","CHECK_fuzzy",2,0.985714285714286,62445,62445
+"647","peperomia oblancifolia","peperomia oblancifolia","Peperomia lancifolia","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.944444444444444,7162,7162
+"648","peperomia pacifica","peperomia pacifica","Peperomia pacificicola","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,91136,91136
+"649","peperomia palcana","peperomia palcana","Peperomia palmana","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.933333333333333,62506,62506
+"650","peperomia parvifolia","peperomia parvifolia","Peperomia parcifolia","Accepted","GBIF2026; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.953333333333333,85951,85951
+"651","peperomia pereskifolia","peperomia pereskifolia","Peperomia pereskiifolia","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.951282051282051,62587,62587
+"652","peperomia pernambucuensis","peperomia pernambucuensis","Peperomia pernambucensis","Accepted","literature2024","CHECK_fuzzy",2,0.986666666666667,62602,62602
+"653","peperomia pilaloensis","peperomia pilaloensis","Peperomia ilaloensis","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.96969696969697,62264,62264
+"654","peperomia pilifera","peperomia pilifera","Peperomia pilulifera","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.953333333333333,7408,7406
+"655","peperomia pseudo-alpina","peperomia pseudo-alpina","Peperomia pseudoalpina","Accepted","literature2021","CHECK_fuzzy",2,0.984615384615385,62659,62659
+"656","peperomia pseudocasaretti","peperomia pseudocasaretti","Peperomia pseudocasarettii","Accepted","CR2024; GBIF2026; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.9875,7296,7296
+"657","peperomia pseudocasarettoi","peperomia pseudocasarettoi","Peperomia pseudocasarettii","Accepted","GBIF2026; JimenezDA","CHECK_fuzzy",2,0.975,7296,7296
+"658","peperomia pseudopereskiaefolia","peperomia pseudopereskiaefolia","Peperomia pseudopereskiifolia","Accepted","literature2021","CHECK_fuzzy",2,0.958362573099415,62667,62667
+"659","peperomia purpurea","peperomia purpurea","Peperomia purpurella","Synonym","HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.96,62535,62534
+"660","peperomia refiexa","peperomia refiexa","Peperomia reflexa","Synonym","literature2021","CHECK_fuzzy",2,0.933333333333333,14932,14918
+"661","peperomia rhombeo-elliptica","peperomia rhombeo-elliptica","Peperomia rhombeoelliptica","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.988235294117647,13015,13015
+"662","peperomia rhombifolia","peperomia rhombifolia","Peperomia rhombeifolia","Accepted","GBIF2026; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.983333333333333,62774,62774
+"663","peperomia riocangrejalensis","peperomia riocangrejalensis","Peperomia rio-cangrejalensis","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.987037037037037,62133,62131
+"664","peperomia roigiana","peperomia roigiana","Peperomia roigana","Synonym","GBIF2026","CHECK_fuzzy",2,0.975,63094,63089
+"665","peperomia rubea","peperomia rubea","Peperomia rubella","Synonym","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.942857142857143,63095,63089
+"666","peperomia rufescens","peperomia rufescens","Peperomia rubescens","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.940740740740741,62795,62795
+"667","peperomia samoensis","peperomia samoensis","Peperomia salmensis","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.940740740740741,62470,62467
+"668","peperomia san-carlosiana","peperomia san-carlosiana","Peperomia sancarlosiana","Accepted","CR2024; GBIF2026; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.983333333333333,58235,58235
+"669","peperomia san-felipensis","peperomia san-felipensis","Peperomia sanfelipensis","Accepted","GBIF2026; HUA2025; iNat2026; peperomia_net2025; SEL2021","CHECK_fuzzy",2,0.983333333333333,62829,62829
+"670","peperomia san-joseana","peperomia san-joseana","Peperomia sanjoseana","Synonym","CR2024; GBIF2026; HUA2025; HUAP2024; iNat2026; JimenezDA; KroemerT; peperomia_net2025","CHECK_fuzzy",2,0.978787878787879,6979,6959
+"671","peperomia san-pedritoi","peperomia san-pedritoi","Peperomia sanpedritoi","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.980555555555556,57918,57916
+"672","peperomia san-roqueana","peperomia san-roqueana","Peperomia sanroqueana","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.980555555555556,62831,62831
+"673","peperomia sanbuenaventurana","peperomia sanbuenaventurana","Peperomia san-buenaventurana","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.987037037037037,7080,7044
+"674","peperomia santa-cruzana","peperomia santa-cruzana","Peperomia santacruzana","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.984615384615385,62719,62717
+"675","peperomia santa-elisae","peperomia santa-elisae","Peperomia santaelisae","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.983333333333333,57916,57916
+"676","peperomia santa-helenae","peperomia santa-helenae","Peperomia santahelenae","Accepted","GBIF2026; HUAP2024; JimenezDA; peperomia_net2025","CHECK_fuzzy",2,0.984615384615385,62833,62833
+"677","peperomia santanderana","peperomia santanderana","Peperomia santanana","Synonym","GBIF2026; HUA2025; peperomia_net2025","CHECK_fuzzy",2,0.95,58239,58235
+"678","peperomia santarosana","peperomia santarosana","Peperomia santa-rosana","Synonym","GBIF2026","CHECK_fuzzy",2,0.983333333333333,7315,7297
+"679","peperomia schenckiana","peperomia schenckiana","Peperomia schenkiana","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,62836,62836
+"680","peperomia scutellata","peperomia scutellata","Peperomia stellata","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.94,62902,62902
+"681","peperomia silvestris","peperomia silvestris","Peperomia sylvestris","Accepted","peperomia_net2025","CHECK_fuzzy",2,0.94,62966,62966
+"682","peperomia swatziana","peperomia swatziana","Peperomia swartziana","Accepted","GerberJP","CHECK_fuzzy",2,0.976666666666667,62960,62960
+"683","peperomia tenera","peperomia tenera","Peperomia tenerrima","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,62988,62988
+"684","peperomia tenuiflora","peperomia tenuiflora","Peperomia tenuifolia","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.937777777777778,83077,83077
+"685","peperomia tenuinerva","peperomia tenuinerva","Peperomia tenuinervis","Synonym","GBIF2026","CHECK_fuzzy",2,0.943636363636364,62213,62201
+"686","peperomia tenuipila","peperomia tenuipila","Peperomia tenuispica","Synonym","peperomia_net2025","CHECK_fuzzy",2,0.937777777777778,62743,62732
+"687","peperomia tropaeolifolia","peperomia tropaeolifolia","Peperomia tropeolifolia","Synonym","INABIOEC","CHECK_fuzzy",2,0.985714285714286,7364,7355
+"688","peperomia vulcanicula","peperomia vulcanicula","Peperomia vulcanica","Accepted","literature2021","CHECK_fuzzy",2,0.963636363636364,81460,81460
+"689","peperomia yutajensis","peperomia yutajensis","Peperomia yatuensis","Accepted","GBIF2026; peperomia_net2025","CHECK_fuzzy",2,0.936666666666667,63111,63111
+"690","pepinia uaupensis","pepinia uaupensis","Pepinia uaupanensis","Synonym","GBIF2026; HUA2025; literature2021; SEL2021","CHECK_fuzzy",2,0.941414141414141,65224,65222
+"691","pernettya myrsinoides","pernettya myrsinoides","Pernettya myrsinites","Synonym","GBIF2026","CHECK_fuzzy",2,0.943636363636364,50729,50726
+"692","phaius tankarvilleae","phaius tankarvilleae","Phaius tankervilleae","Synonym","GBIF2026","CHECK_fuzzy",2,0.969230769230769,86003,85966
+"693","philodendron acuatum","philodendron acuatum","Philodendron arcuatum","Synonym","literature2021","CHECK_fuzzy",2,0.9625,14972,14971
+"694","philodendron advenae","philodendron advenae","Philodendron advena","Accepted","literature2021","CHECK_fuzzy",2,0.971428571428571,63637,63637
+"695","philodendron asplundi","philodendron asplundi","Philodendron asplundii","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,63669,63669
+"696","philodendron atratus","philodendron atratus","Philodendron atratum","Accepted","HUA2025","CHECK_fuzzy",2,0.942857142857143,59053,59053
+"697","philodendron beniteziae","philodendron beniteziae","Philodendron benitezii","Accepted","GBIF2026; HUA2025; INABIOEC; JimenezA; ZuluagaA","CHECK_fuzzy",2,0.937777777777778,63688,63688
+"698","philodendron brantii","philodendron brantii","Philodendron brandii","Accepted","GBIF2026","CHECK_fuzzy",2,0.942857142857143,63697,63697
+"699","philodendron cataniaponense","philodendron cataniaponense","Philodendron cataniapoense","Accepted","literature2021","CHECK_fuzzy",2,0.97032967032967,63718,63718
+"700","philodendron danielii","philodendron danielii","Philodendron daniellii","Accepted","HUA2025","CHECK_fuzzy",2,0.977777777777778,7494,7494
+"701","philodendron ernesti","philodendron ernesti","Philodendron ernestii","Accepted","literature2021","CHECK_fuzzy",2,0.975,63816,63816
+"702","philodendron fragantissimum","philodendron fragantissimum","Philodendron fragrantissimum","Accepted","literature2021; SandoyaV","CHECK_fuzzy",2,0.986666666666667,63837,63837
+"703","philodendron fragantissimun","philodendron fragantissimun","Philodendron fragrantissimum","Accepted","literature2021","CHECK_fuzzy",2,0.959047619047619,63837,63837
+"704","philodendron helenae","philodendron helenae","Philodendron heleniae","Accepted","GBIF2026","CHECK_fuzzy",2,0.975,63887,63887
+"705","philodendron inaequilateum","philodendron inaequilateum","Philodendron inaequilaterum subsp. anthoblastum","Synonym","literature2024","CHECK_fuzzy",2,0.985714285714286,63876,63874
+"706","philodendron kressii","philodendron kressii","Philodendron krebsii","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,63736,63733
+"707","philodendron lacinatum","philodendron lacinatum","Philodendron laciniatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.98,64121,64116
+"708","philodendron lemorae","philodendron lemorae","Philodendron lemae","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,63968,63968
+"709","philodendron longipetiolatum","philodendron longipetiolatum","Philodendron longepetiolatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.951904761904762,64248,64247
+"710","philodendron megalophylllum","philodendron megalophylllum","Philodendron megalophyllum","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.985714285714286,64043,64043
+"711","philodendron melanochlorum","philodendron melanochlorum","Philodendron melanochrysum","Accepted","GBIF2026","CHECK_fuzzy",2,0.938461538461538,64045,64045
+"712","philodendron oligospermium","philodendron oligospermium","Philodendron oligospermum","Accepted","HUA2025","CHECK_fuzzy",2,0.984615384615385,64093,64093
+"713","philodendron pimichinense","philodendron pimichinense","Philodendron pimichinese","Accepted","GBIF2026","CHECK_fuzzy",2,0.983333333333333,64135,64135
+"714","philodendron solimoesensis","philodendron solimoesensis","Philodendron solimoesense","Synonym","literature2021","CHECK_fuzzy",2,0.952564102564102,59767,59766
+"715","philodendron toshibai","philodendron toshibai","Philodendron toshibae","Accepted","CUZ2025; GBIF2026; literature2021","CHECK_fuzzy",2,0.95,64294,64294
+"716","philodendron warscewiczii","philodendron warscewiczii","Philodendron warszewiczii","Accepted","GBIF2026","CHECK_fuzzy",2,0.948484848484848,64357,64357
+"717","philodendron wilburi","philodendron wilburi","Philodendron wilburii","Accepted","literature2021","CHECK_fuzzy",2,0.975,64364,64364
+"718","phlebodium aerolatum","phlebodium aerolatum","Phlebodium areolatum","Accepted","literature2021","CHECK_fuzzy",2,0.966666666666667,7528,7528
+"719","phlegmariurus acifolius","phlegmariurus acifolius","Phlegmariurus acutifolius","Synonym","GBIF2026; HUA2025; ICESI2024","CHECK_fuzzy",2,0.951515151515152,13357,13350
+"720","phlegmariurus heterocarpon","phlegmariurus heterocarpon","Phlegmariurus heterocarpos","Accepted","GBIF2026","CHECK_fuzzy",2,0.966666666666667,91398,91398
+"721","phyllonoma teniudens","phyllonoma teniudens","Phyllonoma tenuidens","Accepted","literature2021","CHECK_fuzzy",2,0.974074074074074,64772,64772
+"722","pilea cornutocucullata","pilea cornutocucullata","Pilea cornuto-cucullata","Accepted","CR2024","CHECK_fuzzy",2,0.988235294117647,64801,64801
+"723","pilea diverssima","pilea diverssima","Pilea diversissima","Synonym","ATRIUM2017","CHECK_fuzzy",2,0.946666666666667,64804,64803
+"724","piper allatum","piper allatum","Piper alatum","Synonym","HUA2025","CHECK_fuzzy",2,0.961904761904762,61701,61688
+"725","piper brachystylum","piper brachystylum","Piper brachystachyum","Synonym","HUA2025; INABIOEC","CHECK_fuzzy",2,0.94047619047619,62067,62064
+"726","piper ellipticifolium","piper ellipticifolium","Piper ellipticum","Synonym","HUA2025","CHECK_fuzzy",2,0.933333333333333,61995,61991
+"727","piper hispidum","piper hispidum","Piper hispidulum","Synonym","ATRIUM2017; CAUP2023; CUZ2025; HEM2025; HUA2025; HUAP2024; ICESI2024; INABIOEC; KUELAP2024; literature2021; OAX2025; SandoyaV","CHECK_fuzzy",2,0.96,62231,62216
+"728","piper lanceifolium","piper lanceifolium","Piper laevifolium","Synonym","ATRIUM2017; CAUP2023; HUA2025; ICESI2024; INABIOEC; KUELAP2024; RoseroJ","CHECK_fuzzy",2,0.931313131313131,62286,62279
+"729","piper lancifolium","piper lancifolium","Piper planifolium","Synonym","CAUP2023; HUA2025","CHECK_fuzzy",2,0.939393939393939,6958,6940
+"730","piper longifolium","piper longifolium","Piper longiflorum","Synonym","ATRIUM2017; CUZ2025; HUA2025; INABIOEC","CHECK_fuzzy",2,0.943636363636364,62800,62796
+"731","piper macrostachyum","piper macrostachyum","Piper macrostachyon","Synonym","ATRIUM2017","CHECK_fuzzy",2,0.938461538461538,7221,7185
+"732","piper marginatum","piper marginatum","Piper emarginatum","Synonym","ATRIUM2017; CUZ2025; HUA2025; HUAP2024; ICESI2024; INABIOEC; OAX2025; RoseroJ; SEL2021; TECLA2025","CHECK_fuzzy",2,0.96969696969697,7277,7241
+"733","piper pancifolium","piper pancifolium","Piper planifolium","Synonym","HUA2025","CHECK_fuzzy",2,0.945454545454546,6958,6940
+"734","piper patzulinum","piper patzulinum","Piper patulum","Synonym","HUA2025; OAX2025","CHECK_fuzzy",2,0.93,7178,7162
+"735","piper statum","piper statum","Piper striatum","Synonym","HUA2025","CHECK_fuzzy",2,0.933333333333333,62919,62908
+"736","pitcairnia palmoide","pitcairnia palmoide","Pitcairnia palmoides","Accepted","INABIOEC","CHECK_fuzzy",2,0.977777777777778,65205,65205
+"737","pityphyllum pinioides","pityphyllum pinioides","Pityphyllum pinoides","Synonym","literature2021","CHECK_fuzzy",2,0.944907407407407,12512,12511
+"738","platystele breneri","platystele breneri","Platystele brenneri","Accepted","literature2021","CHECK_fuzzy",2,0.975,65335,65335
+"739","platystele stenostachia","platystele stenostachia","Platystele stenostachya","Accepted","literature2021","CHECK_fuzzy",2,0.966666666666667,7899,7899
+"740","pleiochiton crassifolium","pleiochiton crassifolium","Pleiochiton crassifolius","Synonym","AssisI","CHECK_fuzzy",2,0.966666666666667,61824,61823
+"741","pleiochiton ebracteatum","pleiochiton ebracteatum","Pleiochiton ebracteatus","Synonym","AssisI; GBIF2026","CHECK_fuzzy",2,0.963636363636364,61826,61825
+"742","pleiochiton longipetiolatum","pleiochiton longipetiolatum","Pleiochiton longipetiolatus","Synonym","AssisI","CHECK_fuzzy",2,0.973333333333333,61831,61830
+"743","pleiochiton magdalenense","pleiochiton magdalenense","Pleiochiton magdalenensis","Synonym","AssisI","CHECK_fuzzy",2,0.952564102564102,61833,61832
+"744","pleiochiton setulosum","pleiochiton setulosum","Pleiochiton setulosus","Synonym","AssisI; GBIF2026","CHECK_fuzzy",2,0.955555555555556,61841,61840
+"745","pleopeltis alan-smithii","pleopeltis alan-smithii","Pleopeltis alansmithii","Accepted","literature2021","CHECK_fuzzy",2,0.983333333333333,13511,13511
+"746","pleopeltis bombycinum","pleopeltis bombycinum","Pleopeltis bombycina","Accepted","literature2021","CHECK_fuzzy",2,0.937777777777778,7923,7923
+"747","pleopeltis conzatti","pleopeltis conzatti","Pleopeltis conzattii","Accepted","HGOM2025","CHECK_fuzzy",2,0.977777777777778,65611,65611
+"748","pleopeltis cryptocarpa","pleopeltis cryptocarpa","Pleopeltis cryptocarpos","Accepted","GBIF2026; HUAP2024; JimenezDA; KesslerM; OAX2025","CHECK_fuzzy",2,0.948484848484848,63441,63441
+"749","pleopeltis furfuraceum","pleopeltis furfuraceum","Pleopeltis furfuracea","Accepted","CR2024; KesslerM; LPB2024","CHECK_fuzzy",2,0.943636363636364,13553,13553
+"750","pleopeltis leucospora","pleopeltis leucospora","Pleopeltis leucophora","Synonym","KesslerM","CHECK_fuzzy",2,0.96,85031,85029
+"751","pleopeltis muenchii","pleopeltis muenchii","Pleopeltis munchii","Accepted","GBIF2026; literature2021","CHECK_fuzzy",2,0.966666666666667,88103,88103
+"752","pleopeltis polypodiodes","pleopeltis polypodiodes","Pleopeltis polypodioides","Accepted","literature2021","CHECK_fuzzy",2,0.984615384615385,7987,7987
+"753","pleopeltis segregata","pleopeltis segregata","Pleopeltis segretata","Accepted","GBIF2026; HUA2025","CHECK_fuzzy",2,0.930555555555556,63598,63598
+"754","pleopeltis thysanolepis","pleopeltis thysanolepis","Pleopeltis thyssanolepis","Accepted","GBIF2026","CHECK_fuzzy",2,0.984615384615385,8017,8017
+"755","pleopeltis tweediana","pleopeltis tweediana","Pleopeltis tweedieana","Accepted","GBIF2026; KesslerM; literature2021","CHECK_fuzzy",2,0.98,88112,88112
+"756","pleurothallis acostae","pleurothallis acostae","Pleurothallis acostaei","Synonym","CR2024; SEL2021","CHECK_fuzzy",2,0.975,66561,66559
+"757","pleurothallis adelae","pleurothallis adelae","Pleurothallis adeleae","Accepted","literature2021","CHECK_fuzzy",2,0.938095238095238,65719,65719
+"758","pleurothallis adiri","pleurothallis adiri","Pleurothallis adirii","Synonym","SEL2021","CHECK_fuzzy",2,0.966666666666667,15256,15255
+"759","pleurothallis alexandrae","pleurothallis alexandrae","Pleurothallis alexandri","Synonym","GBIF2026; SEL2021","CHECK_fuzzy",2,0.937777777777778,15559,15557
+"760","pleurothallis aphtosa","pleurothallis aphtosa","Pleurothallis aphthosa","Synonym","literature2021; LPB2024","CHECK_fuzzy",2,0.975,15272,15271
+"761","pleurothallis barbacensis","pleurothallis barbacensis","Pleurothallis barbacenensis","Synonym","GBIF2026","CHECK_fuzzy",2,0.969230769230769,14771,14767
+"762","pleurothallis bipapulare","pleurothallis bipapulare","Pleurothallis bipapularis","Synonym","SEL2021","CHECK_fuzzy",2,0.943636363636364,9592,9591
+"763","pleurothallis bowmannii","pleurothallis bowmannii","Pleurothallis bowmanni","Accepted","SEL2021","CHECK_fuzzy",2,0.977777777777778,62027,62027
+"764","pleurothallis callosa","pleurothallis callosa","Pleurothallis ecallosa","Synonym","GBIF2026","CHECK_fuzzy",2,0.958333333333333,15355,15353
+"765","pleurothallis crocodilanthe","pleurothallis crocodilanthe","Pleurothallis crocodeilanthe","Synonym","GBIF2026","CHECK_fuzzy",2,0.931868131868132,74905,74902
+"766","pleurothallis derengularis","pleurothallis derengularis","Pleurothallis deregularis","Synonym","literature2021","CHECK_fuzzy",2,0.983333333333333,73503,73497
+"767","pleurothallis diminuata","pleurothallis diminuata","Pleurothallis diminuta","Synonym","literature2021","CHECK_fuzzy",2,0.952777777777778,73524,73522
+"768","pleurothallis dodsoni","pleurothallis dodsoni","Pleurothallis dodsonii","Synonym","literature2021","CHECK_fuzzy",2,0.975,10411,10409
+"769","pleurothallis grobyii","pleurothallis grobyii","Pleurothallis grobyi","Synonym","INABIOEC","CHECK_fuzzy",2,0.971428571428571,15026,15015
+"770","pleurothallis hastata","pleurothallis hastata","Pleurothallis hastulata","Synonym","GBIF2026; SEL2021","CHECK_fuzzy",2,0.955555555555556,62387,62385
+"771","pleurothallis hawkingii","pleurothallis hawkingii","Pleurothallis hawkinsii","Accepted","CR2024; GBIF2026","CHECK_fuzzy",2,0.955555555555556,84475,84475
+"772","pleurothallis lewisae","pleurothallis lewisae","Pleurothallis lewisiae","Synonym","literature2021","CHECK_fuzzy",2,0.975,18428,18426
+"773","pleurothallis longipetala","pleurothallis longipetala","Pleurothallis longisepala","Synonym","GBIF2026","CHECK_fuzzy",2,0.943636363636364,15693,15689
+"774","pleurothallis mantiguyrana","pleurothallis mantiguyrana","Pleurothallis mantiquyrana","Synonym","GBIF2026","CHECK_fuzzy",2,0.966666666666667,109,102
+"775","pleurothallis miserrima","pleurothallis miserrima","Pleurothallis misera","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,65430,65428
+"776","pleurothallis pachyglosa","pleurothallis pachyglosa","Pleurothallis pachyglossa","Synonym","HEM2025","CHECK_fuzzy",2,0.981818181818182,74234,74228
+"777","pleurothallis pleurothallis","pleurothallis pleurothallis","Pleurothallis pleurothalloides","Synonym","UIS2024","CHECK_fuzzy",2,0.9625,10339,10334
+"778","pleurothallis polygoniodes","pleurothallis polygoniodes","Pleurothallis polygonoides","Synonym","literature2021","CHECK_fuzzy",2,0.983333333333333,615,612
+"779","pleurothallis rubrifolia","pleurothallis rubrifolia","Pleurothallis rutrifolia","Accepted","GBIF2026","CHECK_fuzzy",2,0.946666666666666,84527,84527
+"780","pleurothallis schweinfurtii","pleurothallis schweinfurtii","Pleurothallis schweinfurthii","Accepted","LPB2024","CHECK_fuzzy",2,0.985714285714286,14979,14979
+"781","pleurothallis stenoglosa","pleurothallis stenoglosa","Pleurothallis stenoglossa","Synonym","GUYN2008","CHECK_fuzzy",2,0.981818181818182,14814,14790
+"782","pleurothallis tapantiensis","pleurothallis tapantiensis","Pleurothallis tandapiensis","Accepted","GBIF2026","CHECK_fuzzy",2,0.931313131313131,84532,84532
+"783","pleurothallis testifolia","pleurothallis testifolia","Pleurothallis testaefolia","Synonym","GBIF2026; SEL2021","CHECK_fuzzy",2,0.943636363636364,62946,62935
+"784","pleurothallis triangulabia","pleurothallis triangulabia","Pleurothallis triangulilabia","Synonym","GBIF2026","CHECK_fuzzy",2,0.946428571428571,66557,66554
+"785","poaephyllum pauciflorum","poaephyllum pauciflorum","Poaephyllum pauciflora","Accepted","GBIF2026","CHECK_fuzzy",2,0.943636363636364,67248,67248
+"786","polycycnis lehmanni","polycycnis lehmanni","Polycycnis lehmannii","Accepted","SEL2021","CHECK_fuzzy",2,0.977777777777778,67331,67331
+"787","polypodium adnatun","polypodium adnatun","Polypodium adnatum","Synonym","ATRIUM2017","CHECK_fuzzy",2,0.942857142857143,9411,9408
+"788","polypodium alan-smithii","polypodium alan-smithii","Polypodium alansmithii","Synonym","literature2021","CHECK_fuzzy",2,0.983333333333333,13512,13511
+"789","polypodium appressum","polypodium appressum","Polypodium adpressum","Synonym","GBIF2026; LPB2024","CHECK_fuzzy",2,0.933333333333333,15005,15004
+"790","polypodium asterolepis","polypodium asterolepis","Polypodium steirolepis","Synonym","GBIF2026","CHECK_fuzzy",2,0.939393939393939,13612,13610
+"791","polypodium balliviani","polypodium balliviani","Polypodium ballivianii","Synonym","literature2021","CHECK_fuzzy",2,0.981818181818182,7921,7920
+"792","polypodium brunneo-viride","polypodium brunneo-viride","Polypodium brunneoviride","Synonym","GBIF2026","CHECK_fuzzy",2,0.985714285714286,30023,30021
+"793","polypodium crysolepis","polypodium crysolepis","Polypodium chrysolepis","Synonym","CUZ2025","CHECK_fuzzy",2,0.972727272727273,88232,88229
+"794","polypodium cyathicolum","polypodium cyathicolum","Polypodium cyathicola","Synonym","GBIF2026","CHECK_fuzzy",2,0.943636363636364,61603,61602
+"795","polypodium feuyllei","polypodium feuyllei","Polypodium feuillei","Synonym","literature2021","CHECK_fuzzy",2,0.941666666666667,9805,9799
+"796","polypodium forsmosanum","polypodium forsmosanum","Polypodium formosanum","Synonym","SEL2021","CHECK_fuzzy",2,0.943787878787879,84576,84573
+"797","polypodium heteroclitum","polypodium heteroclitum","Polypodium heterotrichum","Synonym","GBIF2026","CHECK_fuzzy",2,0.934382284382284,10318,10314
+"798","polypodium loricerum","polypodium loricerum","Polypodium loriceum var. glaucum","Synonym","CUZ2025","CHECK_fuzzy",2,0.977777777777778,9432,9421
+"799","polypodium lycopodiodes","polypodium lycopodiodes","Polypodium lycopodioides f. obtusum","Synonym","literature2021","CHECK_fuzzy",2,0.984615384615385,5984,5960
+"800","polypodium muenchii","polypodium muenchii","Polypodium munchii","Synonym","GBIF2026; JimenezDA; literature2021; OAX2025","CHECK_fuzzy",2,0.966666666666667,88106,88103
+"801","polypodium nigrolimbatum","polypodium nigrolimbatum","Polypodium nigro-limbatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.985714285714286,4266,4258
+"802","polypodium plebeiu","polypodium plebeiu","Polypodium plebeium var. columbiense","Synonym","literature2021","CHECK_fuzzy",2,0.975,8014,8008
+"803","polypodium polypodiodes","polypodium polypodiodes","Polypodium polypodioides var. microlepis","Synonym","HGOM2025","CHECK_fuzzy",2,0.984615384615385,7976,7966
+"804","polypodium polypodioiodes","polypodium polypodioiodes","Polypodium polypodioides var. microlepis","Synonym","SEL2021","CHECK_fuzzy",2,0.985714285714286,7976,7966
+"805","polypodium ptilodon","polypodium ptilodon","Polypodium ptiloton var. pilosum","Synonym","GBIF2026","CHECK_fuzzy",2,0.95,61574,61573
+"806","polypodium rhodopeuron","polypodium rhodopeuron","Polypodium rhodopleuron","Accepted","KesslerM","CHECK_fuzzy",2,0.983333333333333,14983,14983
+"807","polypodium sessifolium","polypodium sessifolium","Polypodium sessilifolium","Synonym","literature2021","CHECK_fuzzy",2,0.932867132867133,9497,9491
+"808","polypodium sordidulum","polypodium sordidulum","Polypodium sordidum","Synonym","GBIF2026","CHECK_fuzzy",2,0.96,52611,52608
+"809","polypodium thyssanolepsis","polypodium thyssanolepsis","Polypodium thyssanolepis","Accepted","literature2021","CHECK_fuzzy",2,0.97032967032967,91162,91162
+"810","polypodium trisenale","polypodium trisenale","Polypodium triseriale","Synonym","GUYN2008","CHECK_fuzzy",2,0.937777777777778,9536,9504
+"811","polypodium tweedieanum","polypodium tweedieanum","Polypodium tweedianum","Synonym","GBIF2026","CHECK_fuzzy",2,0.981818181818182,88117,88112
+"812","polytaenium cajenese","polytaenium cajenese","Polytaenium cajenense","Accepted","HEM2025","CHECK_fuzzy",2,0.977777777777778,8437,8437
+"813","polytaenium jenmanii","polytaenium jenmanii","Polytaenium jenmani","Accepted","GBIF2026","CHECK_fuzzy",2,0.975,90307,90307
+"814","polytaenium urbani","polytaenium urbani","Polytaenium urbanii","Accepted","GBIF2026","CHECK_fuzzy",2,0.971428571428571,68263,68263
+"815","ponthieva vasquezii","ponthieva vasquezii","Ponthieva vasqueziae","Accepted","GBIF2026","CHECK_fuzzy",2,0.937777777777778,68344,68344
+"816","porroglossum eduardii","porroglossum eduardii","Porroglossum eduardi","Accepted","SEL2021","CHECK_fuzzy",2,0.975,13732,13732
+"817","prosthechea varicose","prosthechea varicose","Prosthechea varicosa","Accepted","literature2021","CHECK_fuzzy",2,0.95,69094,69094
+"818","pseudolaelia dutrae","pseudolaelia dutrae","Pseudolaelia dutraei","Accepted","GBIF2026; SEL2021","CHECK_fuzzy",2,0.971428571428571,8596,8596
+"819","psychopsis versteegianum","psychopsis versteegianum","Psychopsis versteegiana","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.952564102564102,13782,13782
+"820","puya gerdmuelleri","puya gerdmuelleri","Puya gerd-muelleri","Accepted","ZizkaA","CHECK_fuzzy",2,0.984615384615385,69438,69438
+"821","quesnelia augustocoburgii","quesnelia augustocoburgii","Quesnelia augusto-coburgii","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,69643,69643
+"822","quesnelia strobilispica","quesnelia strobilispica","Quesnelia strobilospica","Synonym","GBIF2026; ZizkaA","CHECK_fuzzy",2,0.944230769230769,69646,69644
+"823","racinaea adpresa","racinaea adpresa","Racinaea adpressa","Accepted","UIS2024","CHECK_fuzzy",2,0.975,73559,73559
+"824","racinaea aerisincola","racinaea aerisincola","Racinaea aeris-incola","Accepted","AssisI; ZizkaA","CHECK_fuzzy",2,0.983333333333333,73584,73584
+"825","racinaea amultiflora","racinaea amultiflora","Racinaea multiflora","Accepted","PRG2025","CHECK_fuzzy",2,0.96969696969697,74330,74330
+"826","racinaea euryelyatra","racinaea euryelyatra","Racinaea euryelytra","Accepted","literature2021","CHECK_fuzzy",2,0.951818181818182,84789,84789
+"827","racinaea sanctaemartae","racinaea sanctaemartae","Racinaea sanctae-martae","Accepted","ZizkaA","CHECK_fuzzy",2,0.985714285714286,74588,74588
+"828","rapanea myricoides","rapanea myricoides","Rapanea myrioides","Synonym","GBIF2026","CHECK_fuzzy",2,0.98,83837,83804
+"829","rhipsalis bacciferaa","rhipsalis bacciferaa","Rhipsalis baccifera","Accepted","literature2021","CHECK_fuzzy",2,0.98,70090,70090
+"830","rhipsalis bartlettii","rhipsalis bartlettii","Rhipsalis barthlottii","Accepted","GBIF2026; OAX2025","CHECK_fuzzy",2,0.943636363636364,86065,86065
+"831","rhipsalis micranta","rhipsalis micranta","Rhipsalis micrantha","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,8887,8887
+"832","rhynchostele cervantessii","rhynchostele cervantessii","Rhynchostele cervantesii","Accepted","literature2021","CHECK_fuzzy",2,0.983333333333333,70595,70595
+"833","rhynchostele maculate","rhynchostele maculate","Rhynchostele maculata","Accepted","literature2021","CHECK_fuzzy",2,0.95,70637,70637
+"834","rhynchostele uroskinneri","rhynchostele uroskinneri","Rhynchostele ureskinneri","Accepted","GBIF2026; JimenezDA","CHECK_fuzzy",2,0.951515151515152,70693,70693
+"835","ruellia angustifolia","ruellia angustifolia","Ruellia angustiflora","Accepted","GBIF2026","CHECK_fuzzy",2,0.948484848484848,84861,84861
+"836","ruellia angustior","ruellia angustior","Ruellia angustiflora","Accepted","GBIF2026; HUA2025","CHECK_fuzzy",2,0.95,84861,84861
+"837","ruellia longiflora","ruellia longiflora","Ruellia longifolia","Synonym","GBIF2026","CHECK_fuzzy",2,0.937777777777778,91340,91338
+"838","ruyschia valerii","ruyschia valerii","Ruyschia valerioi","Accepted","CR2024; GBIF2026","CHECK_fuzzy",2,0.975,71086,71086
+"839","salpichroa cuspidata","salpichroa cuspidata","Salpichroa cuspidatum","Synonym","GBIF2026","CHECK_fuzzy",2,0.937777777777778,4925,4922
+"840","scaphyglottis acostae","scaphyglottis acostae","Scaphyglottis acostaei","Accepted","CR2024; GBIF2026; SEL2021","CHECK_fuzzy",2,0.975,71381,71381
+"841","scaphyglottis amazonicaa","scaphyglottis amazonicaa","Scaphyglottis amazonica","Synonym","literature2021","CHECK_fuzzy",2,0.98,71414,71410
+"842","scaphyglottis amethytina","scaphyglottis amethytina","Scaphyglottis amethystina","Synonym","literature2021","CHECK_fuzzy",2,0.981818181818182,71625,71622
+"843","scaphyglottis propingua","scaphyglottis propingua","Scaphyglottis propinqua","Accepted","GUYN2008","CHECK_fuzzy",2,0.955555555555556,71552,71552
+"844","scaphyglottis sumersii","scaphyglottis sumersii","Scaphyglottis summersii","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.974074074074074,71633,71633
+"845","schefflera ferrugiunea","schefflera ferrugiunea","Schefflera ferruginea","Synonym","INABIOEC","CHECK_fuzzy",2,0.981818181818182,66711,66705
+"846","schefflera rodrigueziana","schefflera rodrigueziana","Schefflera rodriguesiana","Synonym","literature2021","CHECK_fuzzy",2,0.969230769230769,9037,9035
+"847","schlegelia dariensis","schlegelia dariensis","Schlegelia darienensis","Accepted","literature2021","CHECK_fuzzy",2,0.963636363636364,88729,88729
+"848","schultesianthus crosbyanus","schultesianthus crosbyanus","Schultesianthus crosbianus","Accepted","CR2024; GBIF2026","CHECK_fuzzy",2,0.96,71963,71963
+"849","sciodaphyllum quindiuense","sciodaphyllum quindiuense","Sciodaphyllum quinduense","Accepted","HUA2025","CHECK_fuzzy",2,0.981818181818182,78754,78754
+"850","sciodaphyllum sphaerocomum","sciodaphyllum sphaerocomum","Sciodaphyllum sphaerocoma","Accepted","CR2024; HUA2025; INABIOEC","CHECK_fuzzy",2,0.948484848484848,66800,66800
+"851","scoliosorus ensitormis","scoliosorus ensitormis","Scoliosorus ensiformis","Accepted","literature2021","CHECK_fuzzy",2,0.96,9060,9060
+"852","scuticaria steelei","scuticaria steelei","Scuticaria steelii","Accepted","INABIOEC","CHECK_fuzzy",2,0.942857142857143,72008,72008
+"853","sedum botteri","sedum botteri","Sedum botterii","Accepted","GBIF2026; literature2021","CHECK_fuzzy",2,0.975,9078,9078
+"854","sedum bottieri","sedum bottieri","Sedum botterii","Accepted","literature2021","CHECK_fuzzy",2,0.9625,9078,9078
+"855","sedum torulosum","sedum torulosum","Sedum tortuosum","Accepted","GBIF2026","CHECK_fuzzy",2,0.948148148148148,72024,72024
+"856","selaginella macrostachya","selaginella macrostachya","Selaginella microstachya","Accepted","GBIF2026","CHECK_fuzzy",2,0.95,91170,91170
+"857","selaginella polyptera","selaginella polyptera","Selaginella polysperma","Synonym","GBIF2026; HUAP2024","CHECK_fuzzy",2,0.937777777777778,72057,72045
+"858","selaginella vernicosa","selaginella vernicosa","Selaginella ventricosa","Accepted","GBIF2026","CHECK_fuzzy",2,0.943703703703704,86072,86072
+"859","sobralia fragans","sobralia fragans","Sobralia fragrans","Accepted","literature2021; literature2024","CHECK_fuzzy",2,0.975,72358,72358
+"860","sobralia macranta","sobralia macranta","Sobralia macrantha","Accepted","literature2024","CHECK_fuzzy",2,0.977777777777778,80835,80835
+"861","sobralia marianneae","sobralia marianneae","Sobralia mariannae","Accepted","SEL2021","CHECK_fuzzy",2,0.957777777777778,72363,72363
+"862","solanum adspersum","solanum adspersum","Solanum asperum","Synonym","GBIF2026","CHECK_fuzzy",2,0.933333333333333,80930,80920
+"863","solanum aspersum","solanum aspersum","Solanum asperum","Synonym","GBIF2026; HUA2025; INABIOEC","CHECK_fuzzy",2,0.975,80930,80920
+"864","solanum capense","solanum capense","Solanum caripense","Accepted","GBIF2026","CHECK_fuzzy",2,0.940740740740741,81465,81465
+"865","solanum dillonii","solanum dillonii","Solanum dillenii","Synonym","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.95,80937,80920
+"866","solanum heterotrichum","solanum heterotrichum","Solanum heteroclitum","Synonym","GBIF2026","CHECK_fuzzy",2,0.934382284382284,54100,54088
+"867","solanum mariannae","solanum mariannae","Solanum mariae","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,91399,91399
+"868","solanum ptycanthum","solanum ptycanthum","Solanum ptychanthum","Synonym","GBIF2026","CHECK_fuzzy",2,0.941818181818182,80995,80920
+"869","solanum pulverulentifolium","solanum pulverulentifolium","Solanum pulverulentum","Synonym","GBIF2026","CHECK_fuzzy",2,0.944444444444444,72410,72406
+"870","solanum tabacifolium","solanum tabacifolium","Solanum tabaccifolium","Synonym","GBIF2026","CHECK_fuzzy",2,0.984615384615385,72411,72406
+"871","solanum tenuifolium","solanum tenuifolium","Solanum tenuiflorum","Synonym","GBIF2026","CHECK_fuzzy",2,0.943636363636364,81004,80920
+"872","specklinia fuegii","specklinia fuegii","Specklinia fuegi","Accepted","HEM2025; literature2021","CHECK_fuzzy",2,0.966666666666667,15007,15007
+"873","specklinia imraei","specklinia imraei","Specklinia imrayi","Synonym","CR2024; HUA2025","CHECK_fuzzy",2,0.933333333333333,73822,73813
+"874","sphaeradenia cuatrecasasiana","sphaeradenia cuatrecasasiana","Sphaeradenia cuatrecasana","Accepted","GBIF2026; HUA2025; JimenezA","CHECK_fuzzy",2,0.943333333333333,72761,72761
+"875","sphaeradenia longepedunculata","sphaeradenia longepedunculata","Sphaeradenia longipedunculata","Synonym","GBIF2026","CHECK_fuzzy",2,0.961666666666667,72793,72792
+"876","sphyrospermum grandiflorum","sphyrospermum grandiflorum","Sphyrospermum grandifolium","Accepted","GBIF2026","CHECK_fuzzy",2,0.948484848484848,72836,72836
+"877","sphyrospermum weberbaueri","sphyrospermum weberbaueri","Sphyrospermum weberbauerii","Accepted","GBIF2026","CHECK_fuzzy",2,0.983333333333333,88535,88535
+"878","stanhopea jenishiana","stanhopea jenishiana","Stanhopea jenischiana","Accepted","GBIF2026","CHECK_fuzzy",2,0.981818181818182,72955,72955
+"879","stelis citrinella","stelis citrinella","Stelis citrina","Synonym","SEL2021","CHECK_fuzzy",2,0.94,74457,74452
+"880","stelis floriani","stelis floriani","Stelis florianii","Accepted","literature2021","CHECK_fuzzy",2,0.977777777777778,73656,73656
+"881","stelis guatamalensis","stelis guatamalensis","Stelis guatemalensis","Synonym","INABIOEC","CHECK_fuzzy",2,0.944230769230769,9706,9703
+"882","stelis imraei","stelis imraei","Stelis imrayi","Accepted","CR2024","CHECK_fuzzy",2,0.933333333333333,73813,73813
+"883","stelis marginata","stelis marginata","Stelis emarginata","Accepted","SEL2021","CHECK_fuzzy",2,0.966666666666667,73566,73566
+"884","stelis morgani","stelis morgani","Stelis morganii","Accepted","INABIOEC","CHECK_fuzzy",2,0.975,74076,74076
+"885","stelis nexiopus","stelis nexiopus","Stelis nexipous","Accepted","literature2021","CHECK_fuzzy",2,0.975,74131,74131
+"886","stelis ornate","stelis ornate","Stelis ornata","Accepted","literature2021","CHECK_fuzzy",2,0.933333333333333,74215,74215
+"887","stelis parpides","stelis parpides","Stelis pardipes","Accepted","literature2021","CHECK_fuzzy",2,0.970833333333333,9703,9703
+"888","stelis pygamea","stelis pygamea","Stelis pygmaea","Accepted","GUYN2008","CHECK_fuzzy",2,0.966666666666667,74470,74470
+"889","stelis regia","stelis regia","Stelis regina","Accepted","SEL2021","CHECK_fuzzy",2,0.966666666666667,74478,74478
+"890","stelis scopula","stelis scopula","Stelis scopulosa","Accepted","INABIOEC","CHECK_fuzzy",2,0.955555555555556,74596,74596
+"891","stelis secundosa","stelis secundosa","Stelis secunda","Accepted","SEL2021","CHECK_fuzzy",2,0.955555555555556,74598,74598
+"892","stelis supervirens","stelis supervirens","Stelis supervivens","Accepted","INABIOEC","CHECK_fuzzy",2,0.963636363636364,74683,74683
+"893","stelis trulliabia","stelis trulliabia","Stelis trullilabia","Accepted","SEL2021","CHECK_fuzzy",2,0.981818181818182,85408,85408
+"894","stelis viridi-brunnea","stelis viridi-brunnea","Stelis viridibrunnea","Accepted","SEL2021","CHECK_fuzzy",2,0.985714285714286,74876,74876
+"895","stelis wercklei","stelis wercklei","Stelis werklei","Accepted","CR2024","CHECK_fuzzy",2,0.970833333333333,74894,74894
+"896","stenogrammitis mysouroides","stenogrammitis mysouroides","Stenogrammitis myosuroides","Synonym","KUELAP2024","CHECK_fuzzy",2,0.975757575757576,14348,14343
+"897","stenorrhynchos speciosus","stenorrhynchos speciosus","Stenorrhynchos speciosum","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,75118,75118
+"898","syngonium yurimagense","syngonium yurimagense","Syngonium yurimaguense","Accepted","literature2021","CHECK_fuzzy",2,0.983333333333333,9813,9813
+"899","telipogon albertii","telipogon albertii","Telipogon alberti","Accepted","GBIF2026","CHECK_fuzzy",2,0.975,75607,75607
+"900","telipogon bullpenense","telipogon bullpenense","Telipogon bullpenensis","Accepted","literature2021","CHECK_fuzzy",2,0.948484848484848,75682,75682
+"901","telipogon lehmanii","telipogon lehmanii","Telipogon lehmannii","Accepted","INABIOEC","CHECK_fuzzy",2,0.977777777777778,75794,75794
+"902","telipogon salinasii","telipogon salinasii","Telipogon salinasiae","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.937777777777778,75915,75915
+"903","terpsichore alfarii","terpsichore alfarii","Terpsichore alfaroi","Synonym","literature2021","CHECK_fuzzy",2,0.942857142857143,18114,18110
+"904","terpsichore aspleniifolia","terpsichore aspleniifolia","Terpsichore asplenifolia","Accepted","AssisI; KroemerT; literature2024","CHECK_fuzzy",2,0.951282051282051,89122,89122
+"905","terpsichore culturata","terpsichore culturata","Terpsichore cultrata","Synonym","literature2021","CHECK_fuzzy",2,0.977777777777778,463,453
+"906","thelypteris falcata","thelypteris falcata","Thelypteris falcatula","Synonym","CR2024; INABIOEC; JimenezDA; OAX2025","CHECK_fuzzy",2,0.955555555555556,73169,73143
+"907","thoracocarpus bisectus","thoracocarpus bisectus","Thoracocarpus bissectus","Accepted","ATRIUM2017; CUZ2025","CHECK_fuzzy",2,0.974074074074074,76188,76188
+"908","tillandsia achyrostahys","tillandsia achyrostahys","Tillandsia achyrostachys","Accepted","literature2021","CHECK_fuzzy",2,0.984615384615385,76608,76608
+"909","tillandsia acostasolisii","tillandsia acostasolisii","Tillandsia acosta-solisii","Synonym","INABIOEC","CHECK_fuzzy",2,0.985714285714286,73556,73555
+"910","tillandsia arizajuliae","tillandsia arizajuliae","Tillandsia ariza-juliae","Accepted","ZizkaA","CHECK_fuzzy",2,0.983333333333333,76678,76678
+"911","tillandsia bifiora","tillandsia bifiora","Tillandsia biflora","Accepted","literature2021","CHECK_fuzzy",2,0.933333333333333,76747,76747
+"912","tillandsia calcicola","tillandsia calcicola","Tillandsia cacticola","Accepted","SEL2021; ZizkaA","CHECK_fuzzy",2,0.940740740740741,76846,76846
+"913","tillandsia califanii","tillandsia califanii","Tillandsia califani","Accepted","OAX2025; ZizkaA","CHECK_fuzzy",2,0.977777777777778,76850,76850
+"914","tillandsia capilloris","tillandsia capilloris","Tillandsia capillaris f. cordobensis","Synonym","ISV2025","CHECK_fuzzy",2,0.96,74167,74165
+"915","tillandsia caputmedusae","tillandsia caputmedusae","Tillandsia caput-medusae","Accepted","ZizkaA","CHECK_fuzzy",2,0.984615384615385,76902,76902
+"916","tillandsia carloshankii","tillandsia carloshankii","Tillandsia carlos-hankii","Accepted","ZizkaA","CHECK_fuzzy",2,0.984615384615385,76904,76904
+"917","tillandsia circinnatoides","tillandsia circinnatoides","Tillandsia circinnatioides","Accepted","ZizkaA","CHECK_fuzzy",2,0.972380952380952,76943,76943
+"918","tillandsia comata","tillandsia comata","Tillandsia compacta","Accepted","GBIF2026","CHECK_fuzzy",2,0.941666666666667,76958,76958
+"919","tillandsia complanta","tillandsia complanta","Tillandsia complanata","Accepted","GBIF2026","CHECK_fuzzy",2,0.957777777777778,76970,76970
+"920","tillandsia crista-galli","tillandsia crista-galli","Tillandsia crista-gallii","Accepted","GBIF2026","CHECK_fuzzy",2,0.984615384615385,76993,76993
+"921","tillandsia cristagallii","tillandsia cristagallii","Tillandsia crista-gallii","Accepted","ZizkaA","CHECK_fuzzy",2,0.984615384615385,76993,76993
+"922","tillandsia depeanna","tillandsia depeanna","Tillandsia deppeana var. clavigera","Synonym","literature2021","CHECK_fuzzy",2,0.941666666666667,76945,76944
+"923","tillandsia elizabethiae","tillandsia elizabethiae","Tillandsia elizabethae","Accepted","SEL2021","CHECK_fuzzy",2,0.983333333333333,77125,77125
+"924","tillandsia elviraegrossiae","tillandsia elviraegrossiae","Tillandsia elvirae-grossiae","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,77141,77141
+"925","tillandsia fenuifolia","tillandsia fenuifolia","Tillandsia tenuifolia","Accepted","GUYN2008","CHECK_fuzzy",2,0.933333333333333,77754,77754
+"926","tillandsia fragans","tillandsia fragans","Tillandsia fragrans","Accepted","UIS2024","CHECK_fuzzy",2,0.975,77204,77204
+"927","tillandsia francisci","tillandsia francisci","Tillandsia franciscoi","Accepted","GBIF2026","CHECK_fuzzy",2,0.98,77206,77206
+"928","tillandsia frankhasei","tillandsia frankhasei","Tillandsia frank-hasei","Accepted","ZizkaA","CHECK_fuzzy",2,0.981818181818182,77207,77207
+"929","tillandsia guenthernolleri","tillandsia guenthernolleri","Tillandsia guenther-nolleri","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,77250,77250
+"930","tillandsia gynmnobotrya","tillandsia gynmnobotrya","Tillandsia gymnobotrya","Accepted","literature2021","CHECK_fuzzy",2,0.953535353535354,77252,77252
+"931","tillandsia huamelulaensis","tillandsia huamelulaensis","Tillandsia huamenulaensis","Accepted","GBIF2026; ZizkaA","CHECK_fuzzy",2,0.940659340659341,77278,77278
+"932","tillandsia juergrutschmannii","tillandsia juergrutschmannii","Tillandsia juerg-rutschmannii","Accepted","ZizkaA","CHECK_fuzzy",2,0.988888888888889,77320,77320
+"933","tillandsia juncae","tillandsia juncae","Tillandsia juncea","Accepted","OAX2025","CHECK_fuzzy",2,0.966666666666667,77321,77321
+"934","tillandsia kirchoffiana","tillandsia kirchoffiana","Tillandsia kirchhoffiana","Accepted","literature2021","CHECK_fuzzy",2,0.984615384615385,77335,77335
+"935","tillandsia lomaeblancae","tillandsia lomaeblancae","Tillandsia loma-blancae","Accepted","ZizkaA","CHECK_fuzzy",2,0.966666666666667,9886,9886
+"936","tillandsia macroclamys","tillandsia macroclamys","Tillandsia macrochlamys","Accepted","OAX2025","CHECK_fuzzy",2,0.983333333333333,77413,77413
+"937","tillandsia marnieri-lapostollei","tillandsia marnieri-lapostollei","Tillandsia marnieri-apostollei","Accepted","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.953157894736842,77430,77430
+"938","tillandsia marthecioides","tillandsia marthecioides","Tillandsia narthecioides","Synonym","literature2021","CHECK_fuzzy",2,0.948717948717949,74339,74338
+"939","tillandsia parensis","tillandsia parensis","Tillandsia paraensis","Accepted","GUYN2008","CHECK_fuzzy",2,0.974074074074074,77517,77517
+"940","tillandsia pseudobailey","tillandsia pseudobailey","Tillandsia pseudobaileyi","Accepted","literature2021","CHECK_fuzzy",2,0.984615384615385,77562,77562
+"941","tillandsia rauhii","tillandsia rauhii","Tillandsia rauschii","Accepted","GBIF2026; PRG2025; SEL2021; ZizkaA","CHECK_fuzzy",2,0.941666666666667,77585,77585
+"942","tillandsia recurvate","tillandsia recurvate","Tillandsia recurvata","Accepted","literature2021","CHECK_fuzzy",2,0.955555555555556,77588,77588
+"943","tillandsia roland-gosselinii","tillandsia roland-gosselinii","Tillandsia roland-gosselini","Accepted","GBIF2026; SEL2021; ZizkaA","CHECK_fuzzy",2,0.988235294117647,77647,77647
+"944","tillandsia rolandgosselinii","tillandsia rolandgosselinii","Tillandsia roland-gosselini","Accepted","ZizkaA","CHECK_fuzzy",2,0.975,77647,77647
+"945","tillandsia santiagoensis","tillandsia santiagoensis","Tillandsia santiago-tuxtlensis","Synonym","GBIF2026","CHECK_fuzzy",2,0.936842105263158,76932,76931
+"946","tillandsia schiedaena","tillandsia schiedaena","Tillandsia schiedeana","Accepted","literature2021","CHECK_fuzzy",2,0.98,15043,15043
+"947","tillandsia strobeliae","tillandsia strobeliae","Tillandsia strobelii","Synonym","ZizkaA","CHECK_fuzzy",2,0.937777777777778,80301,80300
+"948","tillandsia tovariensis","tillandsia tovariensis","Tillandsia tovarensis","Accepted","literature2021","CHECK_fuzzy",2,0.941818181818182,77768,77768
+"949","tillandsia urticulata","tillandsia urticulata","Tillandsia utriculata","Accepted","BAR2025","CHECK_fuzzy",2,0.97,77826,77826
+"950","tillandsia waltertillii","tillandsia waltertillii","Tillandsia walter-tillii","Accepted","ZizkaA","CHECK_fuzzy",2,0.984615384615385,77889,77889
+"951","tillandsia wernerrauhiana","tillandsia wernerrauhiana","Tillandsia werner-rauhiana","Accepted","ZizkaA","CHECK_fuzzy",2,0.986666666666667,85522,85522
+"952","tillandsia yerbasantae","tillandsia yerbasantae","Tillandsia yerba-santae","Accepted","ZizkaA","CHECK_fuzzy",2,0.983333333333333,77930,77930
+"953","tolumnia bahamense","tolumnia bahamense","Tolumnia bahamensis","Accepted","SEL2021","CHECK_fuzzy",2,0.937777777777778,77963,77963
+"954","topobea dodsoniorum","topobea dodsoniorum","Topobea dodsonorum","Synonym","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.981818181818182,74974,74973
+"955","topobea subscaberula","topobea subscaberula","Topobea subscabrula","Synonym","GBIF2026; INABIOEC","CHECK_fuzzy",2,0.983333333333333,1115,1114
+"956","trichocentrum albo-coccineum","trichocentrum albo-coccineum","Trichocentrum albococcineum","Accepted","SEL2021","CHECK_fuzzy",2,0.985714285714286,78166,78166
+"957","trichocentrum mattogrossensis","trichocentrum mattogrossensis","Trichocentrum mattogrossense","Synonym","literature2021","CHECK_fuzzy",2,0.959047619047619,10021,10015
+"958","trichocentrum natalieae","trichocentrum natalieae","Trichocentrum nataliae","Accepted","GBIF2026","CHECK_fuzzy",2,0.952777777777778,78309,78309
+"959","trichocentrum pinelii","trichocentrum pinelii","Trichocentrum pineli","Synonym","GBIF2026","CHECK_fuzzy",2,0.971428571428571,10022,10015
+"960","trichomanes ekmannii","trichomanes ekmannii","Trichomanes ekmanii","Accepted","literature2021","CHECK_fuzzy",2,0.975,3104,3104
+"961","trichomanes kraussii","trichomanes kraussii","Trichomanes krausii","Accepted","literature2024","CHECK_fuzzy",2,0.975,3123,3123
+"962","trichomanes ludovicianum","trichomanes ludovicianum","Trichomanes ludovicinum","Accepted","GBIF2026; ICESI2024","CHECK_fuzzy",2,0.983333333333333,89298,89298
+"963","trichomanes luschnatianum","trichomanes luschnatianum","Trichomanes luschnathianum","Synonym","GBIF2026","CHECK_fuzzy",2,0.985714285714286,77663,77659
+"964","trichomanes pinnatifidum","trichomanes pinnatifidum","Trichomanes pinnatum","Accepted","GBIF2026","CHECK_fuzzy",2,0.933333333333333,78643,78643
+"965","trichomanes polypodiodes","trichomanes polypodiodes","Trichomanes polypodioides var. incisum","Synonym","literature2021","CHECK_fuzzy",2,0.984615384615385,78568,78566
+"966","trichomanes torotumani","trichomanes torotumani","Trichomanes torotumanii","Synonym","GBIF2026","CHECK_fuzzy",2,0.981818181818182,78693,78691
+"967","trichomanes trichopodium","trichomanes trichopodium","Trichomanes trichophorum","Synonym","CR2024; GBIF2026","CHECK_fuzzy",2,0.933333333333333,83217,83216
+"968","trichopilia turialbae","trichopilia turialbae","Trichopilia turialvae","Accepted","CR2024; GBIF2026","CHECK_fuzzy",2,0.955555555555556,78779,78779
+"969","trichosalpinx teagueii","trichosalpinx teagueii","Trichosalpinx teaguei","Accepted","ATRIUM2017","CHECK_fuzzy",2,0.975,79049,79049
+"970","utricularia aurea","utricularia aurea","Utricularia aureola","Synonym","GBIF2026","CHECK_fuzzy",2,0.942857142857143,79475,79474
+"971","utricularia striata","utricularia striata","Utricularia striatula","Accepted","GBIF2026","CHECK_fuzzy",2,0.955555555555556,79548,79548
+"972","vaccinium maathewsii","vaccinium maathewsii","Vaccinium mathewsii","Accepted","KUELAP2024","CHECK_fuzzy",2,0.973333333333333,79663,79663
+"973","vaccinium myrsinites","vaccinium myrsinites","Vaccinium myrsinoides","Accepted","GBIF2026","CHECK_fuzzy",2,0.943636363636364,79669,79669
+"974","vaccinium saxatilis","vaccinium saxatilis","Vaccinium saxatile","Accepted","INABIOEC","CHECK_fuzzy",2,0.930555555555556,14596,14596
+"975","vaccinium vaccinium","vaccinium vaccinium","Vaccinium vacciniaceum var. hispidum","Synonym","KUELAP2024","CHECK_fuzzy",2,0.95,79719,79718
+"976","vanda bensoni","vanda bensoni","Vanda bensonii","Accepted","SEL2021","CHECK_fuzzy",2,0.975,79743,79743
+"977","vandenboschia davallioides","vandenboschia davallioides","Vandenboschia davalloides","Accepted","GBIF2026","CHECK_fuzzy",2,0.965151515151515,89020,89020
+"978","vanilla grandifolia","vanilla grandifolia","Vanilla grandiflora","Synonym","GBIF2026","CHECK_fuzzy",2,0.943636363636364,91380,91378
+"979","vitekorchis excavata","vitekorchis excavata","Vitekorchis excavatus","Accepted","GBIF2026; INABIOEC; SEL2021","CHECK_fuzzy",2,0.930555555555556,79904,79904
+"980","vittaria gardeniana","vittaria gardeniana","Vittaria gardneriana","Synonym","literature2021","CHECK_fuzzy",2,0.961818181818182,8784,8782
+"981","vriesea albo-rubrobracteata","vriesea albo-rubrobracteata","Vriesea alborubrobracteata","Synonym","INABIOEC","CHECK_fuzzy",2,0.989473684210526,80010,80008
+"982","vriesea altomacaensis","vriesea altomacaensis","Vriesea altomayoensis","Accepted","ZizkaA","CHECK_fuzzy",2,0.938461538461538,79931,79931
+"983","vriesea correia-araujoi","vriesea correia-araujoi","Vriesea correia-arauji","Accepted","ZizkaA","CHECK_fuzzy",2,0.986666666666667,79993,79993
+"984","vriesea correiaaraujoi","vriesea correiaaraujoi","Vriesea correia-arauji","Accepted","ZizkaA","CHECK_fuzzy",2,0.971428571428571,79993,79993
+"985","vriesea fragans","vriesea fragans","Vriesea fragrans","Synonym","literature2021","CHECK_fuzzy",2,0.975,77205,77204
+"986","vriesea heliconiodes","vriesea heliconiodes","Vriesea heliconioides","Accepted","literature2021","CHECK_fuzzy",2,0.984615384615385,80082,80082
+"987","vriesea lutherii","vriesea lutherii","Vriesea lutheri","Synonym","literature2021","CHECK_fuzzy",2,0.975,77407,77406
+"988","vriesea robertoseidelii","vriesea robertoseidelii","Vriesea roberto-seidelii","Accepted","ZizkaA","CHECK_fuzzy",2,0.9875,80249,80249
+"989","vriesea rubro-bracteata","vriesea rubro-bracteata","Vriesea rubrobracteata","Accepted","INABIOEC","CHECK_fuzzy",2,0.986666666666667,81496,81496
+"990","vriesea segadasviannae","vriesea segadasviannae","Vriesea segadas-viannae","Accepted","ZizkaA","CHECK_fuzzy",2,0.986666666666667,80288,80288
+"991","vriesea strobelii","vriesea strobelii","Vriesea strobeliae","Accepted","INABIOEC","CHECK_fuzzy",2,0.937777777777778,80300,80300
+"992","vriesea wawranea","vriesea wawranea","Vriesea wawrana","Accepted","ZizkaA","CHECK_fuzzy",2,0.975,10216,10216
+"993","werauhia haberii","werauhia haberii","Werauhia haberi","Accepted","ZizkaA","CHECK_fuzzy",2,0.971428571428571,76641,76641
+"994","werauhia luisgomezii","werauhia luisgomezii","Werauhia luis-gomezii","Accepted","CR2024; ZizkaA","CHECK_fuzzy",2,0.983333333333333,76730,76730
+"995","werauhia lymansmithii","werauhia lymansmithii","Werauhia lyman-smithii","Accepted","CR2024; ZizkaA","CHECK_fuzzy",2,0.984615384615385,76733,76733
+"996","werauhia marnierlapostollei","werauhia marnierlapostollei","Werauhia marnier-lapostollei","Accepted","ZizkaA","CHECK_fuzzy",2,0.989473684210526,76745,76745
+"997","werauhia werckeana","werauhia werckeana","Werauhia werckleana","Accepted","OAX2025","CHECK_fuzzy",2,0.98,77129,77129
+"998","wittmackia burlemarxii","wittmackia burlemarxii","Wittmackia burle-marxii","Accepted","ZizkaA","CHECK_fuzzy",2,0.983333333333333,1982,1982
+"999","wittmackia rohanestyi","wittmackia rohanestyi","Wittmackia rohan-estyi","Accepted","ZizkaA","CHECK_fuzzy",2,0.981818181818182,85751,85751
+"1000","zygophlebia matthewsii","zygophlebia matthewsii","Zygophlebia mathewsii","Synonym","KesslerM; literature2021","CHECK_fuzzy",2,0.976666666666667,88697,88694
