@@ -1,0 +1,4 @@
+Plots
+Figures
+Maps
+Tables
