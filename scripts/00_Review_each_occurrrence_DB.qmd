@@ -2,6 +2,8 @@
 title: "Review_each_DB"
 author: "MJCH"
 format: html
+editor_options: 
+  chunk_output_type: console
 ---
 
 #### 2_Ocurrences
