@@ -1,14 +1,16 @@
 ---
-title: "Review_each_DB"
-author: "MJCH"
-format: html
-editor_options: 
-  chunk_output_type: console
+title: "Review each DB" 
+subtitle: 'EpIG volunteership' 
+output: html_document 
+date: today 
+author: "Maria Judith Carmona Higuita" 
 ---
+
+The following is what was ALREADY DONE to each dataset. BEFORE working with each dataset, check what was done first, follow naming, structure and functions. Always report what was done and the date.
 
 #### 2_Ocurrences
 
-RUN FIRST THE THREE FOLLOWING CHUNKS
+EACH TIME, I RAN FIRST THE THREE FOLLOWING CHUNKS TO RUN THE HELPERS.
 
 All occurrence datasets located under `data/2_Processing_data/2_Occurrences/` were automatically discovered and processed contributor by contributor. For each dataset file (.csv, .parquet, .rds, .rda, .RData), the script `01_clean_occurrences.Rmd`
 
