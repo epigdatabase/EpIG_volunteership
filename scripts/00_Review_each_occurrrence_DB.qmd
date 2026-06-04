@@ -43,7 +43,7 @@ library(readr)
 library(sf)
 library(rWCVP)
 library(CoordinateCleaner)
-library(ggplot2)
+library(ggplot2) 
 
 summary_rev <- read.csv("./data/2_Processing_data/2_Occurrences/summary_epi_backbone.csv")
 ```
