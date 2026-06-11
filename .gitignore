@@ -5,3 +5,5 @@
 .positai
 data/Text/text__INABIO2025.csv
 data/Text/text__GBIF2026.csv
+data/Georreferencing/1.Raw/georef__INABIO2025.csv
+data/Georreferencing/1.Raw/georef__GBIF2026.csv
