@@ -170,3 +170,60 @@ if (length(idx)) {
 write.csv(dfAmaz, file = "output/Georreferencing/AMAZ2024.csv")
 ```
 
+
+
+
+
+
+
+
+```{r}
+
+voluntarios <- read.csv2("E:/CONTINENT/Volunteership/EpIG_volunteership/data/Georreferencing/georeferencing_audit_summary.csv", sep = ",")
+
+voluntarios$voluntarios <- NA_character_
+str(voluntarios)
+View(voluntarios)
+
+idx <- which(voluntarios$dataset == "AMAZ2024")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Simon"
+}
+
+
+
+idx <- which(voluntarios$dataset == "CR2024")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Camilo"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+write.csv(voluntarios, file = "data/Georreferencing/georeferencing_audit_summary.csv")
+
+```
+
