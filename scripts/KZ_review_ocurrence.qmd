@@ -215,3 +215,14 @@ write.csv(voluntarios, file = "data/Georreferencing/georeferencing_audit_summary
 
 
 ```
+
+
+```{r}
+df <- read.csv("data/1_Raw/text_CR2024-copia_TEST.cvs")
+str(df)
+glimpse(df)
+
+```
+
+
+
