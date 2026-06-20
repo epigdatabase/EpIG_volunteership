@@ -3,6 +3,8 @@ title: "Review ocurrences kz"
 author: "Kelly Zuluaga"
 format: html
 editor: visual
+editor_options: 
+  chunk_output_type: console
 ---
 
 ## Quarto
