@@ -218,9 +218,24 @@ write.csv(voluntarios, file = "data/Georreferencing/georeferencing_audit_summary
 
 
 ```{r}
-df <- read.csv("Text/1_Raw/text_CR2024-copia_TEST.csv", stringsAsFactors = FALSE)
+df <- read.csv("data/Text/1_Raw/text__CR2024_copia_TEST.csv",
+               stringsAsFactors = FALSE)
+#verificacion
+str(df)
+glimpse(df)
+head(df)
 
+#inspeccion
 
+str(df$basisOfRecord)
+str(df$lifeForm)
+str(df$country)
+str(df$countryCode)
+str(df$eventDate)
+str(df$minimumElevationInMeters)
+
+#errores del herbario
+grep("Ã|Â|ƒ|\\n|\\r", df$locality)
 ```
 
 
