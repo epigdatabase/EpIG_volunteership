@@ -1,0 +1,242 @@
+---
+title: "Review ocurrences kz"
+author: "Kelly Zuluaga"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).\
+
+```{r}
+
+packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr")
+
+# Install packages not yet installed [for the first time]
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+
+# Packages loading
+invisible(lapply(packages, require, character.only = TRUE)) # remove "invisible" to see whether the packages are loaded/available. 
+
+Sys.setlocale("LC_ALL", "Spanish_Spain.1252") # en Windows
+
+
+
+You can add options to executable code like this
+
+
+dfCR <- read.csv2("./data/Georreferencing/1.Raw/georef__CR2024.csv",sep = ",")
+
+names(df) # check names of the columns
+View(df) # if you want to open and see the file
+str(dfCR) #solo
+head(dfCR) # if you want to see more or less the structure of the dataframe (df)
+
+
+
+
+dfAmaz <- df %>%
+  filter(.ok_for_analysis == FALSE,
+         !is.na(decimalLatitude),
+         !is.na(decimalLongitude)) %>%
+  select(
+    occurrenceID,
+    decimalLatitude, decimalLongitude,
+    locality, country, countryCode,
+    changes
+  )
+
+View(dfAmaz)
+
+
+dfCR1 <- dfCR %>%
+  filter(.ok_for_analysis == FALSE,
+         !is.na(decimalLatitude),
+         !is.na(decimalLongitude)) %>%
+  select(
+    occurrenceID,
+    decimalLatitude, decimalLongitude,
+    locality, country, countryCode,
+    changes
+  )
+
+View(dfCR1)
+
+
+dfcrd <- dfCR %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+      str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+
+view(dfcrd)
+
+plot(dfAmaz$decimalLongitude, dfAmaz$decimalLatitude,
+     xlab = "Longitude", ylab = "Latitude",
+     main = "Decimal Coordinates",
+     pch = 19, col = "blue")
+
+
+# Get world map data
+world <- map_data("world")
+
+# Filter for selected countries
+countries <- c("Peru", "Brazil", "Ecuador", "Colombia")
+region_map <- subset(world, region %in% countries)
+
+# Plot
+ggplot() +
+  geom_polygon(data = region_map,
+               aes(x = long, y = lat, group = group, fill = region),
+               color = "black", alpha = 0.6) +
+  geom_point(data = df, aes(x = decimalLongitude, y = decimalLatitude),
+             color = "red", size = 3) +
+  coord_fixed(1.3, xlim = c(-82, -45), ylim = c(-20, 10)) +
+  theme_minimal() +
+  scale_fill_manual(values = c("Peru" = "lightblue",
+                               "Brazil" = "lightgreen",
+                               "Ecuador" = "orange",
+                               "Colombia" = "pink")) +
+  labs(title = "Selected Countries with Coordinates",
+       x = "Longitude", y = "Latitude", fill = "Country")
+
+
+
+
+
+if (!"ok.2" %in% names(dfAmaz)) dfAmaz$ok.2 <- dfAmaz$.ok_for_analysis
+if (!"discardReason" %in% names(dfAmaz)) dfAmaz$discardReason <- NA_character_
+view(dfAmaz)
+
+
+# flag AMAZ_47 for discard
+idx <- which(dfAmaz$occurrenceID == "AMAZ_8")
+if (length(idx)) {
+  dfAmaz$discardReason[idx] <- "Impossible to correct, too vague coordinate"
+}
+
+
+
+
+
+
+
+if (!"ok.2" %in% names(dfAmaz)) dfAmaz$ok.2 <- dfAmaz$.ok_for_analysis
+if (!"discardReason" %in% names(dfAmaz)) dfAmaz$discardReason <- NA_character_
+
+# flag AMAZ_47 for discard
+idx <- which(dfAmaz$occurrenceID == "AMAZ_41")
+if (length(idx)) {
+  dfAmaz$decimalLatitude[idx] <- -11.082302793805184
+  dfAmaz$decimalLongitude[idx] <- -76.15208375774569
+  dfAmaz$discardReason[idx] <- "Corrected: point was corrected according to the reference of the locality."
+}
+
+
+
+##Para guardar el archivo
+
+write.csv(dfAmaz, file = "output/Georreferencing/AMAZ2024.csv")
+
+
+voluntarios <- read.csv2("E:/CONTINENT/Volunteership/EpIG_volunteership/data/Georreferencing/georeferencing_audit_summary.csv", sep = ",")
+
+voluntarios$voluntarios <- NA_character_
+str(voluntarios)
+View(voluntarios)
+
+idx <- which(voluntarios$dataset == "AMAZ2024")
+if (length(idx)) {
+  voluntarios$voluntarios[idx] <- "Simon"
+}
+
+
+
+idx <- which(voluntarios$dataset == "assis_i_2026_af")
+if (length(idx)) {
+  voluntarios$voluntarios[idx] <- "Luis"
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+write.csv(voluntarios, file = "data/Georreferencing/georeferencing_audit_summary.csv")
+
+
+```
+
+
+```{r}
+df <- read.csv("data/Text/1_Raw/text__CR2024_copia_TEST.csv",
+               stringsAsFactors = FALSE)
+#verificacion
+str(df)
+glimpse(df)
+head(df)
+
+#inspeccion
+
+str(df$basisOfRecord)
+str(df$lifeForm)
+str(df$country)
+str(df$countryCode)
+str(df$eventDate)
+str(df$minimumElevationInMeters)
+
+#errores del herbario
+grep("Ã|Â|ƒ|\\n|\\r", df$locality)
+```
+
+
+

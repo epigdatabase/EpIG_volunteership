@@ -91,8 +91,6 @@ dfcrd <- dfCR %>%
 view(dfcrd)
 ```
 
-
-
 ```{r}
 plot(dfAmaz$decimalLongitude, dfAmaz$decimalLatitude,
      xlab = "Longitude", ylab = "Latitude",
@@ -125,8 +123,6 @@ ggplot() +
 
 
 ```
-
-
 
 ```{r}
 
@@ -162,20 +158,11 @@ if (length(idx)) {
 
 ```
 
-
-
 ##Para guardar el archivo
 
 ```{r}
 write.csv(dfAmaz, file = "output/Georreferencing/AMAZ2024.csv")
 ```
-
-
-
-
-
-
-
 
 ```{r}
 
@@ -192,9 +179,9 @@ if (length(idx)) {
 
 
 
-idx <- which(voluntarios$dataset == "CR2024")
+idx <- which(voluntarios$dataset == "assis_i_2026_af")
 if (length(idx)) {
-    voluntarios$voluntarios[idx] <- "Camilo"
+    voluntarios$voluntarios[idx] <- "Luis"
 }
 
 
@@ -226,4 +213,3 @@ if (length(idx)) {
 write.csv(voluntarios, file = "data/Georreferencing/georeferencing_audit_summary.csv")
 
 ```
-
