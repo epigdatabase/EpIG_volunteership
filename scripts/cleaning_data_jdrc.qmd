@@ -17,7 +17,6 @@ library(tidyverse)
 library(stringr)
 library(readr)
 library(sf)
-library(rWCVP)
 library(CoordinateCleaner)
 library(ggplot2)
 library(stringi)
@@ -85,7 +84,7 @@ stateProvince_vacios <- spp_link %>%
 
 stateProvince_vacios
 
-# 2. Completar el stateProvince basado en palabras de "locality" por grupos
+# 2. Completar el stateProvince basado en palabras de locality 
 
 spp_link <- spp_link %>%
   mutate(stateProvince = case_when(
@@ -96,6 +95,27 @@ spp_link <- spp_link %>%
     TRUE ~ stateProvince
   ))
 
-# 2. Completar el stateProvince basado en palabras de "locality" individualmente
+# 3. Completar el stateProvince basado en occurrenceID
+
+oID_vacios <- c("assis_i_2026_specieslink_00633", "assis_i_2026_specieslink_00636", "assis_i_2026_specieslink_00894", "assis_i_2026_specieslink_01280", "assis_i_2026_specieslink_01540")
+
+spp_link <- spp_link %>%
+  mutate(stateProvince = ifelse((stateProvince == "" | is.na(stateProvince)) & occurrenceID %in% oID_vacios,
+                                "Rio de Janeiro",
+                                stateProvince))
+spp_link <- spp_link %>%
+  mutate(stateProvince = ifelse(occurrenceID == "assis_i_2026_specieslink_00691" & (stateProvince == "" | is.na(stateProvince)),
+                                "Sao Paulo",
+                                stateProvince))
 ```
+
+#Detectar información dañada en "locality"
+
+```{r}
+conteo_locality <- spp_link %>%
+  count(locality, sort = TRUE)
+
+conteo_locality
+```
+
 
