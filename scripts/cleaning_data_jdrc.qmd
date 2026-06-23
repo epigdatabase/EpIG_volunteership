@@ -75,6 +75,7 @@ spp_link$stateProvince <- gsub("S�o Paulo", "Sao Paulo", spp_link$stateProvinc
 ```
 
 #Completar los espacios vacios
+
 ```{r}
 
 # 1.Crear objeto para revisar los espacios vacios en stateProvince 
@@ -118,4 +119,24 @@ conteo_locality <- spp_link %>%
 conteo_locality
 ```
 
+#This is for creating the columns and indicate that are being corrected.
 
+```{r}
+# make sure ok.2 exists
+if (!"ok.2" %in% names(spp_link)) spp_link$ok.2 <- spp_link$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
+
+# make sure discardReason exists
+if (!"discardReason" %in% names(spp_link)) spp_link$discardReason <- NA_character_
+
+codesplink <- dfsplink_corrected$occurrenceID 
+codesplink <- c("cada ocurrenceID","agrega todos los que corregiste")
+codesplink
+
+for (code in codesplink) {
+  idx <- which(tu_referencia$occurrenceID == code) #La base dea datos con los ocurrendeID que corregiste
+  if (length(idx)) {
+    spp_link$ok.2[idx] <- TRUE
+    spp_link$discardReason[idx] <- "Corrected: points were corrected according to locality"
+  }
+}
+```
