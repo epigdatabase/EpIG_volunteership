@@ -1,0 +1,58 @@
+---
+title: "Cleaning data for occurrence and community databases" "Database #1" 
+subtitle: 'EpIG volunteership'
+format: html
+editor: visual
+date: today
+author: "Juana Daniela Ruiz Carreño" 
+editor_options: 
+  chunk_output_type: console
+---
+
+# Cargar librerias y revisar información
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(rWCVP)
+library(CoordinateCleaner)
+library(ggplot2)
+install.packages("stringi")
+library(stringi)
+
+spp_link <- read.csv("C:/VOLUNTARIADO/EpIG_volunteership/data/Georreferencing/1.Raw/georef__assis_i_2026_specieslink.csv")
+
+head(spp_link)
+view(spp_link)
+str(spp_link)
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(spp_link$country)
+unique(spp_link$countryCode)
+unique(spp_link$stateProvince)
+unique(spp_link$locality)
+unique(spp_link$changes)
+
+```
+
+#Detectar información dañada en "stateProvince"
+
+```{r}
+conteo_province <- spp_link %>%
+  count(stateProvince, sort = TRUE)
+
+conteo_province
+```
+
+#Corregir letras con signos raros
+
+```{r}
+spp_link$stateProvince <- gsub("Amap�", "Amapa", spp_link$stateProvince)
+```
+
