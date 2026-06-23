@@ -44,6 +44,25 @@ str(dfCR) #solo
 head(dfCR) # if you want to see more or less the structure of the dataframe (df)
 ```
 
+#Crear columna de cambios y de aprobación
+
+```{r}
+
+if (!"ok.2" %in% names(dfCR)) dfCR$ok.2 <- dfCR$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
+if (!"discardReason" %in% names(dfCR)) dfCR$discardReason <- NA_character_
+view(dfCR)
+
+# flag AMAZ_47 for discard
+idx <- which(dfCR_ref$occurrenceID) 
+if (length(idx)) {
+  dfCR$discardReason[idx] <- "Impossible to correct, too vague coordinate"
+}
+
+
+
+```
+
+
 
 
 ```{r}
@@ -59,7 +78,6 @@ TRUE ~ "simple"
 )
 ```
 
-
 ```{r}
 dfCR <- dfCR %>%
   filter(.ok_for_analysis == FALSE,
@@ -73,9 +91,6 @@ dfCR <- dfCR %>%
   )
 unique(dfCR$country)
 ```
-
-
-
 
 ```{r}
 dfCR1 <- dfCR %>%
@@ -91,9 +106,6 @@ unique(dfCR1$country)
 
 ```
 
-
-
-
 ```{r}
 write.csv(dfCR1, file = "C:/Desktop/Voluntariado epifitas/entrenamiento/CR1.csv")
 ```
@@ -102,13 +114,86 @@ write.csv(dfCR1, file = "C:/Desktop/Voluntariado epifitas/entrenamiento/CR1.csv"
 write_xlsx(dfCR1, "C:/Desktop/Voluntariado epifitas/entrenamiento/CR_simple.xlsx")
 ```
 
-
-
-
-
 ```{r}
 #coordinateUncertaintyInMeters
 dfCR$coordinateUncertaintyInMeters <- NA
 
 ```
+
+# Cargar coordenadas digitalizadas de csv
+
+```{r}
+
+dfCR_ref <- read.csv2("C:/Desktop/Voluntariado epifitas/entrenamiento/CR_simple.csv",sep = ";")
+
+```
+
+
+#Codigo para unir data digitalizada y a data original
+
+```{r}
+str(dfCR)
+
+dfCR_ref$decimalLongitude <- as.numeric(dfCR_ref$decimalLongitude) #Convertir a numerico
+dfCR_ref$decimalLatitude <- as.numeric(dfCR_ref$decimalLatitude)
+dfCR_ref$insertidumbre <- as.numeric(dfCR_ref$insertidumbre)
+dfCR$coordinateUncertaintyInMeters <- as.numeric(dfCR$coordinateUncertaintyInMeters)
+dfCR$decimalLongitude <- as.numeric(dfCR$decimalLongitude)
+dfCR$decimalLatitude <- as.numeric(dfCR$decimalLatitude)
+dfCR <- dfCR %>% # Archivo original
+
+  left_join( 
+    dfCR_ref %>% select( # Archivo a unir
+      occurrenceID, #Este es el campo para union de las columnas
+      longitude_corregida = decimalLongitude, 
+      latitude_corregida  = decimalLatitude,
+      incertidumbre = insertidumbre,
+      lo_corr = Localidad
+    ),
+    by = "occurrenceID" # Campo por medio del cual se realiza la unión
+  ) %>%
+  
+
+  mutate(
+    decimalLongitude = coalesce(longitude_corregida, decimalLongitude),
+    decimalLatitude  = coalesce(latitude_corregida,  decimalLatitude),
+    coordinateUncertaintyInMeters = coalesce(incertidumbre,  coordinateUncertaintyInMeters),
+    locality = coalesce(lo_corr,  locality)
+  ) %>%
+  
+  # 3. Eliminamos las columnas temporales para dejar la base de datos limpia
+  select(-longitude_corregida, -latitude_corregida, -lo_corr, -incertidumbre)
+```
+
+
+
+
+```{r}
+
+codeCR <- dfCR_ref$occurrenceID
+codeCR
+
+# make sure ok.2 exists
+if (!"ok.2" %in% names(dfCR)) dfCR$ok.2 <- dfCR$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
+
+# make sure discardReason exists
+if (!"discardReason" %in% names(dfCR)) dfCR$discardReason <- NA_character_
+
+
+
+for (code in codeCR) {
+  idx <- which(dfCR_ref$occurrenceID == code)
+  if (length(idx)) {
+    dfCR$ok.2[idx] <- TRUE
+    dfCR$discardReason[idx] <- "Corrected: points were corrected according to locality"
+  }
+}
+
+
+
+```
+
+
+
+
 
