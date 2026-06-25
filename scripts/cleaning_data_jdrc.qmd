@@ -21,7 +21,7 @@ library(CoordinateCleaner)
 library(ggplot2)
 library(stringi)
 
-spp_link <- read.csv("C:/VOLUNTARIADO/EpIG_volunteership/data/Georreferencing/1.Raw/georef__assis_i_2026_specieslink.csv")
+spp_link <- read.csv("C:/VOLUNTARIADO/EpiG_2/EpIG_volunteership/data/Georreferencing/1.Raw/georef__assis_i_2026_specieslink.csv")
 
 head(spp_link)
 view(spp_link)
