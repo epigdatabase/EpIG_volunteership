@@ -78,3 +78,14 @@ table(df$institutionCode, useNA = "ifany")
 # No curation required.
 ```
 
+#curacion de la informacion collectionCode
+```{r}
+str(df$collectionCode)
+unique(df$collectionCode)
+table(df$collectionCode, useNA = "ifany")
+
+## collectionCode:
+# The field exists but all 71,897 records are NA.
+# No changes applied.
+```
+
