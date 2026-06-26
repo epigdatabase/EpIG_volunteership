@@ -1,0 +1,80 @@
+---
+title: "Ocurrence_KellyZ"
+subtitle: 'EpIG volunteership'
+output: html_document
+date: html
+editor: visual
+author: "kelly Daniela Zuluaga Zuluaga"
+---
+
+#cargar librerias
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+#library(rWCVP)
+library(CoordinateCleaner)
+library(ggplot2) 
+
+```
+
+#cargar archivo y comprobar que esté ok
+
+```{r}
+df <- read.csv(
+  "../data/Text/1_Raw/text__CR2024.csv",
+  stringsAsFactors = FALSE
+)
+
+file.exists("../data/Text/1_Raw/text__CR2024.csv")
+```
+
+#inspeccionar campos
+
+```{r}
+str(df$taxonRank)
+str(df$basisOfRecord)
+str(df$lifeForm)
+str(df$country)
+str(df$countryCode)
+str(df$minimumElevationInMeters)
+str(df$year)
+str(df$eventDate)
+```
+
+#Revisar los valores únicos de campos categóricos
+
+```{r}
+unique(df$taxonRank)
+unique(df$basisOfRecord)
+unique(df$lifeForm)
+unique(df$country)
+unique(df$countryCode)
+
+names(df)
+```
+
+#curacion de la informacion basisOfRecord  Costa Rica
+```{r}
+unique(df$basisOfRecord)
+table(df$basisOfRecord, useNA = "ifany")
+
+## basisOfRecord:
+# All records contain the valid Darwin Core term "PreservedSpecimen".
+# No curation required.
+```
+
+#curacion de la informacion institutionCode
+```{r}
+str(df$institutionCode)
+unique(df$institutionCode)
+table(df$institutionCode, useNA = "ifany")
+
+# institutionCode:
+# All records have the value "CR".
+# No curation required.
+```
+
