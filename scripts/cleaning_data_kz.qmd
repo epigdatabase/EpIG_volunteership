@@ -54,6 +54,7 @@ unique(spp_link$taxonRank)
 #only one unique value.. No changes required for now"
 
 unique(spp_link$lifeForm)
+#""Arboles, , ,"  required changes or revision
 
 unique(spp_link$institutionCode)
 
