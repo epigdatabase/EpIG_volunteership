@@ -51,18 +51,32 @@ unique(spp_link$basisOfRecord)
 #only one unique value:"PreservedSpecimen. No changes required"
 
 unique(spp_link$taxonRank)
-#only one unique value.. No changes required for now"
+#only one unique value. No changes required for now
+
+table(spp_link$taxonRank, useNA = "ifany")
 
 unique(spp_link$lifeForm)
-#""Arboles, , ,"  required changes or revision
+#""Arboles, , , and Hierbas, , ," "Category of: "Sufrúctises, Sufrútices"  required changes or revision
+
+table(spp_link$lifeForm, useNA = "ifany")
 
 unique(spp_link$institutionCode)
+#only one unique value. No changes required for now
 
 unique(spp_link$collectionCode)
+#only one unique value. No changes required for now
 
 unique(spp_link$datasetID)
+#only one unique value. No changes required for now
 
 str(spp_link$eventDate)
+#No changes required for now
+
+sum(spp_link$eventDate == "", na.rm = TRUE)
+#17688 without data
+
+table(nchar(spp_link$eventDate))
+#No changes required
 
 summary(spp_link$eventDate)
 
