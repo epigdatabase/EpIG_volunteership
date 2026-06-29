@@ -45,27 +45,34 @@ glimpse(spp_link)
 # Revisar cada una de las columnas
 
 ```{r}
-unique(spp_link$country)
-#no se encontraron inconsistencias country
+# Inspect unique values of key categorical fields
 
-unique(spp_link$countryCode)
-#no se encontraron inconsistencias contryCode
+unique(spp_link$basisOfRecord)
+#only one unique value:"PreservedSpecimen. No changes required"
 
-unique(spp_link$stateProvince)
-#no se encontraron incosistencias en stateProvince
+unique(spp_link$taxonRank)
+#only one unique value.. No changes required for now"
 
-unique(spp_link$locality)
-#no se encontraron inconsitencias en locality
+unique(spp_link$lifeForm)
 
-unique(spp_link$changes)
-#los últimos cambios fueron aplicados en abril 2026. No se hacen modificaciones
+unique(spp_link$institutionCode)
+
+unique(spp_link$collectionCode)
+
+unique(spp_link$datasetID)
+
+str(spp_link$eventDate)
+
+summary(spp_link$eventDate)
+
+head(spp_link$eventDate, 20)
 ```
 
 #Detectar información dañada en las columnas
 
 ```{r}
 str(db)
-glimpse(db)
+
 
 str(spp_link$occurrenceID)
 str(spp_link$basisOfRecord)
@@ -85,6 +92,9 @@ str(spp_link$decimalLatitude)
 str(spp_link$decimalLongitude)
 str(spp_link$eventDate)
 str(spp_link$changes)
+
+# Show the structure of every column automatically
+lapply(spp_link, str)
 ```
 
 #Corregir letras con signos raros
