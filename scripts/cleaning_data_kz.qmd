@@ -45,11 +45,19 @@ str(spp_link)
 
 ```{r}
 unique(spp_link$country)
-unique(spp_link$countryCode)
-unique(spp_link$stateProvince)
-unique(spp_link$locality)
-unique(spp_link$changes)
+#no se encontraron inconsistencias country
 
+unique(spp_link$countryCode)
+#no se encontraron inconsistencias contryCode
+
+unique(spp_link$stateProvince)
+#no se encontraron incosistencias en stateProvince
+
+unique(spp_link$locality)
+#no se encontraron inconsitencias en locality
+
+unique(spp_link$changes)
+#los últimos cambios fueron aplicados en abril 2026. No se hacen modificaciones
 ```
 
 #Detectar información dañada en "stateProvince"
