@@ -78,6 +78,9 @@ unique(spp_link$associatedReferences)
 unique(spp_link$recordedBy)
 #This need standarization of names. Initials or complete name?
 
+unique(spp_link$recordNumber)
+#No changes for now
+
 unique(spp_link$collectionCode)
 #only one unique value. No changes required for now
 
