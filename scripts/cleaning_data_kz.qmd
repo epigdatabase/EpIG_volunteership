@@ -34,11 +34,12 @@ library(CoordinateCleaner)
 library(ggplot2)
 library(stringi)
 
-spp_link <- read.csv("../data/Text/1_Raw/text__CR2024.csv")
+spp_link <- read.csv("data/Text/1_Raw/text__CR2024.csv")
 
 head(spp_link)
 View(spp_link)
 str(spp_link)
+glimpse(spp_link)
 ```
 
 # Revisar cada una de las columnas
@@ -60,13 +61,30 @@ unique(spp_link$changes)
 #los últimos cambios fueron aplicados en abril 2026. No se hacen modificaciones
 ```
 
-#Detectar información dañada en "stateProvince"
+#Detectar información dañada en las columnas
 
 ```{r}
-conteo_province <- spp_link %>%
-  count(stateProvince, sort = TRUE)
+str(db)
+glimpse(db)
 
-conteo_province
+str(spp_link$occurrenceID)
+str(spp_link$basisOfRecord)
+str(spp_link$typeStatus)
+str(spp_link$associatedReferences)
+str(spp_link$institutionCode)
+str(spp_link$taxonRank)
+str(spp_link$collectionCode)
+str(spp_link$recordedBy)
+str(spp_link$recordNumber)
+str(spp_link$identifiedBy)
+str(spp_link$lifeForm)
+str(spp_link$datasetID)
+str(spp_link$matchCodeEpig)
+str(spp_link$matchedNameEpig)
+str(spp_link$decimalLatitude)
+str(spp_link$decimalLongitude)
+str(spp_link$eventDate)
+str(spp_link$changes)
 ```
 
 #Corregir letras con signos raros
