@@ -22,7 +22,7 @@ When you click the **Render** button a document will be generated that includes 
 ```
 
 
-# Cargar librerias y revisar información
+# Cargar librerias y revisar información - Costa Rica
 
 ```{r}
 library(dplyr)
@@ -67,6 +67,18 @@ unique(spp_link$collectionCode)
 #only one unique value. No changes required for now
 
 unique(spp_link$datasetID)
+#only one unique value. No changes required for now
+
+unique(spp_link$typeStatus)
+#only one unique value. No changes required for now
+
+unique(spp_link$associatedReferences)
+#only one unique value. No changes required for now
+
+unique(spp_link$recordedBy)
+#This need standarization of names. Initials or complete name?
+
+unique(spp_link$collectionCode)
 #only one unique value. No changes required for now
 
 str(spp_link$eventDate)
