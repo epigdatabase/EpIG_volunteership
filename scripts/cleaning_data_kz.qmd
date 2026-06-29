@@ -101,7 +101,7 @@ head(spp_link$eventDate, 20)
 #Detectar información dañada en las columnas
 
 ```{r}
-str(db)
+#str(db)
 
 
 str(spp_link$occurrenceID)
@@ -127,95 +127,27 @@ str(spp_link$changes)
 lapply(spp_link, str)
 ```
 
-#Corregir letras con signos raros
+#Inspeccion de campos de texto en columnas
 
 ```{r}
-spp_link$stateProvince <- gsub("Amap�", "Amapa", spp_link$stateProvince)
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$recordedBy)
 
-spp_link$stateProvince <- gsub("Cear�", "Ceara", spp_link$stateProvince)
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$identifiedBy)
 
-spp_link$stateProvince <- gsub("Esp�rito Santo", "Espirito Santo", spp_link$stateProvince)
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$changes)
 
-spp_link$stateProvince <- gsub("Goi�s", "Goias", spp_link$stateProvince)
+head(unique(spp_link$recordedBy), 1000)
 
-spp_link$stateProvince <- gsub("Maranh�o", "Maranhao", spp_link$stateProvince)
+head(unique(spp_link$identifiedBy), 30)
 
-spp_link$stateProvince <- gsub("Par�", "Para", spp_link$stateProvince)
-
-spp_link$stateProvince <- gsub("Paran�", "Parana", spp_link$stateProvince)
-
-spp_link$stateProvince <- gsub("Piau�", "Piaui", spp_link$stateProvince)
-
-spp_link$stateProvince <- gsub("Rond�nia", "Rondonia", spp_link$stateProvince)
-
-spp_link$stateProvince <- gsub("S�o Paulo", "Sao Paulo", spp_link$stateProvince)
-
-
+sort(table(spp_link$lifeForm, useNA = "ifany"), decreasing = TRUE)
+#number of registers in lifeForm
+#E (45.164 registros), H (9.002) y NV (493); sin embargo, 15.325 registros presentan valores vacíos.
 ```
 
-#Completar los espacios vacios
+#Revision of Taxonomy
 
 ```{r}
-
-# 1.Crear objeto para revisar los espacios vacios en stateProvince 
-stateProvince_vacios <- spp_link %>%
-  filter(stateProvince == "" | is.na(stateProvince)) %>%
-  select(stateProvince, locality, occurrenceID)
-
-stateProvince_vacios
-
-# 2. Completar el stateProvince basado en palabras de locality 
-
-spp_link <- spp_link %>%
-  mutate(stateProvince = case_when(
-    (stateProvince == "" | is.na(stateProvince)) & grepl("Bom Jardim", locality, ignore.case = TRUE) ~ "Rio de Janeiro",
-    (stateProvince == "" | is.na(stateProvince)) & grepl("Santana do Pirapama", locality, ignore.case = TRUE) ~ "Minas Gerais",
-    (stateProvince == "" | is.na(stateProvince)) & grepl("Mato Grosso", locality, ignore.case = TRUE) ~ "Mato Grosso",
-    (stateProvince == "" | is.na(stateProvince)) & grepl("Fazenda Santa Maria", locality, ignore.case = TRUE) ~ "Parana",
-    TRUE ~ stateProvince
-  ))
-
-# 3. Completar el stateProvince basado en occurrenceID
-
-oID_vacios <- c("assis_i_2026_specieslink_00633", "assis_i_2026_specieslink_00636", "assis_i_2026_specieslink_00894", "assis_i_2026_specieslink_01280", "assis_i_2026_specieslink_01540")
-
-spp_link <- spp_link %>%
-  mutate(stateProvince = ifelse((stateProvince == "" | is.na(stateProvince)) & occurrenceID %in% oID_vacios,
-                                "Rio de Janeiro",
-                                stateProvince))
-spp_link <- spp_link %>%
-  mutate(stateProvince = ifelse(occurrenceID == "assis_i_2026_specieslink_00691" & (stateProvince == "" | is.na(stateProvince)),
-                                "Sao Paulo",
-                                stateProvince))
+table(spp_link$taxonRank, useNA = "ifany")
 ```
 
-#Detectar información dañada en "locality"
-
-```{r}
-conteo_locality <- spp_link %>%
-  count(locality, sort = TRUE)
-
-conteo_locality
-```
-
-#This is for creating the columns and indicate that are being corrected.
-
-```{r}
-# make sure ok.2 exists
-if (!"ok.2" %in% names(spp_link)) spp_link$ok.2 <- spp_link$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
-
-# make sure discardReason exists
-if (!"discardReason" %in% names(spp_link)) spp_link$discardReason <- NA_character_
-
-codesplink <- dfsplink_corrected$occurrenceID 
-codesplink <- c("cada ocurrenceID","agrega todos los que corregiste")
-codesplink
-
-for (code in codesplink) {
-  idx <- which(tu_referencia$occurrenceID == code) #La base dea datos con los ocurrendeID que corregiste
-  if (length(idx)) {
-    spp_link$ok.2[idx] <- TRUE
-    spp_link$discardReason[idx] <- "Corrected: points were corrected according to locality"
-  }
-}
-```
