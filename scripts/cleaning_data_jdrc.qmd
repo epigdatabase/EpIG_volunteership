@@ -28,6 +28,16 @@ view(spp_link)
 str(spp_link)
 ```
 
+#Crear columnas de cambios
+
+```{r}
+# make sure ok.2 exists
+if (!"ok.2" %in% names(spp_link)) spp_link$ok.2 <- spp_link$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
+
+# make sure discardReason exists
+if (!"discardReason" %in% names(spp_link)) spp_link$discardReason <- ""
+```
+
 # Revisar cada una de las columnas
 
 ```{r}
@@ -71,6 +81,14 @@ spp_link$stateProvince <- gsub("Rond�nia", "Rondonia", spp_link$stateProvince)
 
 spp_link$stateProvince <- gsub("S�o Paulo", "Sao Paulo", spp_link$stateProvince)
 
+# Cambio 1
+
+camb1_spplink <- c("Amapa","Ceara","Espirito Santo","Goias","Maranhao","Para","Parana","Piaui","Rondonia","Sao Paulo")
+
+idx <- which(spp_link$stateProvince %in% camb1_spplink)
+
+spp_link$ok.2[idx] <- TRUE
+spp_link$discardReason[idx] <- "change: stateProvince names corrected./"
 
 ```
 
@@ -93,8 +111,16 @@ spp_link <- spp_link %>%
     (stateProvince == "" | is.na(stateProvince)) & grepl("Santana do Pirapama", locality, ignore.case = TRUE) ~ "Minas Gerais",
     (stateProvince == "" | is.na(stateProvince)) & grepl("Mato Grosso", locality, ignore.case = TRUE) ~ "Mato Grosso",
     (stateProvince == "" | is.na(stateProvince)) & grepl("Fazenda Santa Maria", locality, ignore.case = TRUE) ~ "Parana",
-    TRUE ~ stateProvince
-  ))
+    TRUE ~ stateProvince 
+  ),
+    discardReason = case_when(
+      grepl("Bom Jardim", locality, ignore.case = TRUE) ~ paste(discardReason, "change: corrected stateProvince using locality./"),
+      grepl("Santana do Pirapama", locality, ignore.case = TRUE) ~ paste(discardReason, "change: corrected stateProvince using locality./"),
+      grepl("Mato Grosso", locality, ignore.case = TRUE) ~ paste(discardReason, "change: corrected stateProvince using locality./"),
+      grepl("Fazenda Santa Maria", locality, ignore.case = TRUE) ~ paste(discardReason, "change: corrected stateProvince using locality./"),
+      TRUE ~ discardReason
+    )
+  )
 
 # 3. Completar el stateProvince basado en occurrenceID
 
@@ -103,11 +129,27 @@ oID_vacios <- c("assis_i_2026_specieslink_00633", "assis_i_2026_specieslink_0063
 spp_link <- spp_link %>%
   mutate(stateProvince = ifelse((stateProvince == "" | is.na(stateProvince)) & occurrenceID %in% oID_vacios,
                                 "Rio de Janeiro",
-                                stateProvince))
+                                stateProvince),
+  discardReason = ifelse(occurrenceID %in% oID_vacios,
+                           paste(ifelse(is.na(discardReason) | discardReason == "", "",
+                                        discardReason),
+                                 "change: corrected stateProvince using occurrenceID./"
+                                 ),
+                           discardReason)
+  )
+
 spp_link <- spp_link %>%
   mutate(stateProvince = ifelse(occurrenceID == "assis_i_2026_specieslink_00691" & (stateProvince == "" | is.na(stateProvince)),
                                 "Sao Paulo",
-                                stateProvince))
+                                stateProvince),
+  discardReason = ifelse(occurrenceID %in% oID_vacios,
+                           paste(ifelse(is.na(discardReason) | discardReason == "", "",
+                                        discardReason),
+                                 "change: corrected stateProvince using occurrenceID./"
+                                 ),
+                           discardReason)
+  )
+
 ```
 
 #Detectar información dañada en "locality"
@@ -119,24 +161,29 @@ conteo_locality <- spp_link %>%
 conteo_locality
 ```
 
-#This is for creating the columns and indicate that are being corrected.
+#Detectar información en locality que tiene coordenadas
 
 ```{r}
-# make sure ok.2 exists
-if (!"ok.2" %in% names(spp_link)) spp_link$ok.2 <- spp_link$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
 
-# make sure discardReason exists
-if (!"discardReason" %in% names(spp_link)) spp_link$discardReason <- NA_character_
+# Detectar filas con coordenadas en locality
 
-codesplink <- dfsplink_corrected$occurrenceID 
-codesplink <- c("cada ocurrenceID","agrega todos los que corregiste")
-codesplink
+locality_coords <- spp_link %>%
+  filter(
+    # formato grados, minutos, segundos
+    grepl("\\d+°\\d+'\\d+\"[SNOW]", locality) |
+    # grados y minutos
+    grepl("\\d+°\\d+'\\d+[SNOW]", locality) |
+    # decimales con N/S/E/O/W
+    grepl("\\d+\\.\\d+\\s*[SNOW]", locality) |
+    # decimales con signo (ej: -53.9058 / -27.2002)
+    grepl("-?\\d+\\.\\d+\\s*/\\s*-?\\d+\\.\\d+", locality)
+  ) %>%
+  select(locality, occurrenceID, stateProvince, decimalLatitude, decimalLongitude)
 
-for (code in codesplink) {
-  idx <- which(tu_referencia$occurrenceID == code) #La base dea datos con los ocurrendeID que corregiste
-  if (length(idx)) {
-    spp_link$ok.2[idx] <- TRUE
-    spp_link$discardReason[idx] <- "Corrected: points were corrected according to locality"
-  }
-}
+locality_coords
+
+# Exportar a CSV (para revisar despues)
+write.csv(locality_coords, "locality_coords.csv", row.names = FALSE)
+
+
 ```
