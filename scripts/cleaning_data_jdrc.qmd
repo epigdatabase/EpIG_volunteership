@@ -183,7 +183,70 @@ locality_coords <- spp_link %>%
 locality_coords
 
 # Exportar a CSV (para revisar despues)
-write.csv(locality_coords, "locality_coords.csv", row.names = FALSE)
-
+# write.csv(locality_coords, "locality_coords.csv", row.names = FALSE)
 
 ```
+
+#Arreglar información con coordenadas en locality
+
+```{r}
+#Agregar coordenadas faltantes a las columnas de long y lat
+
+spp_link <- spp_link %>%
+  mutate(
+    decimalLongitude = ifelse(occurrenceID == "assis_i_2026_specieslink_01528",
+                              "-53.331000", decimalLongitude),
+    decimalLatitude  = ifelse(occurrenceID == "assis_i_2026_specieslink_01528",
+                              "-27.081000", decimalLatitude)
+  )
+
+#Eliminar coordenadas dentro de las filas de locality
+
+spp_link <- spp_link %>%
+  mutate(
+    locality = locality %>%
+      # quitar coordenadas en grados/minutos/segundos
+      str_replace_all("\\d+°\\d+'\\d+\"[SNOW]", "") %>%
+      str_replace_all("\\d+°\\d+'\\d+[SNOW]", "") %>%
+      # quitar coordenadas decimales con N/S/E/O/W
+      str_replace_all("\\d+\\.\\d+\\s*[SNOW]", "") %>%
+      # quitar coordenadas decimales con signo y "/"
+      str_replace_all("-?\\d+\\.\\d+\\s*/\\s*-?\\d+\\.\\d+", "") %>%
+      # limpiar espacios extra
+      str_squish()
+  )
+
+# Eliminar datos de elevación
+
+spp_link <- spp_link %>%
+  mutate(
+    locality = locality %>%
+      # quitar elevaciones tipo "12345 m" o "12345 m alt"
+      str_replace_all("\\b\\d+\\s*m\\s*alt?\\b", "") %>%
+      # limpiar espacios extra
+      str_squish()
+  
+  )
+```
+
+#Limpiar información en locality
+
+```{r}
+# Poner la primera palabra en mayusculas
+
+spp_link <- spp_link %>%
+  mutate(locality = sub("^([[:alpha:]])", "\\U\\1", locality, perl = TRUE))
+
+# Eliminar puntos o comas que salgan al final
+
+#Traducir a ingles
+
+limpiar_texto <- function(texto) {
+  texto_limpio <- iconv(texto, to = "ASCII//TRANSLIT")
+  return(texto_limpio)
+}
+
+v1$ECO_NAME <- limpiar_texto(v1$ECO_NAME)
+
+```
+
