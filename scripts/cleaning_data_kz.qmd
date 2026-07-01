@@ -47,6 +47,10 @@ glimpse(spp_link)
 ```{r}
 # Inspect unique values of key categorical fields
 
+str(spp_link)
+
+summary(spp_link)
+
 unique(spp_link$basisOfRecord)
 #only one unique value:"PreservedSpecimen. No changes required"
 
@@ -133,8 +137,11 @@ lapply(spp_link, str)
 grep("Ã|Â|ƒ|\\n|\\r", spp_link$recordedBy)
 
 grep("Ã|Â|ƒ|\\n|\\r", spp_link$identifiedBy)
+#Totally 686 entries with ","
 
 grep("Ã|Â|ƒ|\\n|\\r", spp_link$changes)
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$lifeForm)
 
 head(unique(spp_link$recordedBy), 1000)
 
@@ -149,5 +156,6 @@ sort(table(spp_link$lifeForm, useNA = "ifany"), decreasing = TRUE)
 
 ```{r}
 table(spp_link$taxonRank, useNA = "ifany")
+#No changes required for now
 ```
 
