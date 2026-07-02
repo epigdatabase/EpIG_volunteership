@@ -1,6 +1,6 @@
 "","n","provider","dataset","epiphyte.only","n_records","n_species","pct_with_coords","pct_missing_locality","pct_poor_locality","pct_with_flags","voluntarios","startingDate","finishingDate","voluntariosDC","startingDateDC","finishingDateDC"
 "1",1,"AMAZ2024","AMAZ2024","yes",375,97,"66.13","1.87","7.88","35.2","Simon","15/06/26",NA,NA,NA,NA
-"2",2,"AssisI","assis_i_2026_diagonal","yes",1315,269,"100","100",NA,"0",NA,NA,NA,NA,NA,NA
+"2",2,"AssisI","assis_i_2026_diagonal","yes",1315,269,"100","100",NA,"0","Gabriel Montoya","01/07/26",NA,NA,NA,NA
 "3",3,"AssisI","assis_i_2026_af","yes",87931,1756,"100","17.19","7.78","0","Luis","16/06/26",NA,NA,NA,NA
 "4",4,"AssisI","assis_i_2026_specieslink","yes",1540,527,"91.49","4.42","0.82","0","Juana","16/06/26",NA,"Juana","16/06/26",NA
 "5",5,"AssisI","assis_i_2026_literature","yes",1059,410,"91.69","0.09","0","0",NA,NA,NA,NA,NA,NA

@@ -221,6 +221,14 @@ if (length(idx)) {
     voluntarios$startingDate[idx] <- "16/06/26"
 }
 
+idx <- which(voluntarios$dataset == "assis_i_2026_diagonal")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Gabriel Montoya"
+    voluntarios$startingDate[idx] <- "01/07/26"
+}
+
+
+
 
 
 write.csv(voluntarios, file = "data/Georreferencing/georeferencing_audit_summary.csv")
