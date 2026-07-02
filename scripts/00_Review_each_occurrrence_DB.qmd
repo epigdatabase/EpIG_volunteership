@@ -21,9 +21,9 @@ All occurrence datasets located under `data/2_Processing_data/2_Occurrences/` we
 
 Backbone matching was performed on unique binomials using `match_species_backbone()`, returning a match code (0–3) indicating **exact matches**, **fuzzy matches**, or **taxa not present in the backbone**. For each dataset, two outputs were generated:
 
--   an augmented dataset (**\*\_epi**) preserving all original records while adding standardized taxonomic and epiphyte-review columns, and
+- an augmented dataset (**\*\_epi**) preserving all original records while adding standardized taxonomic and epiphyte-review columns, and
 
--   a review table (**\*\_backbone_review.csv**) containing unique binomials, match codes, and review flags.
+- a review table (**\*\_backbone_review.csv**) containing unique binomials, match codes, and review flags.
 
 A global summary table (`summary_epi_backbone.csv`) was written at the root directory (*see below*), reporting dataset-level metrics including total rows, number of binomials, unique binomials, proportion of binomial records, and counts of each match category. This table serves as the decision matrix for prioritizing manual taxonomic revision. Each new dataset summary is added there.
 
