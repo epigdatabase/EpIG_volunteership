@@ -1,0 +1,238 @@
+---
+title: "Georeferenciación"
+author: "GJBM"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: console
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+
+packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr","ggplot")
+
+# Install packages not yet installed [for the first time]
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+ install.packages(packages[!installed_packages])
+}
+
+# Packages loading
+invisible(lapply(packages, require, character.only = TRUE)) # remove "invisible" to see whether the packages are loaded/available. 
+
+Sys.setlocale("LC_ALL", "Spanish_Spain.1252") # en Windows
+```
+
+You can add options to executable code like this
+
+```{r}
+
+dfAssisDiagonal <- read.csv2("./data/Georreferencing/1.Raw/georef__assis_i_2026_diagonal.csv",sep = ",")
+
+names(dfAs) # check names of the columns
+View(dfAssisDiagonal)
+# if you want to open and see the file
+str(dfAssisDiagonal) #solo
+headdfAssisDiagonalhead(dfCR) # if you want to see more or less the structure of the dataframe (df)
+
+```
+
+```{r}
+unique(dfAssisDiagonal$country) #ok
+unique(dfAssisDiagonal$stateProvince)
+unique(dfAssisDiagonal$locality)
+names(dfAssisDiagonal)
+```
+
+```{r}
+library(sf)
+library(rnaturalearth)
+
+countries_sf <- ne_countries(scale = 10, returnclass = "sf") %>%
+  st_make_valid() %>%
+  st_transform(4326) %>%
+  select(country_rev = admin, countryCode_rev = iso_a2)
+
+pts <- dfAssisDiagonal %>% 
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude)) %>%
+  st_as_sf(coords = c("decimalLongitude", "decimalLatitude"), crs = 4326, remove = FALSE)
+
+pts_joined <- st_join(pts, countries_sf, join = st_within, left = TRUE) %>%
+  st_drop_geometry() %>%
+  select(.row_id, country_rev, countryCode_rev)
+
+db <- db %>%
+  left_join(pts_joined, by = ".row_id") %>%
+  mutate(
+    country     = coalesce(country,     country_rev),
+    countryCode = coalesce(countryCode, countryCode_rev),
+    changes = append_change_tag(
+      changes,
+      paste0("country/countryCode filled from reverse geocoding using ne_countries [",
+             Sys.Date(), "]"))
+  ) %>%
+  select(-country_rev, -countryCode_rev)
+```
+
+```{r}
+if (!"ok.2" %in% names(dfAssisDiagonal)) dfAssisDiagonal$ok.2 <- dfAssisDiagonal$.ok_for_analysis
+if (!"discardReason" %in% names(dfAssisDiagonal)) dfAssisDiagonal$discardReason <- NA_character_
+view(dfAssisDiagonal)
+
+code <- dfAssisDiagonal$occurrenceID
+code
+
+# make sure ok.2 exists
+if (!"ok.2" %in% names(df11)) df11$ok.2 <- df11$.ok_for_analysis
+
+# make sure discardReason exists
+if (!"discardReason" %in% names(df11)) df11$discardReason <- NA_character_
+
+# CORRER AL FINAL
+for (code in code) {
+  idx <- which(df11$occurrenceID == code)
+  if (length(idx)) {
+    dfAssisDiagonal$ok.2[idx] <- TRUE
+    dfAssisDiagonal$discardReason[idx] <- "Georeference using inverse geocoding"
+  }
+}
+
+# CORRER AL FINAL 
+dfAssisDiagonal$coordinateUncertaintyInMeters<-0
+# dfAssisDiagonal$ok.2[73] <- T
+```
+
+```{r}
+## ============================================================
+## GEOCODIFICACIÓN INVERSA - Nominatim (OpenStreetMap)
+## Extrae locality y stateProvince a partir de decimalLatitude/decimalLongitude
+## ============================================================
+
+library(httr)
+library(jsonlite)
+
+# ---- 1. Cargar tus datos ----
+# Cambia la ruta por la de tu archivo
+# df <- read.csv("tus_datos.csv", stringsAsFactors = FALSE, encoding = "UTF-8")
+
+# Columnas nuevas para no sobreescribir de inmediato tus originales
+# (así puedes revisar antes de reemplazar stateProvince y locality)
+dfAssisDiagonal$locality_geo      <- NA_character_
+dfAssisDiagonal$stateProvince_geo <- NA_character_
+dfAssisDiagonal$country_geo       <- NA_character_
+
+# ---- 2. Función auxiliar: toma el primer campo no-nulo disponible ----
+get_field <- function(addr, fields) {
+  for (f in fields) {
+    if (!is.null(addr[[f]]) && nzchar(addr[[f]])) return(addr[[f]])
+  }
+  return(NA_character_)
+}
+
+# ---- 3. Función de geocodificación inversa contra Nominatim ----
+reverse_geocode_nominatim <- function(lat, lon) {
+  url <- "https://nominatim.openstreetmap.org/reverse"
+
+  res <- tryCatch({
+    GET(
+      url,
+      query = list(
+        lat = lat,
+        lon = lon,
+        format = "json",
+        addressdetails = 1,
+        zoom = 10   # 10 = nivel ciudad/localidad; sube a 14 si quieres más detalle (barrio)
+      ),
+      # Nominatim EXIGE un User-Agent identificable con contacto real
+      user_agent("R-reverse-geocoding-script (tu_email@ejemplo.com)")
+    )
+  }, error = function(e) NULL)
+
+  if (is.null(res) || httr::status_code(res) != 200) return(NULL)
+
+  parsed <- tryCatch(
+    fromJSON(content(res, as = "text", encoding = "UTF-8")),
+    error = function(e) NULL
+  )
+  return(parsed)
+}
+
+# ---- 4. Loop principal ----
+# Guarda progreso cada 50 filas por si se corta la conexión
+archivo_progreso <- "progreso_geocoding.rds"
+
+# Si ya existe un progreso guardado, retómalo
+if (file.exists(archivo_progreso)) {
+  df <- readRDS(archivo_progreso)
+  cat("Progreso previo cargado.\n")
+}
+
+for (i in seq_len(nrow(dfAssisDiagonal))) {
+
+  # Saltar filas ya procesadas (útil si se reanuda el script)
+  if (!is.na(dfAssisDiagonal$locality_geo[i])) next
+
+  lat <- dfAssisDiagonal$decimalLatitude[i]
+  lon <- dfAssisDiagonal$decimalLongitude[i]
+
+  if (is.na(lat) || is.na(lon)) next
+
+  result <- reverse_geocode_nominatim(lat, lon)
+
+  if (!is.null(result) && !is.null(result$address)) {
+    addr <- result$address
+
+    # locality: intenta varios niveles administrativos en orden de especificidad
+    dfAssisDiagonal$locality_geo[i] <- get_field(
+      addr, c("city", "town", "village", "municipality", "county", "suburb")
+    )
+
+    # stateProvince: nivel estado/provincia/departamento
+    dfAssisDiagonal$stateProvince_geo[i] <- get_field(addr, c("state", "region"))
+
+    # país, útil para verificar que caiga en Brazil/Paraguay/Argentina/Bolivia
+    dfAssisDiagonal$country_geo[i] <- get_field(addr, c("country"))
+  }
+
+  # Respeta el límite de uso de Nominatim: máx. 1 solicitud/segundo
+  Sys.sleep(1)
+
+  if (i %% 50 == 0) {
+    cat("Procesadas", i, "de", nrow(dfAssisDiagonal), "coordenadas\n")
+    saveRDS(dfAssisDiagonal, archivo_progreso)
+  }
+}
+
+# ---- 5. Guardar resultado final ----
+# saveRDS(dfAssisDiagonal, archivo_progreso)
+# write.csv(dfAssisDiagonal, "datos_geocodificados.csv", row.names = FALSE)
+
+# ---- 6. Revisión rápida ----
+table(dfAssisDiagonal$country_geo, useNA = "ifany")
+sum(is.na(dfAssisDiagonal$locality_geo))       # cuántas quedaron sin localidad
+sum(is.na(dfAssisDiagonal$stateProvince_geo))  # cuántas quedaron sin provincia/estado
+
+# ---- 7. (Opcional) Reemplazar tus columnas originales solo donde estaban vacías ----
+# df$locality[is.na(df$locality) | df$locality == ""] <-
+#   df$locality_geo[is.na(df$locality) | df$locality == ""]
+#
+# df$stateProvince[is.na(df$stateProvince) | df$stateProvince == ""] <-
+#   df$stateProvince_geo[is.na(df$stateProvince) | df$stateProvince == ""]
+
+
+```
+
+```{r}
+# CORRER AL FINAL
+write.csv(dfAssisDiagonal, file = "C:/Users/gelar/Desktop/X/AssisDiagonal/AssisDiagonal.csv")
+
+```
+
