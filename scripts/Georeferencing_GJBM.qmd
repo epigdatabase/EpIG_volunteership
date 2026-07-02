@@ -6,8 +6,7 @@ editor: visual
 editor_options: 
   chunk_output_type: console
 ---
-
-## Quarto
+# Quarto
 
 Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
 
@@ -229,6 +228,18 @@ sum(is.na(dfAssisDiagonal$stateProvince_geo))  # cuántas quedaron sin provincia
 
 
 ```
+
+```{r}
+limpiar_texto <- function(texto) {
+  texto_limpio <- iconv(texto, to = "ASCII//TRANSLIT")
+  return(texto_limpio)
+}
+
+dfAssisDiagonal$stateProvince_geo <- limpiar_texto(dfAssisDiagonal$stateProvince_geo)
+
+dfAssisDiagonal$locality_geo <- limpiar_texto(dfAssisDiagonal$locality_geo)
+```
+
 
 ```{r}
 # CORRER AL FINAL
