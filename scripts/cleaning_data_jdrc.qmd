@@ -205,13 +205,37 @@ spp_link <- spp_link %>%
 spp_link <- spp_link %>%
   mutate(
     locality = locality %>%
-      # quitar coordenadas en grados/minutos/segundos
-      str_replace_all("\\d+°\\d+'\\d+\"[SNOW]", "") %>%
-      str_replace_all("\\d+°\\d+'\\d+[SNOW]", "") %>%
-      # quitar coordenadas decimales con N/S/E/O/W
-      str_replace_all("\\d+\\.\\d+\\s*[SNOW]", "") %>%
-      # quitar coordenadas decimales con signo y "/"
-      str_replace_all("-?\\d+\\.\\d+\\s*/\\s*-?\\d+\\.\\d+", "") %>%
+      # eliminar palabras relacionadas con coordenadas
+      str_replace_all("(?i)coord(enadas)?", "") %>%
+      # grados/minutos abreviados sin comillas (ej: 27º16 50º07.)
+      str_replace_all("\\d+[º°]\\s*\\d+", "") %>%
+      # grados/minutos/segundos con letra cardinal (ej: 27º00'01"S O.)
+      str_replace_all("\\d+[º°]\\s*\\d+'\\s*\\d+\"?\\s*[SNOWO]", "") %>%
+      # grados/minutos/segundos con decimales y doble comilla (ej: 18° 12' 06.5'' S)
+      str_replace_all("\\d+[º°]\\s*\\d+'\\s*\\d+[.,]\\d+''\\s*[SNOWO]", "") %>%
+      # grados/minutos/segundos con decimales y comilla simple/doble (ej: 43°34'05.7''W)
+      str_replace_all("\\d+[º°]\\s*\\d+'\\s*\\d+[.,]\\d+\"?\\s*[SNOWO]", "") %>%
+      # grados/minutos (ej: 17°53, 17°53S)
+      str_replace_all("\\d+[º°]\\d+'?\\s*[SNOWO]?", "") %>%
+      # grados con decimales (ej: 18° 15.0)
+      str_replace_all("\\d+[º°]\\s*\\d+[.,]\\d+", "") %>%
+      # solo grados con letra cardinal (ej: 18°S)
+      str_replace_all("\\d+[º°]\\s*[SNOWO]", "") %>%
+      # minutos/segundos con decimales y letra cardinal (ej: '04.5"S)
+      str_replace_all("'\\d+[.,]\\d+\"?[SNOWO]", "") %>%
+      # segundos con doble comilla y letra cardinal (ej: 4''S, ''W)
+      str_replace_all("\\d*''\\s*[SNOWO]", "") %>%
+      # coordenadas decimales con coma/punto y letra cardinal (ej: 42,1"W o 24,06079"W)
+      str_replace_all("\\d+[.,]\\d+\"?\\s*[SNOWO]", "") %>%
+      # coordenadas decimales con signo y "/" (ej: -53.9058 / -27.2002)
+      str_replace_all("-?\\d+[.,]\\d+\\s*/\\s*-?\\d+[.,]\\d+", "") %>%
+      # eliminar coma seguida de cardinal (ej: ", O" o ", S")
+      str_replace_all(",\\s*[SNOWO]\\b", "") %>%
+      # eliminar coordenadas decimales con segundos y letra cardinal (ej: .9"S)
+      str_replace_all("\\.?\\d+[.,]?\\d*\"?[SNOW]", "") %>%
+      # eliminar residuos como ", ." o ","
+      str_replace_all(",\\s*\\.", "") %>%
+      str_replace_all(",\\s*", "") %>%
       # limpiar espacios extra
       str_squish()
   )
@@ -221,11 +245,53 @@ spp_link <- spp_link %>%
 spp_link <- spp_link %>%
   mutate(
     locality = locality %>%
-      # quitar elevaciones tipo "12345 m" o "12345 m alt"
-      str_replace_all("\\b\\d+\\s*m\\s*alt?\\b", "") %>%
+      # quitar elevaciones tipo "12345 m alt" o "12345 m alt."
+      str_replace_all("\\b\\d+\\s*m\\.?\\s*alt\\b", "") %>%
+      # quitar elevaciones tipo "12345 m elev"
+      str_replace_all("\\b\\d+\\s*m\\s*elev\\b", "") %>%
+      # quitar elevaciones tipo "Elev: 12345" o "Elev.: 12345 m"
+      str_replace_all("(?i)elev\\.?[:]?\\s*\\d+\\s*m?", "") %>%
+      # quitar elevaciones tipo "Alt: 12345m" o "Alt: 12345"
+      str_replace_all("(?i)alt[:]?\\s*\\d+\\s*m?", "") %>%
+      # quitar la palabra "Alt" sola (con o sin punto)
+      str_replace_all("(?i)\\balt\\.?\\b", "") %>%
+      # quitar elevaciones tipo "aprox. 1607msm"
+      str_replace_all("(?i)aprox\\.\\s*\\d+\\s*msm", "") %>%
+      # quitar elevaciones tipo "1607msm"
+      str_replace_all("\\b\\d+\\s*msm\\b", "") %>%
+      # quitar elevaciones simples tipo "720 m"
+      str_replace_all("\\b\\d+\\s*m\\b", "") %>%
+      # quitar frases tipo "Altitudes entre 1243m a 1295m"
+      str_replace_all("(?i)altitudes? entre \\d+\\s*m\\s*a\\s*\\d+\\s*m", "") %>%
       # limpiar espacios extra
       str_squish()
-  
+  )
+
+#Eliminar palabras raras o letras sueltas
+
+spp_link <- spp_link %>%
+  mutate(
+    locality = locality %>%
+      # eliminar "; O"
+      str_replace_all(";\\s*O", "") %>%
+      # eliminar "m ."
+      str_replace_all("\\bm\\s*\\.", "") %>%
+      # eliminar '".'
+      str_replace_all("\"\\.", "") %>%
+      # eliminar '"; "'
+      str_replace_all("\";\\s*\"", "") %>%
+      # eliminar coordenadas tipo "° 56'38""
+      str_replace_all("°\\s*\\d+'\\d+\"+", "") %>%
+      # eliminar ". Altitudes a ."
+      str_replace_all("(?i)\\.\\s*Altitudes a\\s*\\.", "") %>%
+      # eliminar ".: /50''"
+      str_replace_all("\\.:\\s*/\\d+''", "") %>%
+      # eliminar ".: /''K"
+      str_replace_all("\\.:\\s*/''K", "") %>%
+      # eliminar "26.060100 s"
+      str_replace_all("\\b26\\.060100\\s*s\\b", "") %>%
+      # limpiar espacios extra
+      str_squish()
   )
 ```
 
@@ -237,7 +303,22 @@ spp_link <- spp_link %>%
 spp_link <- spp_link %>%
   mutate(locality = sub("^([[:alpha:]])", "\\U\\1", locality, perl = TRUE))
 
-# Eliminar puntos o comas que salgan al final
+# Eliminar puntos, comas o punto/coma que esten varias veces y el punto al final
+spp_link <- spp_link %>%
+  mutate(
+    locality = locality %>%
+      # convertir , ; en puntos
+      str_replace_all("[,;]", ".") %>%
+      # reemplazar múltiples puntos seguidos o separados por espacios por un solo punto
+      str_replace_all("\\s*\\.\\s*\\.\\s*+", ".") %>%
+      str_replace_all("\\.{2,}", ".") %>%
+      # normalizar: un solo punto seguido de un espacio
+      str_replace_all("\\s*\\.\\s*", ". ") %>%
+      # eliminar punto final si está pegado a la última palabra
+      str_replace_all("([A-Za-zÁÉÍÓÚÜÑ0-9])\\.$", "\\1") %>%
+      # limpiar espacios extra
+      str_squish()
+  )
 
 #Traducir a ingles
 
