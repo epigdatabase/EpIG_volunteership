@@ -60,9 +60,9 @@ unique(spp_link$taxonRank)
 table(spp_link$taxonRank, useNA = "ifany")
 
 unique(spp_link$lifeForm)
-#""Arboles, , , and Hierbas, , ," "Category of: "Sufrúctises, Sufrútices"  required changes or revision
+#""Arboles, , , and Hierbas, , ," "Category of: "Sufrútises, Sufrútices"  required changes or revision
 
-table(spp_link$lifeForm, useNA = "ifany")
+table(spp_link$lifeForm, useNA = "ifany") #"Category of: "Sufrúctises, Sufrútices"
 
 unique(spp_link$institutionCode)
 #only one unique value. No changes required for now
@@ -157,5 +157,27 @@ sort(table(spp_link$lifeForm, useNA = "ifany"), decreasing = TRUE)
 ```{r}
 table(spp_link$taxonRank, useNA = "ifany")
 #No changes required for now
+
+spp_link$taxonRank
+```
+
+```{r}
+#quitar tildes y símbolos especiales
+
+limpiar_texto <- function(texto) {
+  texto_limpio <- iconv(texto, to = "ASCII//TRANSLIT")
+  return(texto_limpio)
+}
+
+spp_link$recordedBy <- limpiar_texto(spp_link$recordedBy)
+
+#entrada por autor
+datos_filtrados <- spp_link %>% 
+  filter(recordedBy == "Cervantes, E")
+summary(datos_filtrados)
+print(datos_filtrados)
+
+
+datos_filtrados$occurrenceID #autor filtrados
 ```
 
