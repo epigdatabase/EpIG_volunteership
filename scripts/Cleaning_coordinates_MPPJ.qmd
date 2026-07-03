@@ -180,7 +180,7 @@ voluntarios$finishingDateDC <- NA_character_
 
 str(voluntarios)
 View(voluntarios)
-
+#SIMON
 idx <- which(voluntarios$dataset == "AMAZ2024")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Simon"
@@ -188,12 +188,15 @@ if (length(idx)) {
 }
 
 
+#LUIS
+
 idx <- which(voluntarios$dataset == "assis_i_2026_af")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Luis"
     voluntarios$startingDate[idx] <- "16/06/26"
 }
 
+#JUANA
 idx <- which(voluntarios$dataset == "assis_i_2026_specieslink")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Juana"
@@ -202,25 +205,29 @@ if (length(idx)) {
     voluntarios$startingDateDC[idx] <- "16/06/26"
 }
 
-
+#CAMILO
 idx <- which(voluntarios$dataset == "CR2024")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Camilo"
     voluntarios$startingDate[idx] <- "15/06/26"
 }
 
+#KELLY
 idx <- which(voluntarios$dataset == "CR2024")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Kelly"
     voluntarios$startingDateDC[idx] <- "18/06/26"
 }
 
+
+#YOHAN
 idx <- which(voluntarios$dataset == "bertelmann_h_2025_PECS")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Yohan"
     voluntarios$startingDate[idx] <- "01/07/26"
 }
 
+#GABRIEL MONTOYA
 idx <- which(voluntarios$dataset == "assis_i_2026_diagonal")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Gabriel Montoya"
