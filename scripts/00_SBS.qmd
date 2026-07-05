@@ -1,0 +1,185 @@
+---
+title: "00_SBS"
+author: "SBS"
+format: html
+editor: visual
+editor_options: 
+  chunk_output_type: inline
+---
+
+## Automating to Speed Up Searches
+
+```{r}
+library(dplyr)
+library(stringr)
+library(tidygeocoder)
+library(purrr)
+library(geosphere)
+library(stringi)
+
+calc_uncertainty_from_bbox <- function(bbox) {
+  if (is.null(bbox) || length(bbox) < 4 || any(is.na(bbox))) return(NA_real_)
+  bbox <- as.numeric(bbox)
+  round(geosphere::distHaversine(c(bbox[3], bbox[1]), c(bbox[4], bbox[2])) / 2)
+}
+
+standardize_geocode_result <- function(df, uncertainty_col) {
+  if (!"boundingbox" %in% names(df)) df$boundingbox <- vector("list", nrow(df))
+  df %>% mutate("{uncertainty_col}" := map_dbl(boundingbox, calc_uncertainty_from_bbox))
+}
+
+safe_geocode_osm <- function(df, address_col, lat_name, lon_name, unc_name) {
+  if (nrow(df) == 0) {
+    return(tibble(!!address_col := character(), !!lat_name := numeric(), !!lon_name := numeric(), !!unc_name := numeric()))
+  }
+  
+  df_temp <- df %>% rename(temp_address = all_of(address_col))
+  res <- geocode(df_temp, address = temp_address, method = "osm", lat = lat_temp, long = lon_temp, full_results = TRUE)
+  res <- standardize_geocode_result(res, unc_name)
+  
+  if (!"lat_temp" %in% names(res)) res$lat_temp <- NA_real_
+  if (!"lon_temp" %in% names(res)) res$lon_temp <- NA_real_
+  
+  res %>% 
+    rename(!!address_col := temp_address, !!lat_name := lat_temp, !!lon_name := lon_temp) %>% 
+    select(all_of(c(address_col, lat_name, lon_name, unc_name)))
+}
+
+clean_locality_text <- function(x) {
+  x %>% 
+    stringi::stri_trans_general(id = "Latin-ASCII") %>% 
+    str_replace_all("[\\.,:;\\(\\)\\[\\]/-]", " ") %>% 
+    str_squish()
+}
+
+simplify_locality_text <- function(x) {
+  x_clean <- clean_locality_text(x)
+  x_clean <- str_remove_all(x_clean, regex("\\b(km|kilometer|carretera|road|near|cerca de|trocha|quebrada|qbrda|qda|fundo|comunidad|caserio|estacion|bosque|bordes|rocosos)\\b", ignore_case = TRUE))
+  x_clean <- str_remove_all(x_clean, "\\b[0-9]+\\b") %>% str_squish()
+  ifelse(str_count(x_clean, "\\S+") > 5, str_extract(x_clean, "^(\\S+\\s+){0,4}\\S+"), x_clean) %>% str_squish()
+}
+
+verify_and_correct_coordinates <- function(data, distance_threshold_km = 20) {
+  
+  # Prepare parallel queries for the 5-level cascading search
+  data_parsed <- data %>%
+    mutate(
+      .row_id = row_number(),
+      lat_orig = as.numeric(decimalLatitude),
+      lon_orig = as.numeric(decimalLongitude),
+      
+      loc_raw = str_squish(as.character(locality)),
+      state_raw = str_squish(as.character(stateProvince)),
+      is_empty_loc = is.na(loc_raw) | loc_raw == "",
+      
+      first_word = str_extract(clean_locality_text(loc_raw), "^\\S+"),
+      
+      query_loc = pmap_chr(list(loc_raw, state_raw, "Peru"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", "))),
+      query_clean = pmap_chr(list(clean_locality_text(loc_raw), clean_locality_text(state_raw), "Peru"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", "))),
+      query_simple = pmap_chr(list(simplify_locality_text(loc_raw), clean_locality_text(state_raw), "Peru"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", "))),
+      query_first = pmap_chr(list(first_word, clean_locality_text(state_raw), "Peru"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", "))),
+      query_state = pmap_chr(list(clean_locality_text(state_raw), "Peru"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", ")))
+    )
+  
+  # Extract unique combinations to optimize API calls
+  to_search <- data_parsed %>% 
+    distinct(query_loc, query_clean, query_simple, query_first, query_state) %>% 
+    filter(query_loc != "Peru")
+  
+  # Level 1: Full raw text
+  geo_1 <- to_search %>% distinct(query_loc) %>% safe_geocode_osm("query_loc", "lat_1", "lon_1", "unc_1")
+  failed_1 <- to_search %>% left_join(geo_1, by = "query_loc") %>% filter(is.na(lat_1))
+  
+  # Level 2: Cleaned text
+  geo_2 <- failed_1 %>% distinct(query_clean) %>% safe_geocode_osm("query_clean", "lat_2", "lon_2", "unc_2")
+  failed_2 <- failed_1 %>% left_join(geo_2, by = "query_clean") %>% filter(is.na(lat_2))
+  
+  # Level 3: Simplified text (without common ecological stop-words)
+  geo_3 <- failed_2 %>% distinct(query_simple) %>% safe_geocode_osm("query_simple", "lat_3", "lon_3", "unc_3")
+  failed_3 <- failed_2 %>% left_join(geo_3, by = "query_simple") %>% filter(is.na(lat_3))
+  
+  # Level 4: First word only
+  geo_4 <- failed_3 %>% distinct(query_first) %>% safe_geocode_osm("query_first", "lat_4", "lon_4", "unc_4")
+  failed_4 <- failed_3 %>% left_join(geo_4, by = "query_first") %>% filter(is.na(lat_4))
+  
+  # Level 5: State/Province only fallback
+  geo_5 <- failed_4 %>% distinct(query_state) %>% safe_geocode_osm("query_state", "lat_5", "lon_5", "unc_5")
+  
+  # Consolidate all coordinates gathered from the cascading search
+  geo_dictionary <- to_search %>%
+    left_join(geo_1, by = "query_loc") %>%
+    left_join(geo_2, by = "query_clean") %>%
+    left_join(geo_3, by = "query_simple") %>%
+    left_join(geo_4, by = "query_first") %>%
+    left_join(geo_5, by = "query_state") %>%
+    mutate(
+      osm_lat = coalesce(lat_1, lat_2, lat_3, lat_4, lat_5),
+      osm_lon = coalesce(lon_1, lon_2, lon_3, lon_4, lon_5),
+      osm_unc = coalesce(unc_1, unc_2, unc_3, unc_4, unc_5)
+    ) %>%
+    select(query_loc, osm_lat, osm_lon, osm_unc)
+  
+  # Apply business logic and reassemble the final dataset
+  data_final <- data_parsed %>%
+    left_join(geo_dictionary, by = "query_loc") %>%
+    rowwise() %>%
+    mutate(
+      distance_error_km = if_else(!is.na(lon_orig) & !is.na(lat_orig) & !is.na(osm_lon) & !is.na(osm_lat),
+                                   distHaversine(c(lon_orig, lat_orig), c(osm_lon, osm_lat)) / 1000, 
+                                   NA_real_),
+      
+      has_original = !is.na(lat_orig) & !is.na(lon_orig) & lat_orig != 0,
+      is_too_far = isTRUE(distance_error_km > distance_threshold_km),
+      has_osm = !is.na(osm_lat),
+      
+      # Needs correction if it lacked coordinates OR if original coordinates were too far off
+      needs_correction = (!has_original | is_too_far) & has_osm,
+      
+      # Apply exact uncertainty if distance is under 1km; otherwise randomly assign a default value
+      coordinateUncertaintyInMeters = if_else(
+        !is.na(distance_error_km) & distance_error_km <= 1,
+        osm_unc,
+        sample(c(517, 628, 758, 925), 1)
+      ),
+      
+      # Replace coordinates where appropriate
+      decimalLatitude = if_else(needs_correction, osm_lat, lat_orig),
+      decimalLongitude = if_else(needs_correction, osm_lon, lon_orig),
+      
+      # ok.2 flag set to FALSE if coordinates remained the original ones, TRUE otherwise
+      ok.2 = if_else(!needs_correction, FALSE, TRUE),
+      
+      # Assign discard reasons based on the established case matrix
+      discardReason = case_when(
+        is_empty_loc & !has_original ~ "Impossible to correct. No coordinates or locality",
+        is_empty_loc & has_original ~ "Not corrected, only coordinates or locality",
+        needs_correction ~ "Corrected: points were corrected according to the locality",
+        !needs_correction & has_original ~ "Corrected according to the locality specification",
+        TRUE ~ "Impossible to correct. Not enough georeferencing information"
+      )
+    ) %>%
+    ungroup() %>%
+    # Remove internal temporary variables while keeping the original dataset columns intact
+    select(
+      -lat_orig, -lon_orig, -loc_raw, -state_raw, -is_empty_loc, -first_word,
+      -query_loc, -query_clean, -query_simple, -query_first, -query_state,
+      -osm_lat, -osm_lon, -osm_unc, -distance_error_km, -has_original,
+      -is_too_far, -has_osm, -needs_correction, -.row_id
+    )
+  
+  return(data_final)
+}
+
+# Execute over the entire dataset
+amaz_data <- read.csv("../data/Georreferencing/1.Raw/georef__AMAZ2024.csv", stringsAsFactors = FALSE)
+processed_amaz_data <- verify_and_correct_coordinates(amaz_data)
+
+# Export final data (Optional)
+# write.csv(amaz_final_completo, "../data/2_Processed/georef__AMAZ2024_COMPLETO.csv", row.names = FALSE)
+```
+# To eliminate DataFrames
+
+```{r}
+rm(datos_amaz, datos_prueba, amaz_final_prueba)
+```
+
