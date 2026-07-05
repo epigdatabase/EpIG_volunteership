@@ -62,8 +62,7 @@ if (length(idx)) {
 
 ```
 
-
-
+#Categorizar en simple, detallado e imposible de corregir
 
 ```{r}
 dfCR <- dfCR %>%
@@ -77,6 +76,9 @@ TRUE ~ "simple"
 )
 )
 ```
+
+#Filtrar
+
 
 ```{r}
 dfCR <- dfCR %>%
@@ -106,6 +108,9 @@ unique(dfCR1$country)
 
 ```
 
+#Exportar a excel
+
+
 ```{r}
 write.csv(dfCR1, file = "C:/Desktop/Voluntariado epifitas/entrenamiento/CR1.csv")
 ```
@@ -125,9 +130,8 @@ dfCR$coordinateUncertaintyInMeters <- NA
 ```{r}
 
 dfCR_ref <- read.csv2("C:/Desktop/Voluntariado epifitas/entrenamiento/CR_simple.csv",sep = ";")
-
+str(dfCR_ref)
 ```
-
 
 #Codigo para unir data digitalizada y a data original
 
@@ -165,9 +169,6 @@ dfCR <- dfCR %>% # Archivo original
   select(-longitude_corregida, -latitude_corregida, -lo_corr, -incertidumbre)
 ```
 
-
-
-
 ```{r}
 
 codeCR <- dfCR_ref$occurrenceID
@@ -192,8 +193,3 @@ for (code in codeCR) {
 
 
 ```
-
-
-
-
-
