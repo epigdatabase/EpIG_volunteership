@@ -146,17 +146,18 @@ verify_and_correct_coordinates <- function(data, distance_threshold_km = 20) {
       decimalLatitude = if_else(needs_correction, osm_lat, lat_orig),
       decimalLongitude = if_else(needs_correction, osm_lon, lon_orig),
       
-      # ok.2 flag set to FALSE if coordinates remained the original ones, TRUE otherwise
-      ok.2 = if_else(!needs_correction, FALSE, TRUE),
-      
-      # Assign discard reasons based on the established case matrix
+      # Assign discard reasons FIRST to logically drive the ok.2 column
       discardReason = case_when(
         is_empty_loc & !has_original ~ "Impossible to correct. No coordinates or locality",
         is_empty_loc & has_original ~ "Not corrected, only coordinates or locality",
         needs_correction ~ "Corrected: points were corrected according to the locality",
-        !needs_correction & has_original ~ "Corrected according to the locality specification",
+        !needs_correction & has_original ~ "Left as original",
         TRUE ~ "Impossible to correct. Not enough georeferencing information"
-      )
+      ),
+      
+      # ok.2 flag set to FALSE ONLY if coordinates remained the original valid ones. 
+      # Everything else (corrected, or reviewed and deemed impossible) gets TRUE.
+      ok.2 = if_else(discardReason == "Left as original", FALSE, TRUE)
     ) %>%
     ungroup() %>%
     # Remove internal temporary variables while keeping the original dataset columns intact
@@ -180,6 +181,23 @@ processed_amaz_data <- verify_and_correct_coordinates(amaz_data)
 # To eliminate DataFrames
 
 ```{r}
-rm(datos_amaz, datos_prueba, amaz_final_prueba)
+rm()
+```
+
+# To evaluate
+
+```{r}
+processed_amaz_data <- processed_amaz_data %>%
+  mutate(
+    discardReason = if_else(ok.2 == FALSE, "Left as original", discardReason)
+  )
+```
+
+# Read of txt
+
+```{r}
+path_txt <- "../data/Georreferencing/Coordinates_ok.txt"
+
+df <- read.delim(path_txt, sep = "\t", header = TRUE, stringsAsFactors = FALSE)
 ```
 
