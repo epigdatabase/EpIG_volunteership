@@ -5,11 +5,7 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
-## Running Code
+##bertelmann_h_2025_PECS
 
 When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
 
@@ -26,6 +22,7 @@ library(readr)
 You can add options to executable code like this
 
 ```{r}
+#ImportarDatos
 read_csv("data/Georreferencing/georeferencing_audit_summary.csv")
 View(georeferencing_audit_summary)
 dfBR <- read.csv2("./data/Georreferencing/1.Raw/georef__bertelmann_h_2025_PECS.csv",sep = ",")
@@ -144,7 +141,6 @@ if (length(idx) > 0) {
 ```
 
 
-
 ```{r}
 #ExportarDatos
 write.csv(dfBR, file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PECS.csv", sep = ";")
@@ -157,4 +153,18 @@ write.table(x = dfBR,
             row.names = FALSE)
 ```
 
+
+##bertelmann_h_2025_PERE
+
+```{r}
+dfBRh <- read.csv2("C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/1.Raw/georef__bertelmann_h_2025_PERE.csv",sep = ",")
+View(dfBRh)
+names(dfBRh) # check names of the columns
+View(dfBRh) # if you want to open and see the file
+head(dfBRh) # if you want to see more or less the structure of the dataframe (df)
+```
+
+```{r}
+
+```
 
