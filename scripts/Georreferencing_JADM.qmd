@@ -26,8 +26,135 @@ library(readr)
 You can add options to executable code like this
 
 ```{r}
-#| echo: false
-2 * 2
+read_csv("data/Georreferencing/georeferencing_audit_summary.csv")
+View(georeferencing_audit_summary)
+dfBR <- read.csv2("./data/Georreferencing/1.Raw/georef__bertelmann_h_2025_PECS.csv",sep = ",")
+View(dfBR)
+names(dfBR) # check names of the columns
+View(dfBR) # if you want to open and see the file
+head(dfBR) # if you want to see more or less the structure of the dataframe (df)
 ```
 
-The `echo: false` option disables the printing of code (only output is displayed).
+```{r}
+#FiltrarDatos
+dfBR1 <- dfBR %>%
+filter(.ok_for_analysis == FALSE,
+!is.na(decimalLatitude),
+!is.na(decimalLongitude)) %>%
+select(
+occurrenceID,
+decimalLatitude, decimalLongitude,
+locality, country, countryCode,
+changes
+)
+```
+
+
+```{r}
+#ClasificacionLocalidades
+dfBR <- dfBR %>%
+mutate(
+georef_class = case_when(
+is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+str_detect(locality, regex(
+"\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+ignore_case = TRUE)) ~ "detailed",
+TRUE ~ "simple"
+)
+)
+view(dfBR)
+str(dfBR)
+unique(dfBR$country)
+unique(dfBR$stateProvince)
+unique(dfBR$locality)
+view(dfBR)
+if (!"ok.2" %in% names(dfBR)) dfBR$ok.2 <- dfBR$.ok_for_analysis
+if (!"discardReason" %in% names(dfBR)) dfBR$discardReason <- NA_character_
+view(dfBR)
+#Locality
+idx <- dfBR$occurrenceID
+#Locality
+idx <- dfBR$occurrenceID
+if (length(idx)) {
+dfBR$locality{idx} <-"Cusco, Parque National del Manu"
+if (length(idx)) {
+dfBR$locality{idx} <-"Cusco, Parque National del Manu"
+dfBR$locality <- "Cusco, Parque National del Manu"
+dfBR$discardReason <- "corregido, campo de texto de localidad estaba mal"
+dfBR$locality <- "Manu National Park"
+dfBR$discardReason <- "corregido, campo de texto de localidad estaba mal"
+write.csv(dfBR, file = "C:/Users/User/Documents/GitHub/Hr/dfBr.csv")
+write.csv(dfBR, file = "C:/Users/User/Documents/GitHub/Hr/dfBr.csv", sep = ";")
+write.csv(dfBR, file = "C:/Users/User/Documents/GitHub/Hr/dfBr.csv", sep = ";")
+
+
+#Locality
+code <- dfBR$occurrenceID[1:21]
+idx <- which(dfBR$occurrenceID== code)
+if (length(idx)) {
+  dfBR$coordinateUncertaintyInMeters <- "112390"
+  dfBR$locality <- "Manu National Park"
+  dfBR$discardReason <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE}
+
+#Segundosubset
+
+#Locality
+code1 <- dfBR$occurrenceID[22:50]
+idx <- which(dfBR$occurrenceID %in% code1)
+if (length(idx) > 0) {
+  dfBR$coordinateUncertaintyInMeters[idx] <- "112320"
+  dfBR$locality[idx] <- "Manu National Park"
+  dfBR$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE
+}
+
+#Tercersubset
+
+code2 <- dfBR$occurrenceID[51:74]
+idx <- which(dfBR$occurrenceID %in% code2)
+if (length(idx) > 0) {
+  dfBR$coordinateUncertaintyInMeters[idx] <- "112384"
+  dfBR$locality[idx] <- "Manu National Park"
+  dfBR$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE
+}
+
+#Cuartosubset
+
+code3 <- dfBR$occurrenceID[75:87]
+idx <- which(dfBR$occurrenceID %in% code3)
+if (length(idx) > 0) {
+  dfBR$coordinateUncertaintyInMeters[idx] <- "112423"
+  dfBR$locality[idx] <- "Manu National Park"
+  dfBR$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE
+}
+
+#QuintoSubset
+
+code4 <- dfBR$occurrenceID[88:128]
+idx <- which(dfBR$occurrenceID %in% code4)
+if (length(idx) > 0) {
+  dfBR$coordinateUncertaintyInMeters[idx] <- "112426"
+  dfBR$locality[idx] <- "Manu National Park"
+  dfBR$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE
+}
+```
+
+
+
+```{r}
+#ExportarDatos
+write.csv(dfBR, file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PECS.csv", sep = ";")
+
+write.table(x = dfBR, 
+            file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PECS.csv", 
+            sep = ",",       
+            dec = ".",       
+            na = "NA", 
+            row.names = FALSE)
+```
+
+
