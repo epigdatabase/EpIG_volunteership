@@ -67,24 +67,29 @@ unique(dfBR$locality)
 view(dfBR)
 if (!"ok.2" %in% names(dfBR)) dfBR$ok.2 <- dfBR$.ok_for_analysis
 if (!"discardReason" %in% names(dfBR)) dfBR$discardReason <- NA_character_
-view(dfBR)
-#Locality
-idx <- dfBR$occurrenceID
-#Locality
-idx <- dfBR$occurrenceID
-if (length(idx)) {
-dfBR$locality{idx} <-"Cusco, Parque National del Manu"
-if (length(idx)) {
-dfBR$locality{idx} <-"Cusco, Parque National del Manu"
-dfBR$locality <- "Cusco, Parque National del Manu"
-dfBR$discardReason <- "corregido, campo de texto de localidad estaba mal"
-dfBR$locality <- "Manu National Park"
-dfBR$discardReason <- "corregido, campo de texto de localidad estaba mal"
+
 write.csv(dfBR, file = "C:/Users/User/Documents/GitHub/Hr/dfBr.csv")
 write.csv(dfBR, file = "C:/Users/User/Documents/GitHub/Hr/dfBr.csv", sep = ";")
 write.csv(dfBR, file = "C:/Users/User/Documents/GitHub/Hr/dfBr.csv", sep = ";")
+```
+
+```{r}
+#CambioNombre
+idx <- dfBR$occurrenceID
+#Locality
+idx <- dfBR$occurrenceID
+if (length(idx)) {
+  dfBR$locality{idx} <-"Cusco, Parque National del Manu"
+if (length(idx)) {
+  dfBR$locality{idx} <-"Cusco, Parque National del Manu"
+  dfBR$locality <- "Cusco, Parque National del Manu"
+  dfBR$discardReason <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$locality <- "Manu National Park"
+  dfBR$discardReason <- "corregido, campo de texto de localidad estaba mal"
+```
 
 
+```{r}
 #Locality
 code <- dfBR$occurrenceID[1:21]
 idx <- which(dfBR$occurrenceID== code)
@@ -157,7 +162,7 @@ write.table(x = dfBR,
 ##bertelmann_h_2025_PERE
 
 ```{r}
-dfBRh <- read.csv2("C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/1.Raw/georef__bertelmann_h_2025_PERE.csv",sep = ",")
+dfBRh <- read.csv("C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/1.Raw/georef__bertelmann_h_2025_PERE.csv",sep = ",")
 View(dfBRh)
 names(dfBRh) # check names of the columns
 View(dfBRh) # if you want to open and see the file
@@ -165,6 +170,66 @@ head(dfBRh) # if you want to see more or less the structure of the dataframe (df
 ```
 
 ```{r}
+ids_a_modificar <- dfBRh$occurrenceID
+idx <- which(dfBRh$occurrenceID %in% ids_a_modificar)
+if (length(idx) > 0) {
+  dfBRh$locality[idx] <- "Manu National Park"
+  dfBRh$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+}
+```
 
+```{r}
+Code <- dfBRh$occurrenceID[1:21]
+idx <- which(dfBRh$occurrenceID %in% code)
+  dfBRh$coordinateUncertaintyInMeters[idx] <- "112670"
+  dfBRh$locality[idx] <- "Manu National Park"
+  dfBRh$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRh$ok.2[idx] <- TRUE
+
+  #Segundosubset
+
+#Locality
+code1 <- dfBRh$occurrenceID[22:27]
+idx <- which(dfBRh$occurrenceID %in% code1)
+if (length(idx) > 0) {
+  dfBRh$coordinateUncertaintyInMeters[idx] <- "112360"
+  dfBRh$locality[idx] <- "Manu National Park"
+  dfBRh$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRh$ok.2[idx] <- TRUE
+}
+
+#Tercersubset
+
+code2 <- dfBR$occurrenceID[51:74]
+idx <- which(dfBR$occurrenceID %in% code2)
+if (length(idx) > 0) {
+  dfBR$coordinateUncertaintyInMeters[idx] <- "112384"
+  dfBR$locality[idx] <- "Manu National Park"
+  dfBR$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE
+}
+
+#Cuartosubset
+
+code3 <- dfBR$occurrenceID[75:87]
+idx <- which(dfBR$occurrenceID %in% code3)
+if (length(idx) > 0) {
+  dfBR$coordinateUncertaintyInMeters[idx] <- "112423"
+  dfBR$locality[idx] <- "Manu National Park"
+  dfBR$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE
+}
+
+#QuintoSubset
+
+code4 <- dfBR$occurrenceID[88:128]
+idx <- which(dfBR$occurrenceID %in% code4)
+if (length(idx) > 0) {
+  dfBR$coordinateUncertaintyInMeters[idx] <- "112426"
+  dfBR$locality[idx] <- "Manu National Park"
+  dfBR$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBR$ok.2[idx] <- TRUE
+}
+```
 ```
 
