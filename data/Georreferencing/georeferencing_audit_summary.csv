@@ -1,8 +1,8 @@
 "","n","provider","dataset","epiphyte.only","n_records","n_species","pct_with_coords","pct_missing_locality","pct_poor_locality","pct_with_flags","voluntarios","startingDate","finishingDate","voluntariosDC","startingDateDC","finishingDateDC"
-"1",1,"AMAZ2024","AMAZ2024","yes",375,97,"66.13","1.87","7.88","35.2","Simon","15/06/26",NA,NA,NA,NA
+"1",1,"AMAZ2024","AMAZ2024","yes",375,97,"66.13","1.87","7.88","35.2","Simon","15/06/26","08/07/26",NA,NA,NA
 "2",2,"AssisI","assis_i_2026_diagonal","yes",1315,269,"100","100",NA,"0","Gabriel Montoya","01/07/26",NA,NA,NA,NA
 "3",3,"AssisI","assis_i_2026_af","yes",87931,1756,"100","17.19","7.78","0","Luis","16/06/26",NA,NA,NA,NA
-"4",4,"AssisI","assis_i_2026_specieslink","yes",1540,527,"91.49","4.42","0.82","0","Juana","16/06/26",NA,"Juana","16/06/26",NA
+"4",4,"AssisI","assis_i_2026_specieslink","yes",1540,527,"91.49","4.42","0.82","0","Simon","08/07/26",NA,"Juana","16/06/26",NA
 "5",5,"AssisI","assis_i_2026_literature","yes",1059,410,"91.69","0.09","0","0",NA,NA,NA,NA,NA,NA
 "6",6,"ATRIUM2017","ATRIUM2017.rds","no",79604,9039,"54.31","8.37","12.91","46.72",NA,NA,NA,NA,NA,NA
 "7",7,"BA2025","BA2025","yes",265,94,"11.7","0.75","20.53","88.3",NA,NA,NA,NA,NA,NA

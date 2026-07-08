@@ -185,6 +185,14 @@ idx <- which(voluntarios$dataset == "AMAZ2024")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Simon"
     voluntarios$startingDate[idx] <- "15/06/26"
+    voluntarios$finishingDate[idx] <- "08/07/26"
+}
+
+idx <- which(voluntarios$dataset == "assis_i_2026_specieslink")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Simon"
+    voluntarios$startingDate[idx] <- "08/07/26"
+    #voluntarios$finishingDate[idx] <- "08/07/26"
 }
 
 
