@@ -181,3 +181,8 @@ print(datos_filtrados)
 datos_filtrados$occurrenceID #autor filtrados
 ```
 
+```{r}
+#extraer el año con IA
+
+```
+
