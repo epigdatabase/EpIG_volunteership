@@ -327,10 +327,183 @@ spp_link$recordedBy <- gsub(
   fixed = TRUE
 )
 
+spp_link$recordedBy <- gsub(
+  "Carrasco LLanes",
+  "Carrasco-LLanes",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
 
-#Delete (Carlos) and review
+spp_link$recordedBy <- gsub(
+  "Hernandez LLanes",
+  "Hernandez-LLanes",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Jardin Botanico Lankester",
+  "Jardin Botanico Lankester",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Jimenez Vargas",
+  "Jimenez-Vargas",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "	Kriebel Haehner",
+  "Kriebel-Haehner",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "	Lobo Cabezas",
+  "Lobo-Cabezas",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "	Madrigal Ramirez",
+  "Madrigal-Ramirez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Madrigal Solano",
+  "Madrigal-Solano",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Martinez Salas",
+  "Martinez-Salas",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Masis Chaves", "Masis-Chavez",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Mata Quiros", "Mata-Quiros",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Montiel Franco", "Montiel-Franco",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Murillo rodriguez", "Murillo-Rodriguez",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Oviedo Brenes", "Oviedo-Brenes",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Padilla Gomez", "Padilla-Gomez",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Perez Ferrera", "Perez-Ferrera",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Perez Garcia", "Perez-Garcia",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quesada Chanto", "Quesada-Chanto",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quiros Navarro", "Quiros-Navarro",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Ramirez Delgado", "Ramirez-Delgado",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Ramos Ortiz", "Ramos-Ortiz",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Rey Figueroa", "Rey-Figueroa",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Rios Castro", "Rios-Castro",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+#probando un aautomatizacion
+hyphenate_surname <- function(x) {
+
+  sapply(x, function(nombre) {
+
+    if (is.na(nombre) || !grepl(",", nombre)) return(nombre)
+
+    partes <- strsplit(nombre, ",")[[1]]
+
+    apellido <- trimws(partes[1])
+    nombres  <- trimws(partes[2])
+
+    # Reemplaza los espacios entre las palabras del apellido por guiones
+    apellido <- gsub("\\s+", "-", apellido)
+
+    paste(apellido, nombres, sep = ", ")
+
+  }, USE.NAMES = FALSE)
+}
+spp_link$recordedBy   <- hyphenate_surname(spp_link$recordedBy)
+spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
+head(spp_link$recordedBy, 20)
+
+
+grep("Werff|Sanchez-|Rodriguez-", spp_link$recordedBy, value = TRUE)
 
 spp_link$recordedBy <- gsub("\\(Carlos\\)", "", spp_link$recordedBy)
+
+
+#Delete (Carlos) and review
 
 grep("\\(Carlos\\)", spp_link$recordedBy, value = TRUE)
 
