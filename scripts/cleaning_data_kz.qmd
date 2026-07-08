@@ -1,12 +1,12 @@
 ---
-title: "Cleaning data for occurrence and community databases" "Database #1" 
+title: "Cleaning data for occurrence and community databases - Database #1" 
 subtitle: 'EpIG volunteership'
 format: html
 editor: visual
 date: today
 author: "Kelly Daniela Zuluaga" 
-editor_options: 
-  chunk_output_type: console
+
+ 
 ---
 
 ## Quarto
@@ -275,8 +275,96 @@ spp_link$lifeForm <- iconv(
 spp_link$lifeForm <- gsub(", , ,", "", spp_link$lifeForm, fixed = TRUE)
 spp_link$lifeForm <- trimws(spp_link$lifeForm)
 
-#Change "Sufructices"
+#Corrected misspelled lifeForm value from "Sufructises" to "sufrutices"
 spp_link$lifeForm[spp_link$lifeForm == "Sufructises"] <- "sufrutices"
 table(spp_link$lifeForm[spp_link$lifeForm %in% c("Sufructises", "Sufrutices")])
+spp_link$lifeForm[spp_link$lifeForm == "Sufructises"] <- "Sufrutices"
+grep("Sufructises", spp_link$lifeForm, value = TRUE)
+
+
+
+spp_link$lifeForm <- gsub(
+  "Sufructises",
+  "sufrutices",
+  spp_link$lifeForm,
+  fixed = TRUE
+)
+
+grep("Sufructises", spp_link$lifeForm, value = TRUE)
+
+spp_link$lifeForm <- gsub(
+  "sufrutices",
+  "Sufrutices",
+  spp_link$lifeForm,
+  fixed = TRUE
+)
+
+#Fixed "-no definido-" by "no definido"
+spp_link$lifeForm <- gsub("-", "", spp_link$lifeForm, fixed = TRUE)
+```
+
+```{r}
+#extract year from evenDate
+
+spp_link$year <- as.integer(substr(spp_link$eventDate, 1, 4))
+head(spp_link[, c("eventDate", "year")], 10)
+
+View(data.frame(year = sort(unique(spp_link$year))))
+```
+
+```{r}
+#Bars
+
+library(ggplot2)
+
+ggplot(spp_link, aes(x = year)) +
+  geom_bar() +
+  labs(
+    title = "Number of occurrences by year",
+    x = "Year",
+    y = "Number of records"
+  ) +
+  theme_minimal()
+
+
+#hystogram
+
+ggplot(spp_link, aes(x = year)) +
+  geom_histogram(binwidth = 10) +
+  labs(
+    title = "Distribution of occurrence years",
+    x = "Year",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+summary(spp_link$year)
+
+table(spp_link$year)
+
+
+library(dplyr)
+library(ggplot2)
+
+spp_link %>%
+  filter(!is.na(year)) %>%
+  ggplot(aes(x = year)) +
+  geom_bar() +
+  labs(
+    title = "Number of occurrences by year",
+    x = "Year",
+    y = "Number of records"
+  ) +
+  theme_minimal()
+summary(spp_link$year)
+sum(!is.na(spp_link$year))
+
+
+
+library(ggplot2)
+
+ggplot(subset(spp_link, !is.na(year)), aes(x = year)) +
+  geom_bar()
+```
 ```
 
