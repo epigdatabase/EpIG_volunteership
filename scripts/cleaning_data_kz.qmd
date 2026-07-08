@@ -474,7 +474,7 @@ spp_link$recordedBy <- gsub(
   fixed = TRUE
 )
 
-#probando un aautomatizacion
+#probando una automatizacion
 hyphenate_surname <- function(x) {
 
   sapply(x, function(nombre) {
@@ -666,4 +666,85 @@ write_csv(
 )
 ```
 
+```{r}
+grep("Unknown|No identificado|Equipo|MegaDetector|,$", spp_link$identifiedBy, value = TRUE)
+
+sort(unique(spp_link$identifiedBy))
+hyphenate_surname <- function(x) {
+
+  sapply(x, function(nombre) {
+
+    # Mantener NA
+    if (is.na(nombre)) return(nombre)
+
+    # Eliminar espacios al inicio y al final
+    nombre <- trimws(nombre)
+
+    # Mantener vacíos
+    if (nombre == "") return(nombre)
+
+    # Mantener textos sin coma
+    if (!grepl(",", nombre, fixed = TRUE)) return(nombre)
+
+    partes <- strsplit(nombre, ",", fixed = TRUE)[[1]]
+
+    # Si hay más o menos de una coma, no modificar
+    if (length(partes) != 2) return(nombre)
+
+    apellido <- trimws(partes[1])
+    nombres  <- trimws(partes[2])
+
+    # Reemplazar espacios por guiones solo en el apellido
+    apellido <- gsub("\\s+", "-", apellido)
+
+    paste(apellido, nombres, sep = ", ")
+  }, USE.NAMES = FALSE)
+}
+```
+
+
+```{r}
+#verificar cuantas columnas tienen espacios vacíos
+
+sapply(spp_link, function(x) {
+  if (is.character(x)) sum(grepl(";", x, fixed = TRUE), na.rm = TRUE) else NA
+})
+
+sapply(spp_link, function(x) {
+  if (is.character(x)) sum(grepl("\\.", x), na.rm = TRUE) else NA
+})
+
+grep("\\.", spp_link$recordedBy, value = TRUE)
+grep("\\.", spp_link$identifiedBy, value = TRUE)
+
+spp_link[] <- lapply(spp_link, function(x) {
+  if (is.character(x)) {
+    x <- gsub('"', "", x, fixed = TRUE)   # elimina "
+    x <- gsub("'", "", x, fixed = TRUE)   # elimina '
+    x <- gsub(".", "", x, fixed = TRUE)   # elimina .
+    x <- trimws(gsub("\\s+", " ", x))
+  }
+  x
+})
+
+spp_link$recordedBy <- gsub("\\.", "", spp_link$recordedBy)
+spp_link$identifiedBy <- gsub("\\.", "", spp_link$identifiedBy)
+cols <- c("recordedBy", "identifiedBy")
+
+char_cols <- names(spp_link)[sapply(spp_link, is.character)]
+char_cols <- setdiff(char_cols, "changes")
+
+for (col in char_cols) {
+  spp_link[[col]] <- gsub('"', "", spp_link[[col]], fixed = TRUE)
+  spp_link[[col]] <- gsub("'", "", spp_link[[col]], fixed = TRUE)
+  spp_link[[col]] <- gsub("\\.", "", spp_link[[col]])
+  spp_link[[col]] <- trimws(gsub("\\s+", " ", spp_link[[col]]))
+}
+
+sapply(spp_link[char_cols], function(x) {
+  sum(grepl("\\.", x), na.rm = TRUE)
+})
+
+View(spp_link)
+```
 
