@@ -7,6 +7,26 @@ editor_options:
   chunk_output_type: inline
 ---
 
+## libraries
+
+```{r}
+packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr","ggplot")
+
+# Install packages not yet installed [for the first time]
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+ install.packages(packages[!installed_packages])
+}
+
+# Packages loading
+invisible(lapply(packages, require, character.only = TRUE)) # remove "invisible" to see whether the packages are loaded/available. 
+
+Sys.setlocale("LC_ALL", "Spanish_Spain.1252") # en Windows
+
+
+```
+
+
 ## Automating to Speed Up Searches
 
 ```{r}
@@ -178,11 +198,24 @@ processed_amaz_data <- verify_and_correct_coordinates(amaz_data)
 # Export final data (Optional)
 # write.csv(amaz_final_completo, "../data/2_Processed/georef__AMAZ2024_COMPLETO.csv", row.names = FALSE)
 ```
+
 # To eliminate DataFrames
 
 ```{r}
 rm()
 ```
+
+# Text
+
+```{r}
+limpiar_texto <- function(texto) {
+  texto_limpio <- iconv(texto, to = "ASCII//TRANSLIT")
+  return(texto_limpio)
+}
+
+processed_amaz_data$stateProvince <- limpiar_texto(processed_amaz_data$stateProvince)
+```
+
 
 # To evaluate
 
@@ -199,5 +232,34 @@ processed_amaz_data <- processed_amaz_data %>%
 path_txt <- "../data/Georreferencing/Coordinates_ok.txt"
 
 df <- read.delim(path_txt, sep = "\t", header = TRUE, stringsAsFactors = FALSE)
+```
+
+# Join
+
+```{r}
+tabla_final <- left_join(table_A, table_B, by = c("occurrenceID" = "id"))
+```
+
+# Change table
+
+```{r}
+processed_amaz_data[329, "ok.2"] <- FALSE
+```
+
+```{r}
+processed_amaz_data <- processed_amaz_data %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+      str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+```
+
+```{r}
+write.csv(processed_amaz_data, file = "../data/Georreferencing/2.Processed/georef__AMAZ2024.csv")
 ```
 
