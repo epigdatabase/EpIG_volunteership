@@ -215,10 +215,21 @@ spp_link$recordedBy <- gsub("-", " ", spp_link$recordedBy, fixed = TRUE)
 
 grep("-", spp_link$recordedBy, value = TRUE)
 
-#Delete (Carlos)
+#Delete (Carlos) and review
 
 spp_link$recordedBy <- gsub("\\(Carlos\\)", "", spp_link$recordedBy)
 
 grep("\\(Carlos\\)", spp_link$recordedBy, value = TRUE)
+
+
+View(data.frame(recordedBy = sort(unique(spp_link$recordedBy))))
+
+#Changes in "Serie de varios colectores"
+
+spp_link$recordedBy[spp_link$recordedBy == 
+  "Serie de varios colectores, Serie de varios colectores"] <- 
+  "serie de varios colectores"
+
+spp_link$recordedBy[spp_link$recordedBy == "serie de varios colectores"]
 ```
 
