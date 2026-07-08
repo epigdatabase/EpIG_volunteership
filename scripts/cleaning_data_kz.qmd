@@ -1,12 +1,12 @@
 ---
-title: "Cleaning data for occurrence and community databases" "Database #1" 
+title: "Cleaning data for occurrence and community databases - Database #1" 
 subtitle: 'EpIG volunteership'
 format: html
 editor: visual
 date: today
 author: "Kelly Daniela Zuluaga" 
-editor_options: 
-  chunk_output_type: console
+
+ 
 ---
 
 ## Quarto
@@ -180,4 +180,611 @@ print(datos_filtrados)
 
 datos_filtrados$occurrenceID #autor filtrados
 ```
+
+```{r}
+spp_link$recordedBy[spp_link$recordedBy == "COLECTORES, VARIOS"] <- "colectores, varios"
+
+spp_link$recordedBy[spp_link$recordedBy == "COLECTORES, VARIOS"] <- "colectores, varios"
+
+spp_link$recordedBy[spp_link$recordedBy == "Varios, colectores"] <- "varios, colectores"
+
+spp_link$recordedBy[spp_link$recordedBy == "Serie de varios colectores"] <- "varios, colectores"
+
+unique(spp_link$recordedBy[grep("colectores, varios", spp_link$recordedBy)])
+
+#Standardized generic recordedBy values from uppercase to lowercase (COLECTORES, VARIOS → colectores, varios
+
+```
+
+
+```{r}
+#Delete accent recordedBy
+
+spp_link$recordedBy <- iconv(
+  spp_link$recordedBy,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+grep("[ÁÉÍÓÚáéíóúÑñ]", spp_link$recordedBy, value = TRUE)
+
+#Delete hyphen
+
+spp_link$recordedBy <- gsub("-", " ", spp_link$recordedBy, fixed = TRUE)
+
+grep("-", spp_link$recordedBy, value = TRUE)
+
+#Add hyphen in latin lastnames
+spp_link$recordedBy <- gsub(
+  "Chavez Barrantes",
+  "Chavez Barrantes",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Alvarez Alcazar",
+  "Alvarez-Alcazar",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Arauz Suarez",
+  "Arauz-Suarez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Burt Utley",
+  "Burt-Utley",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quesada Hernandez",
+  "Quesada-Hernandez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Chinchilla Alvarado",
+  "Chinchilla-Alvarado",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Chinchilla Alvarado",
+  "Chinchilla-Alvarado",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quesada Hernandez",
+  "Quesada-Hernandez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Morales Quesada",
+  "Morales-Quesada",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Estrada Chavarria",
+  "Estrada-Chavarria",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Azofeifa Zuniga",
+  "Azofeifa-Zuniga",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Beatriz Guterrez",
+  "Beatriz-Guterrez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Blanco Segura",
+  "Blanco-Segura",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Callejas Posada",
+  "Callejas-Posada",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Cardenas Lopez",
+  "Cardenas-Lopez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Carrasco LLanes",
+  "Carrasco-LLanes",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Carrasco LLanes",
+  "Carrasco-LLanes",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Hernandez LLanes",
+  "Hernandez-LLanes",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Jardin Botanico Lankester",
+  "Jardin Botanico Lankester",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Jimenez Vargas",
+  "Jimenez-Vargas",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "	Kriebel Haehner",
+  "Kriebel-Haehner",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "	Lobo Cabezas",
+  "Lobo-Cabezas",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "	Madrigal Ramirez",
+  "Madrigal-Ramirez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Madrigal Solano",
+  "Madrigal-Solano",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Martinez Salas",
+  "Martinez-Salas",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Masis Chaves", "Masis-Chavez",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Mata Quiros", "Mata-Quiros",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Montiel Franco", "Montiel-Franco",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Murillo rodriguez", "Murillo-Rodriguez",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Oviedo Brenes", "Oviedo-Brenes",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Padilla Gomez", "Padilla-Gomez",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Perez Ferrera", "Perez-Ferrera",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Perez Garcia", "Perez-Garcia",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quesada Chanto", "Quesada-Chanto",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quiros Navarro", "Quiros-Navarro",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Ramirez Delgado", "Ramirez-Delgado",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Ramos Ortiz", "Ramos-Ortiz",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Rey Figueroa", "Rey-Figueroa",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Rios Castro", "Rios-Castro",
+     spp_link$recordedBy,
+  fixed = TRUE
+)
+
+#probando una automatizacion
+hyphenate_surname <- function(x) {
+
+  sapply(x, function(nombre) {
+
+    if (is.na(nombre) || !grepl(",", nombre)) return(nombre)
+
+    partes <- strsplit(nombre, ",")[[1]]
+
+    apellido <- trimws(partes[1])
+    nombres  <- trimws(partes[2])
+
+    # Reemplaza los espacios entre las palabras del apellido por guiones
+    apellido <- gsub("\\s+", "-", apellido)
+
+    paste(apellido, nombres, sep = ", ")
+
+  }, USE.NAMES = FALSE)
+}
+spp_link$recordedBy   <- hyphenate_surname(spp_link$recordedBy)
+spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
+head(spp_link$recordedBy, 20)
+
+
+grep("Werff|Sanchez-|Rodriguez-", spp_link$recordedBy, value = TRUE)
+
+spp_link$recordedBy <- gsub("\\(Carlos\\)", "", spp_link$recordedBy)
+
+
+#Delete (Carlos) and review
+
+grep("\\(Carlos\\)", spp_link$recordedBy, value = TRUE)
+
+
+View(data.frame(recordedBy = sort(unique(spp_link$recordedBy))))
+
+#Changes in "Serie de varios colectores"
+
+spp_link$recordedBy[spp_link$recordedBy == 
+  "Serie de varios colectores, Serie de varios colectores"] <- 
+  "serie de varios colectores"
+
+spp_link$recordedBy[spp_link$recordedBy == "serie de varios colectores"]
+```
+
+
+```{r}
+grep("Dodge", unique(spp_link$recordedBy), value = TRUE) #Review Dodge, ?"
+```
+
+```{r}
+
+#Review identifiedBy column
+View(data.frame(recordedBy = sort(unique(spp_link$identifiedBy))))
+
+spp_link$identifiedBy <- iconv(
+  spp_link$identifiedBy,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+grep("[ÁÉÍÓÚáéíóúÑñ]", spp_link$identifiedBy, value = TRUE)
+grep("[Ññ]", spp_link$identifiedBy, value = TRUE)
+
+spp_link$identifiedBy <- gsub("-", " ", spp_link$identifiedBy, fixed = TRUE)
+
+# Removed hyphens from identifiedBy.
+spp_link$identifiedBy <- gsub("-", " ", spp_link$identifiedBy, fixed = TRUE)
+
+
+spp_link$identifiedBy <- gsub("\\s+", " ", spp_link$identifiedBy)
+spp_link$identifiedBy <- trimws(spp_link$identifiedBy)
+
+```
+
+
+```{r}
+View(data.frame(lifeForm = sort(unique(spp_link$lifeForm))))
+
+spp_link$lifeForm <- iconv(
+  spp_link$lifeForm,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+spp_link$lifeForm <- gsub(", , ,", "", spp_link$lifeForm, fixed = TRUE)
+spp_link$lifeForm <- trimws(spp_link$lifeForm)
+
+#Corrected misspelled lifeForm value from "Sufructises" to "sufrutices"
+spp_link$lifeForm[spp_link$lifeForm == "Sufructises"] <- "sufrutices"
+table(spp_link$lifeForm[spp_link$lifeForm %in% c("Sufructises", "Sufrutices")])
+spp_link$lifeForm[spp_link$lifeForm == "Sufructises"] <- "Sufrutices"
+grep("Sufructises", spp_link$lifeForm, value = TRUE)
+
+
+
+spp_link$lifeForm <- gsub(
+  "Sufructises",
+  "sufrutices",
+  spp_link$lifeForm,
+  fixed = TRUE
+)
+
+grep("Sufructises", spp_link$lifeForm, value = TRUE)
+
+spp_link$lifeForm <- gsub(
+  "sufrutices",
+  "Sufrutices",
+  spp_link$lifeForm,
+  fixed = TRUE
+)
+
+#Fixed "-no definido-" by "no definido"
+spp_link$lifeForm <- gsub("-", "", spp_link$lifeForm, fixed = TRUE)
+```
+
+```{r}
+#extract year from evenDate
+
+spp_link$year <- as.integer(substr(spp_link$eventDate, 1, 4))
+head(spp_link[, c("eventDate", "year")], 10)
+
+View(data.frame(year = sort(unique(spp_link$year))))
+```
+
+```{r}
+#Bars
+
+library(ggplot2)
+
+ggplot(spp_link, aes(x = year)) +
+  geom_bar() +
+  labs(
+    title = "Number of occurrences by year",
+    x = "Year",
+    y = "Number of records"
+  ) +
+  theme_minimal()
+
+
+#hystogram
+
+ggplot(spp_link, aes(x = year)) +
+  geom_histogram(binwidth = 10) +
+  labs(
+    title = "Distribution of occurrence years",
+    x = "Year",
+    y = "Frequency"
+  ) +
+  theme_minimal()
+
+summary(spp_link$year)
+
+table(spp_link$year)
+
+
+library(dplyr)
+library(ggplot2)
+
+spp_link %>%
+  filter(!is.na(year)) %>%
+  ggplot(aes(x = year)) +
+  geom_bar() +
+  labs(
+    title = "Number of occurrences by year",
+    x = "Year",
+    y = "Number of records"
+  ) +
+  theme_minimal()
+summary(spp_link$year)
+sum(!is.na(spp_link$year))
+
+
+
+library(ggplot2)
+
+ggplot(subset(spp_link, !is.na(year)), aes(x = year)) +
+  geom_bar()
+```
+
+
+```{r}
+#Curated text_CR2024.cvs in 2.Processed folder
+
+library(readr)
+
+write_csv(
+  spp_link,
+  "data/Text/2.Processed/text__CR2024.csv"
+)
+```
+
+```{r}
+grep("Unknown|No identificado|Equipo|MegaDetector|,$", spp_link$identifiedBy, value = TRUE)
+
+sort(unique(spp_link$identifiedBy))
+hyphenate_surname <- function(x) {
+
+  sapply(x, function(nombre) {
+
+    # Mantener NA
+    if (is.na(nombre)) return(nombre)
+
+    # Eliminar espacios al inicio y al final
+    nombre <- trimws(nombre)
+
+    # Mantener vacíos
+    if (nombre == "") return(nombre)
+
+    # Mantener textos sin coma
+    if (!grepl(",", nombre, fixed = TRUE)) return(nombre)
+
+    partes <- strsplit(nombre, ",", fixed = TRUE)[[1]]
+
+    # Si hay más o menos de una coma, no modificar
+    if (length(partes) != 2) return(nombre)
+
+    apellido <- trimws(partes[1])
+    nombres  <- trimws(partes[2])
+
+    # Reemplazar espacios por guiones solo en el apellido
+    apellido <- gsub("\\s+", "-", apellido)
+
+    paste(apellido, nombres, sep = ", ")
+  }, USE.NAMES = FALSE)
+}
+```
+
+
+```{r}
+#verificar cuantas columnas tienen espacios vacíos. Quitar "", ' y . de espacios vacíos
+
+sapply(spp_link, function(x) {
+  if (is.character(x)) sum(grepl(";", x, fixed = TRUE), na.rm = TRUE) else NA
+})
+
+sapply(spp_link, function(x) {
+  if (is.character(x)) sum(grepl("\\.", x), na.rm = TRUE) else NA
+})
+
+grep("\\.", spp_link$recordedBy, value = TRUE)
+grep("\\.", spp_link$identifiedBy, value = TRUE)
+
+spp_link[] <- lapply(spp_link, function(x) {
+  if (is.character(x)) {
+    x <- gsub('"', "", x, fixed = TRUE)   # elimina "
+    x <- gsub("'", "", x, fixed = TRUE)   # elimina '
+    x <- gsub(".", "", x, fixed = TRUE)   # elimina .
+    x <- trimws(gsub("\\s+", " ", x))
+  }
+  x
+})
+
+spp_link$recordedBy <- gsub("\\.", "", spp_link$recordedBy)
+spp_link$identifiedBy <- gsub("\\.", "", spp_link$identifiedBy)
+cols <- c("recordedBy", "identifiedBy")
+
+char_cols <- names(spp_link)[sapply(spp_link, is.character)]
+char_cols <- setdiff(char_cols, "changes")
+
+for (col in char_cols) {
+  spp_link[[col]] <- gsub('"', "", spp_link[[col]], fixed = TRUE)
+  spp_link[[col]] <- gsub("'", "", spp_link[[col]], fixed = TRUE)
+  spp_link[[col]] <- gsub("\\.", "", spp_link[[col]])
+  spp_link[[col]] <- trimws(gsub("\\s+", " ", spp_link[[col]]))
+}
+
+sapply(spp_link[char_cols], function(x) {
+  sum(grepl("\\.", x), na.rm = TRUE)
+})
+
+View(spp_link)
+```
+
+
+```{r}
+#Eliminar , de celdas vacías en TODA la base de datos
+
+spp_link[] <- lapply(spp_link, function(x) {
+  if (is.character(x)) {
+    x[x == ","] <- ""
+  }
+  x
+})
+
+sapply(spp_link, function(x) {
+  if (is.character(x)) sum(x == ",", na.rm = TRUE) else NA
+})
+
+```
+
+```{r}
+#Curacion de lifeForm
+
+spp_link$lifeForm[spp_link$lifeForm == "Arboles, , ,"] <- "Arboles"
+spp_link$lifeForm[spp_link$lifeForm == "Arbustos, , ,"] <- "Arbustos"
+spp_link$lifeForm[spp_link$lifeForm == "Sufructices, arbustos o arbolitos, terrestres, autotrofos, erectos"] <- "Sufrutices, arbustos o arbolitos, terrestres, autotrofos, erectos"
+spp_link$lifeForm <- iconv(
+  spp_link$lifeForm,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+spp_link$lifeForm[spp_link$lifeForm ==
+  "Sufructises, arboles o arbustos, terrestres, autotrofos, erectos"] <-
+  "Sufrutices, arboles o arbustos, terrestres, autotrofos, erectos"
+
+spp_link$lifeForm[spp_link$lifeForm ==
+  "Hierbas, terrestres, autotrofas, -no definido-"] <-
+  "Hierbas, terrestres, autotrofas, no definido"
+sort(unique(spp_link$lifeForm))
+```
+
 

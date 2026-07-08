@@ -223,9 +223,26 @@ if (length(idx)) {
 #YOHAN
 idx <- which(voluntarios$dataset == "bertelmann_h_2025_PECS")
 if (length(idx)) {
-    voluntarios$voluntarios[idx] <- "Yohan"
+    voluntarios$voluntarios[idx] <- "Johan"
     voluntarios$startingDate[idx] <- "01/07/26"
+    voluntarios$finishingDate[idx] <- "06/07/26"
 }
+
+idx <- which(voluntarios$dataset == "bertelmann_h_2025_PERE")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Johan"
+    voluntarios$startingDate[idx] <- "06/07/26"
+    voluntarios$finishingDate[idx] <- "07/07/26"
+}
+
+idx <- which(voluntarios$dataset == "bertelmann_h_2025_PETE")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Johan"
+    voluntarios$startingDate[idx] <- "07/07/26"
+    #voluntarios$finishingDate[idx] <- "07/07/26"
+}
+
+
 
 #GABRIEL MONTOYA
 idx <- which(voluntarios$dataset == "assis_i_2026_diagonal")
