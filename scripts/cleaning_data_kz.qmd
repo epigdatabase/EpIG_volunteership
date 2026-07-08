@@ -704,7 +704,7 @@ hyphenate_surname <- function(x) {
 
 
 ```{r}
-#verificar cuantas columnas tienen espacios vacíos
+#verificar cuantas columnas tienen espacios vacíos. Quitar "", ' y . de espacios vacíos
 
 sapply(spp_link, function(x) {
   if (is.character(x)) sum(grepl(";", x, fixed = TRUE), na.rm = TRUE) else NA
@@ -747,4 +747,44 @@ sapply(spp_link[char_cols], function(x) {
 
 View(spp_link)
 ```
+
+
+```{r}
+#Eliminar , de celdas vacías en TODA la base de datos
+
+spp_link[] <- lapply(spp_link, function(x) {
+  if (is.character(x)) {
+    x[x == ","] <- ""
+  }
+  x
+})
+
+sapply(spp_link, function(x) {
+  if (is.character(x)) sum(x == ",", na.rm = TRUE) else NA
+})
+
+```
+
+```{r}
+#Curacion de lifeForm
+
+spp_link$lifeForm[spp_link$lifeForm == "Arboles, , ,"] <- "Arboles"
+spp_link$lifeForm[spp_link$lifeForm == "Arbustos, , ,"] <- "Arbustos"
+spp_link$lifeForm[spp_link$lifeForm == "Sufructices, arbustos o arbolitos, terrestres, autotrofos, erectos"] <- "Sufrutices, arbustos o arbolitos, terrestres, autotrofos, erectos"
+spp_link$lifeForm <- iconv(
+  spp_link$lifeForm,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+spp_link$lifeForm[spp_link$lifeForm ==
+  "Sufructises, arboles o arbustos, terrestres, autotrofos, erectos"] <-
+  "Sufrutices, arboles o arbustos, terrestres, autotrofos, erectos"
+
+spp_link$lifeForm[spp_link$lifeForm ==
+  "Hierbas, terrestres, autotrofas, -no definido-"] <-
+  "Hierbas, terrestres, autotrofas, no definido"
+sort(unique(spp_link$lifeForm))
+```
+
 
