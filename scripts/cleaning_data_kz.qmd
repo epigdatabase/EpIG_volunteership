@@ -231,5 +231,7 @@ spp_link$recordedBy[spp_link$recordedBy ==
   "serie de varios colectores"
 
 spp_link$recordedBy[spp_link$recordedBy == "serie de varios colectores"]
+
+grep("Dodge", unique(spp_link$recordedBy), value = TRUE) #Review Dodge, ?"
 ```
 
