@@ -366,5 +366,17 @@ library(ggplot2)
 ggplot(subset(spp_link, !is.na(year)), aes(x = year)) +
   geom_bar()
 ```
+
+
+```{r}
+#Curated text_CR2024.cvs in 2.Processed folder
+
+library(readr)
+
+write_csv(
+  spp_link,
+  "data/Text/2.Processed/text__CR2024.csv"
+)
 ```
+
 
