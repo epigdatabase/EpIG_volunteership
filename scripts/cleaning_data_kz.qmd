@@ -214,5 +214,11 @@ grep("[ÁÉÍÓÚáéíóúÑñ]", spp_link$recordedBy, value = TRUE)
 spp_link$recordedBy <- gsub("-", " ", spp_link$recordedBy, fixed = TRUE)
 
 grep("-", spp_link$recordedBy, value = TRUE)
+
+#Delete (Carlos)
+
+spp_link$recordedBy <- gsub("\\(Carlos\\)", "", spp_link$recordedBy)
+
+grep("\\(Carlos\\)", spp_link$recordedBy, value = TRUE)
 ```
 
