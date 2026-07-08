@@ -229,6 +229,103 @@ spp_link$recordedBy <- gsub(
   fixed = TRUE
 )
 
+spp_link$recordedBy <- gsub(
+  "Arauz Suarez",
+  "Arauz-Suarez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Burt Utley",
+  "Burt-Utley",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quesada Hernandez",
+  "Quesada-Hernandez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Chinchilla Alvarado",
+  "Chinchilla-Alvarado",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Chinchilla Alvarado",
+  "Chinchilla-Alvarado",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Quesada Hernandez",
+  "Quesada-Hernandez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Morales Quesada",
+  "Morales-Quesada",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Estrada Chavarria",
+  "Estrada-Chavarria",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Azofeifa Zuniga",
+  "Azofeifa-Zuniga",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Beatriz Guterrez",
+  "Beatriz-Guterrez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Blanco Segura",
+  "Blanco-Segura",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Callejas Posada",
+  "Callejas-Posada",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Cardenas Lopez",
+  "Cardenas-Lopez",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Carrasco LLanes",
+  "Carrasco-LLanes",
+    spp_link$recordedBy,
+  fixed = TRUE
+)
 
 
 #Delete (Carlos) and review
