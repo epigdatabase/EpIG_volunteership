@@ -360,3 +360,25 @@ spp_link <- spp_link %>%
 write.csv(spp_link, file = "data/Georreferencing/2.Processed/georef__assis_i_2026_specieslink.csv")
 ```
 
+#text__assis_i_2026_specieslink.csv
+
+```{r}
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+
+text_spplink <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__assis_i_2026_specieslink.csv")
+
+head(spp_link)
+view(spp_link)
+str(spp_link)
+
+```
+
