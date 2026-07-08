@@ -198,7 +198,6 @@ unique(spp_link$recordedBy[grep("colectores, varios", spp_link$recordedBy)])
 
 
 ```{r}
-
 #Delete accent recordedBy
 
 spp_link$recordedBy <- iconv(
@@ -231,7 +230,35 @@ spp_link$recordedBy[spp_link$recordedBy ==
   "serie de varios colectores"
 
 spp_link$recordedBy[spp_link$recordedBy == "serie de varios colectores"]
+```
 
+
+```{r}
 grep("Dodge", unique(spp_link$recordedBy), value = TRUE) #Review Dodge, ?"
+```
+
+```{r}
+
+#Review identifiedBy column
+View(data.frame(recordedBy = sort(unique(spp_link$identifiedBy))))
+
+spp_link$identifiedBy <- iconv(
+  spp_link$identifiedBy,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+grep("[ÁÉÍÓÚáéíóúÑñ]", spp_link$identifiedBy, value = TRUE)
+grep("[Ññ]", spp_link$identifiedBy, value = TRUE)
+
+spp_link$identifiedBy <- gsub("-", " ", spp_link$identifiedBy, fixed = TRUE)
+
+# Removed hyphens from identifiedBy.
+spp_link$identifiedBy <- gsub("-", " ", spp_link$identifiedBy, fixed = TRUE)
+
+
+spp_link$identifiedBy <- gsub("\\s+", " ", spp_link$identifiedBy)
+spp_link$identifiedBy <- trimws(spp_link$identifiedBy)
+
 ```
 
