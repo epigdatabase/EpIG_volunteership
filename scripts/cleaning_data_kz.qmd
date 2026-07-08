@@ -262,3 +262,21 @@ spp_link$identifiedBy <- trimws(spp_link$identifiedBy)
 
 ```
 
+
+```{r}
+View(data.frame(lifeForm = sort(unique(spp_link$lifeForm))))
+
+spp_link$lifeForm <- iconv(
+  spp_link$lifeForm,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+spp_link$lifeForm <- gsub(", , ,", "", spp_link$lifeForm, fixed = TRUE)
+spp_link$lifeForm <- trimws(spp_link$lifeForm)
+
+#Change "Sufructices"
+spp_link$lifeForm[spp_link$lifeForm == "Sufructises"] <- "sufrutices"
+table(spp_link$lifeForm[spp_link$lifeForm %in% c("Sufructises", "Sufrutices")])
+```
+
