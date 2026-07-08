@@ -182,7 +182,37 @@ datos_filtrados$occurrenceID #autor filtrados
 ```
 
 ```{r}
-#extraer el año con IA
+spp_link$recordedBy[spp_link$recordedBy == "COLECTORES, VARIOS"] <- "colectores, varios"
 
+spp_link$recordedBy[spp_link$recordedBy == "COLECTORES, VARIOS"] <- "colectores, varios"
+
+spp_link$recordedBy[spp_link$recordedBy == "Varios, colectores"] <- "varios, colectores"
+
+spp_link$recordedBy[spp_link$recordedBy == "Serie de varios colectores"] <- "varios, colectores"
+
+unique(spp_link$recordedBy[grep("colectores, varios", spp_link$recordedBy)])
+
+#Standardized generic recordedBy values from uppercase to lowercase (COLECTORES, VARIOS → colectores, varios
+
+```
+
+
+```{r}
+
+#Delete accent recordedBy
+
+spp_link$recordedBy <- iconv(
+  spp_link$recordedBy,
+  from = "UTF-8",
+  to = "ASCII//TRANSLIT"
+)
+
+grep("[ÁÉÍÓÚáéíóúÑñ]", spp_link$recordedBy, value = TRUE)
+
+#Delete hyphen
+
+spp_link$recordedBy <- gsub("-", " ", spp_link$recordedBy, fixed = TRUE)
+
+grep("-", spp_link$recordedBy, value = TRUE)
 ```
 
