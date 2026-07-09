@@ -787,4 +787,58 @@ spp_link$lifeForm[spp_link$lifeForm ==
 sort(unique(spp_link$lifeForm))
 ```
 
+```{r}
+#create column verbatiumlifeForm
+
+spp_link$verbatimLifeForm <- spp_link$lifeForm
+spp_link$lifeForm_en <- spp_link$lifeForm
+
+# Crear la columna en inglés
+spp_link$lifeFormEnglish <- spp_link$lifeForm
+
+# Traducción de términos
+dic_lifeForm <- c(
+
+"" = "",
+
+"Arboles" = "Trees",
+"Arboles, terrestres, autotrofos, erectos" = "Trees, terrestrial, autotrophic, erect",
+
+"Arbusto o arbol" = "Shrub or tree",
+"Arbusto o arbol, terrestres, autotrofos, erectos" = "Shrub or tree, terrestrial, autotrophic, erect",
+
+"Arbustos" = "Shrubs",
+"Arbustos a arboles, terrestres, autotrofos, erectos" = "Shrubs to trees, terrestrial, autotrophic, erect",
+"Arbustos a arbolitos, terrestres, autotrofos, erectos" = "Shrubs to small trees, terrestrial, autotrophic, erect",
+"Arbustos o arboles, terrestres o epifiticos, autotrofos, erectas" = "Shrubs or trees, terrestrial or epiphytic, autotrophic, erect",
+"Arbustos o arboles, terrestres, autotrofas, erectos" = "Shrubs or trees, terrestrial, autotrophic, erect",
+"Arbustos o arboles, terrestres, autotrofos, erectos" = "Shrubs or trees, terrestrial, autotrophic, erect",
+"Arbustos o arbolitos, epifitico o epilitico, autotrofos, erectos" = "Shrubs or small trees, epiphytic or lithophytic, autotrophic, erect",
+"Arbustos o arbolitos, terrestres, autotrofos, erectos" = "Shrubs or small trees, terrestrial, autotrophic, erect",
+"Arbustos, arbolitos o arboles, terrestres, autotrofos, erectos" = "Shrubs, small trees or trees, terrestrial, autotrophic, erect",
+"Arbustos, hemiparasitos, erectos" = "Shrubs, hemiparasitic, erect",
+"Arbustos, terrestres, autotrofos, erectos" = "Shrubs, terrestrial, autotrophic, erect",
+"Arbustos, terrestres, autotrofos, escandentes" = "Shrubs, terrestrial, autotrophic, scandent",
+"Arbustos, terrestres, autotrofos, tallo erecto palmiforme" = "Shrubs, terrestrial, autotrophic, palm-like erect stem",
+"Arbustos, terrestres, autotrofos, tallos colgantes o pendulos" = "Shrubs, terrestrial, autotrophic, hanging or pendulous stems",
+"Arbustos, terrestres, autotrofos, tallos erectos a escandentes" = "Shrubs, terrestrial, autotrophic, erect to scandent stems",
+"Arbustos, terrestres, autotrofos, tallos erectos a postrados" = "Shrubs, terrestrial, autotrophic, erect to prostrate stems",
+"Arbustos, terrestres, autotrofos, tallos o ramas escandentes" = "Shrubs, terrestrial, autotrophic, scandent stems or branches",
+
+"Bejucos" = "Vines",
+"Bejucos, terrestres, autotrofos" = "Vines, terrestrial, autotrophic"
+
+)
+spp_link$lifeFormEnglish <- unname(dic_lifeForm[spp_link$lifeForm])
+sort(unique(spp_link$lifeForm[is.na(spp_link$lifeFormEnglish)]))
+spp_link$lifeFormEnglish <- unname(dic_lifeForm[spp_link$lifeForm])
+dput(sort(unique(spp_link$lifeForm)))
+
+sum(spp_link$verbatimLifeForm == "Hierbas, , , ", na.rm = TRUE)
+idx <- which(spp_link$lifeForm == "Hierbas, , ")
+
+spp_link$lifeForm[idx] <- "Hierbas"
+
+View(spp_link)
+```
 
