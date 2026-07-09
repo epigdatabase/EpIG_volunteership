@@ -376,9 +376,156 @@ library(stringi)
 
 text_spplink <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__assis_i_2026_specieslink.csv")
 
-head(spp_link)
-view(spp_link)
-str(spp_link)
+head(text_spplink)
+view(text_spplink)
+str(text_spplink)
 
+```
+
+# Crear columna de comentarios
+
+```{r}
+
+# if (!"discardReason" %in% names(text_spplink)) spp_link$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_spplink$basisOfRecord)                       #No necesita cambios
+unique(text_spplink$typeStatus)                          #Solo hay un valor "Isotype" 
+unique(text_spplink$associatedReferences)                #No necesita cambios
+unique(text_spplink$institutionCode)                     #No necesita cambios
+unique(text_spplink$taxonRank)                           #No necesita cambios
+unique(text_spplink$collectionCode)                      #No necesita cambios
+unique(text_spplink$recordedBy)                          #Necesita estandarización
+unique(text_spplink$recordNumber)                        #Completar con NA los vacios y arreglar "s/n�"
+unique(text_spplink$identifiedBy)                        #Necesita estandarización
+unique(text_spplink$lifeForm)                            #No necesita cambios
+unique(text_spplink$eventDate)                           #No necesita cambios
+
+```
+
+#Detectar información dañada en recordNumber y corregir
+
+```{r}
+conteo_recordNum <- text_spplink %>%
+  count(recordNumber, sort = TRUE)
+
+conteo_recordNum                      # Identificado: s/n�     s.n. y vacios
+
+# Cambiar valores que no son números y estan vacios a NA
+
+text_spplink <- text_spplink %>%
+  mutate(
+    recordNumber = case_when(
+      recordNumber %in% c("s/n�", "s.n.","") ~ NA_character_,  
+      TRUE ~ recordNumber       
+    )
+  )
+```
+
+#Crear columna de verbatim para recordedBy y identifiedBy
+
+```{r}
+#recordedBy
+
+text_spplink <- text_spplink %>%
+  mutate(
+    VerbatimrecordedBy = recordedBy
+  )
+
+#identifiedBy
+
+text_spplink <- text_spplink %>%
+  mutate(
+    VerbatimidentifiedBy = identifiedBy
+  )
+```
+
+#Detectar información dañada en identifiedBy y corregir
+
+```{r}
+conteo_identifiedBy <- text_spplink %>%
+  count(identifiedBy, sort = TRUE)
+
+conteo_identifiedBy
+
+#Corregir simbolos raros 
+
+#Identificado: 
+#M.G.Caxamb�         Tha�s Elias Almeida       A.M.Miranda (visto no splink - Herb�rio HST)      C.B. Gra�a       G. Proen�a
+#Lombardi, J�lio Ant�nio        Guimar�es, EF
+
+text_spplink$identifiedBy <- gsub("M.G.Caxamb�", "Caxambu, M.G.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Tha�s Elias Almeida", "Elias-Almeida, T.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("C.B. Gra�a", "Graca, C.B.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("G. Proen�a", "Proenca, G.", text_spplink$identifiedBy) 
+text_spplink$identifiedBy <- gsub("Lombardi, J�lio Ant�nio", "Lombardi, J.L.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Guimar�es, EF", "Guimaraes, E.F.", text_spplink$identifiedBy)
+
+text_spplink <- text_spplink %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "assis_i_2026_specieslink_01507",
+                              "Miranda, A.M.", identifiedBy),
+  )
+
+#Eliminar datos extra
+
+#Identificado:
+#Salino,A. c/o Lombardi,J.   Gasper, AL de   Det.: T. S. Coser 27 / V / 2011   A.V.Scatigna; M.S.Silva (conferido por M.Salazar-Ferreira)           Det.: L. Pataro 18 / II / 2011   Det.: T. S. Coser 17 / VI / 2011
+
+text_spplink$identifiedBy <- gsub("Salino,A. c/o Lombardi,J.","Salino, A. | Lombardi, J.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Gasper, AL de","Gasper, A.L.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Det.: T. S. Coser 27 / V / 2011","Coser, T. S.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Det.: L. Pataro 18 / II / 2011","Pataro, L.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Det.: T. S. Coser 17 / VI / 2011","Coser, T. S.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("A.V.Scatigna; M.S.Silva (conferido por M.Salazar-Ferreira)","Scatigna, A.V. | Silva, M.S.", text_spplink$identifiedBy)
+
+```
+
+# Estandarizar autor solitario
+
+```{r}
+
+#Autor tipo: E.L.F. Menezes
+estandarizar_autor1 <- function(autor) {
+  autor <- str_trim(autor)
+  patron1 <- "^((?:[A-ZÁÉÍÓÚÑ]\\.){1,4})\\s*([A-Za-zÁÉÍÓÚÑáéíóúñ\\s]+)$"
+  
+  if (str_detect(autor, patron1)) {
+    m <- str_match(autor, patron1)
+    iniciales <- m[,2]
+    apellido  <- str_trim(m[,3])
+    return(paste0(apellido, ", ", iniciales))
+  } else {
+    return(autor)  
+  }
+}
+
+text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, estandarizar_autor1)
+
+# Autor tipo: Molina, JMP
+estandarizar_autor2 <- function(autor) {
+  
+  if (is.na(autor) || str_trim(autor) == "") {
+    return(autor)
+  }
+  
+  autor <- str_trim(autor)
+  patron2 <- "^([A-Za-zÁÉÍÓÚÑáéíóúñ\\s]+),\\s*([A-ZÁÉÍÓÚÑ]{1,5})$"
+  
+  if (str_detect(autor, patron2)) {
+    m <- str_match(autor, patron2)
+    apellido  <- str_trim(m[,2])
+    iniciales <- m[,3]
+    iniciales_formateadas <- paste0(str_split(iniciales, "")[[1]], ".", collapse = "")
+    return(paste0(apellido, ", ", iniciales_formateadas))
+  } else {
+    return(autor)  
+  }
+}
+
+text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, estandarizar_autor2)
 ```
 
