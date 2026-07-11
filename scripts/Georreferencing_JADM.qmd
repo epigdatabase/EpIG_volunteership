@@ -137,7 +137,6 @@ if (length(idx) > 0) {
 
 ```{r}
 #ExportarDatos
-write.csv(dfBR, file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PECS.csv", sep = ";")
 
 write.table(x = dfBR, 
             file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PECS.csv", 
@@ -223,20 +222,311 @@ if (length(idx) > 0) {
 
 #Tercersubset
 
-VCode2 <- dfBRh$occurrenceID[28:38]
+VCode2 <- dfBRh$occurrenceID[28:31]
 idx <- which(dfBRh$occurrenceID %in% VCode2)
+if (length(idx) > 0) {
+  dfBRh$coordinateUncertaintyInMeters[idx] <- "112356"
+  dfBRh$locality[idx] <- "Manu National Park"
+  dfBRh$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRh$ok.2[idx] <- TRUE 
+}
+
+#Cuartosubset
+
+VCode3 <- dfBRh$occurrenceID[32:38]
+idx <- which(dfBRh$occurrenceID %in% VCode3)
 if (length(idx) > 0) {
   dfBRh$coordinateUncertaintyInMeters[idx] <- "112372"
   dfBRh$locality[idx] <- "Manu National Park"
   dfBRh$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
   dfBRh$ok.2[idx] <- TRUE 
 }
+```
+
+```{r}
+write.table(x = dfBRh, 
+            file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PERE.csv", 
+            sep = ",",       
+            dec = ".",       
+            na = "NA", 
+            row.names = FALSE)
+```
+
+##bertelmann_h_2025_PETE
+
+```{r}
+dfBRhi <- read.csv("C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/1.Raw/georef__bertelmann_h_2025_PETE.csv",sep = ",")
+View(dfBRhi)
+names(dfBRhi) # check names of the columns
+View(dfBRhi) # if you want to open and see the file
+head(dfBRhi) # if you want to see more or less the structure of the dataframe (df)
+```
+
+```{r}
+library(stringr)
+library(dplyr)
+
+dfBRhi <- dfBRhi %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | stringr::str_squish(locality) == "" ~ "non_georef",
+      stringr::str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+
+if (!"ok.2" %in% names(dfBRhi)) {
+  if (".ok_for_analysis" %in% names(dfBRhi)) {
+    dfBRhi$ok.2 <- dfBRhi$.ok_for_analysis
+  } else {
+    dfBRhi $ok.2 <- FALSE
+  }
+}
+if (!"discardReason" %in% names(dfBRhi)) dfBRhi$discardReason <- NA_character_
+
+names(dfBRhi)
+head(dfBRhi)
+View(dfBRhi)
+if (!"ok.2" %in% names(dfBRhi)) {
+  dfBRhi$ok.2 <- FALSE
+}
 
 ```
 
 ```{r}
-write.table(x = dfBR, 
-            file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PERE.csv", 
+ids_a_modificar <- dfBRhi$occurrenceID
+idx <- which(dfBRhi$occurrenceID %in% ids_a_modificar)
+if (length(idx) > 0) {
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+}
+```
+
+```{r}
+#Locality
+Pcode <- dfBRhi$occurrenceID[1:5]
+idx <- which(dfBRhi$occurrenceID %in% Pcode)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112358"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#SegundoSubset
+
+Pcode1 <- dfBRhi$occurrenceID[6:10]
+idx <- which(dfBRhi$occurrenceID %in% Pcode1)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112374"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#TercerSubset
+
+Pcode2 <- dfBRhi$occurrenceID[11:15]
+idx <- which(dfBRhi$occurrenceID %in% Pcode2)
+
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- 112379
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#CuartoSubset
+
+Pcode3 <- dfBRhi$occurrenceID[16:20]
+idx <- which(dfBRhi$occurrenceID %in% Pcode3)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112275"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#QuintoSubset
+
+Pcode4 <- dfBRhi$occurrenceID[21:25]
+idx <- which(dfBRhi$occurrenceID %in% Pcode4)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112329"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#SextoSubset
+
+Pcode5 <- dfBRhi$occurrenceID[26:30]
+idx <- which(dfBRhi$occurrenceID %in% Pcode5)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112334"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#SeptoSubset
+
+Pcode6 <- dfBRhi$occurrenceID[31:35]
+idx <- which(dfBRhi$occurrenceID %in% Pcode6)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112345"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#OctavoSubset
+
+Pcode7 <- dfBRhi$occurrenceID[36:40]
+idx <- which(dfBRhi$occurrenceID %in% Pcode7)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112369"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#NovenoSubset
+
+Pcode8 <- dfBRhi$occurrenceID[41:45]
+idx <- which(dfBRhi$occurrenceID %in% Pcode8)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112333"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DecimoSubset
+
+Pcode9 <- dfBRhi$occurrenceID[46:50]
+idx <- which(dfBRhi$occurrenceID %in% Pcode9)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112328"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#UndecimoSubset
+
+Pcode10 <- dfBRhi$occurrenceID[51:55]
+idx <- which(dfBRhi$occurrenceID %in% Pcode10)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112354"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DuodeimoSubset
+
+Pcode11 <- dfBRhi$occurrenceID[56:60]
+idx <- which(dfBRhi$occurrenceID %in% Pcode11)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112346"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DecimoTercerSubset
+
+Pcode12 <- dfBRhi$occurrenceID[61:65]
+idx <- which(dfBRhi$occurrenceID %in% Pcode12)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112343"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DecimoCuartoSubset
+
+Pcode13 <- dfBRhi$occurrenceID[66:70]
+idx <- which(dfBRhi$occurrenceID %in% Pcode13)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112340"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE }
+
+#DecimoQuintoSubset
+
+Pcode14 <- dfBRhi$occurrenceID[71:75]
+idx <- which(dfBRhi$occurrenceID %in% Pcode14)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112356"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DecimoSextoSubset
+
+Pcode15 <- dfBRhi$occurrenceID[76:80]
+idx <- which(dfBRhi$occurrenceID %in% Pcode15)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112361"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DecimoSeptoSubset
+
+Pcode16 <- dfBRhi$occurrenceID[81:85]
+idx <- which(dfBRhi$occurrenceID %in% Pcode16)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112351"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DecimoOctavoSubset
+
+Pcode17 <- dfBRhi$occurrenceID[86:90]
+idx <- which(dfBRhi$occurrenceID %in% Pcode17)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112347"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+#DecimoNovenoSubset
+
+Pcode18 <- dfBRhi$occurrenceID[91:95]
+idx <- which(dfBRhi$occurrenceID %in% Pcode18)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112324"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE }
+#SubsetVeinte
+
+Pcode14 <- dfBRhi$occurrenceID[96:100]
+idx <- which(dfBRhi$occurrenceID %in% Pcode14)
+if (length(idx) > 0) {
+  dfBRhi$coordinateUncertaintyInMeters[idx] <- "112322"
+  dfBRhi$locality[idx] <- "Manu National Park"
+  dfBRhi$discardReason[idx] <- "corregido, campo de texto de localidad estaba mal"
+  dfBRhi$ok.2[idx] <- TRUE
+}
+
+```
+
+```{r}
+write.table(x = dfBRhi, 
+            file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PETE.csv", 
             sep = ",",       
             dec = ".",       
             na = "NA", 
