@@ -247,9 +247,24 @@ idx <- which(voluntarios$dataset == "bertelmann_h_2025_PETE")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Johan"
     voluntarios$startingDate[idx] <- "07/07/26"
-    #voluntarios$finishingDate[idx] <- "07/07/26"
+    voluntarios$finishingDate[idx] <- "10/07/26"
 }
 
+
+idx <- which(voluntarios$dataset == "carranza_av_2004")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Johan"
+    voluntarios$startingDate[idx] <- "10/07/26"
+    voluntarios$finishingDate[idx] <- "11/07/26"
+}
+
+
+idx <- which(voluntarios$dataset == "carranza_av_2023")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Johan"
+    voluntarios$startingDate[idx] <- "11/07/26"
+    #voluntarios$finishingDate[idx] <- "11/07/26"
+}
 
 
 #GABRIEL MONTOYA
