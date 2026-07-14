@@ -96,6 +96,149 @@ sort(unique(spp_link$eventDate)) #all dates are ok. Year column doesn't need
 
 sort(unique(spp_link$changes)) #ok
 
-
+colnames(spp_link)
 ```
+
+```{r}
+#High detail inspection of data
+#========================================================================
+#ocurrenceID
+#========================================================================
+
+str(spp_link$occurrenceID)
+
+summary(spp_link$occurrenceID)
+
+sum(is.na(spp_link$occurrenceID))
+
+sum(spp_link$occurrenceID == "")
+
+length(unique(spp_link$occurrenceID))
+
+nrow(spp_link)
+
+anyDuplicated(spp_link$occurrenceID)
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$occurrenceID)
+
+#Not modifications
+
+#========================================================================
+
+#basisOfRecord
+
+str(spp_link$basisOfRecord)
+
+summary(spp_link$basisOfRecord)
+
+sort(unique(spp_link$basisOfRecord))
+
+table(spp_link$basisOfRecord,
+      useNA = "ifany")
+
+sum(is.na(spp_link$basisOfRecord))
+
+sum(spp_link$basisOfRecord == "")
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$basisOfRecord)
+
+#complies with Darwin Core requirements
+
+#========================================================================
+
+#taxonRank
+
+
+str(spp_link$taxonRank)
+
+summary(spp_link$taxonRank)
+
+sort(unique(spp_link$taxonRank))
+
+table(spp_link$taxonRank,
+      useNA = "ifany")
+
+sum(is.na(spp_link$taxonRank))
+
+sum(spp_link$taxonRank == "", na.rm = TRUE)
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$taxonRank)
+
+
+#taxonRank complies with Darwin Core requirements. At the word level, it's correct. However, Darwin Core spells it “subspecies” in lowercase.
+
+
+#==============================================================================
+
+#recordedBy
+
+str(spp_link$recordedBy)
+
+summary(spp_link$recordedBy)
+
+length(unique(spp_link$recordedBy))
+
+sum(is.na(spp_link$recordedBy))
+
+sum(spp_link$recordedBy == "")
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$recordedBy)
+
+grep("^\\s|\\s$", spp_link$recordedBy)
+
+grep("  +", spp_link$recordedBy)
+
+grep(",,", spp_link$recordedBy)
+
+grep("\\n|\\r", spp_link$recordedBy)
+
+grep("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$recordedBy)
+
+unique(spp_link$recordedBy[
+  grepl("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$recordedBy)
+])
+
+#remove accents marks 
+
+delete_accents <- function(x) {
+  iconv(x, from = "UTF-8", to = "ASCII//TRANSLIT")
+}
+
+spp_link$recordedBy   <- delete_accents(spp_link$recordedBy)
+spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
+
+unique_recordedBy <- data.frame(
+  recordedBy = sort(unique(spp_link$recordedBy))
+)
+
+
+hyphenate_surname <- function(x) {
+  sapply(x, function(i) {
+    if (is.na(i) || !grepl(",", i)) return(i)
+
+    partes <- strsplit(i, ",", fixed = TRUE)[[1]]
+
+    apellido <- trimws(partes[1])
+    nombre   <- trimws(paste(partes[-1], collapse = ","))
+
+    apellido <- gsub(" +", "-", apellido)
+
+    paste(apellido, nombre, sep = ", ")
+  }, USE.NAMES = FALSE)
+}
+
+spp_link$recordedBy <- hyphenate_surname(spp_link$recordedBy)
+
+recordedBy_original <- spp_link$recordedBy
+
+idx <- which(recordedBy_original != spp_link$recordedBy)
+recordedBy_original <- spp_link$recordedBy
+spp_link$recordedBy <- hyphenate_surname(spp_link$recordedBy)
+idx <- which(recordedBy_original != spp_link$recordedBy)
+
+recordedBy_curated <- spp_link$recordedBy 
+
+View(spp_link["recordedBy"])
+```
+
 
