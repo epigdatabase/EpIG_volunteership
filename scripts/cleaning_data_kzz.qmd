@@ -310,5 +310,96 @@ identifiedBy_curated <- spp_link$identifiedBy
 #delete "()"
 
 spp_link$identifiedBy <- gsub("[()]", "", spp_link$identifiedBy)
+
+spp_link$identifiedBy[spp_link$identifiedBy == ","] <- NA
+spp_link$identifiedBy[spp_link$identifiedBy == ","] <- NA
+
+#all data are curated for now
+```
+
+
+```{r}
+ #=============================================================================
+# lifeForm
+# =============================================================================
+
+View(data.frame(
+  lifeForm = sort(unique(spp_link$lifeForm))
+))
+
+str(spp_link$lifeForm)
+
+summary(spp_link$lifeForm)
+
+length(unique(spp_link$lifeForm))
+
+sort(unique(spp_link$lifeForm))
+
+table(spp_link$lifeForm,
+      useNA = "ifany")
+
+sum(is.na(spp_link$lifeForm))
+
+sum(spp_link$lifeForm == "", na.rm = TRUE)
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$lifeForm)
+
+grep("^\\s|\\s$", spp_link$lifeForm)
+
+grep("  +", spp_link$lifeForm)
+
+#delete final dot
+
+spp_link$lifeForm <- gsub("\\.$", "", spp_link$lifeForm)
+
+#correction of typograhic mistakes
+
+spp_link$lifeForm <- gsub(
+  "terestes",
+  "terrestres",
+  spp_link$lifeForm
+)
+
+spp_link$lifeForm <- gsub(
+  "epíiftas",
+  "epífitas",
+  spp_link$lifeForm
+)
+
+spp_link$lifeForm <- gsub(
+  "epìfitas",
+  "epífitas",
+  spp_link$lifeForm
+)
+
+spp_link$lifeForm <- gsub(
+  "autòtrofas",
+  "autótrofas",
+  spp_link$lifeForm
+)
+
+#delete all accents
+
+spp_link$lifeForm <- delete_accents(spp_link$lifeForm)
+
+#change "Sufructises" by "Sufrutices", corrected spelling form
+
+sum(grepl("Sufrúctises|Sufructises", spp_link$lifeForm))
+spp_link$lifeForm <- gsub(
+  "Sufrúctises|Sufructises",
+  "Sufrutices",
+  spp_link$lifeForm
+)
+
+#change ", , ," in lifeForm (287 celds)
+grep(", , ,", spp_link$lifeForm, value = TRUE)
+sum(grepl(", , ,", spp_link$lifeForm))
+
+spp_link$lifeForm <- gsub(
+  ", , ,",
+  "",
+  spp_link$lifeForm
+)
+
 ```
 
