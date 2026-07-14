@@ -211,6 +211,7 @@ unique_recordedBy <- data.frame(
   recordedBy = sort(unique(spp_link$recordedBy))
 )
 
+#add -  surnames
 
 hyphenate_surname <- function(x) {
   sapply(x, function(i) {
@@ -241,4 +242,73 @@ recordedBy_curated <- spp_link$recordedBy
 View(spp_link["recordedBy"])
 ```
 
+```{r}
+# =============================================================================
+# identifiedBy 
+# =============================================================================
+
+# Inspection
+
+str(spp_link$identifiedBy)
+
+summary(spp_link$identifiedBy)
+
+length(unique(spp_link$identifiedBy))
+
+sum(is.na(spp_link$identifiedBy))
+
+sum(spp_link$identifiedBy == "")
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$identifiedBy)
+
+grep("^\\s|\\s$", spp_link$identifiedBy)
+
+grep("  +", spp_link$identifiedBy)
+
+grep(",,", spp_link$identifiedBy)
+
+grep("\\n|\\r", spp_link$identifiedBy)
+
+grep("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$identifiedBy)
+
+unique(
+  spp_link$identifiedBy[
+    grepl("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$identifiedBy)
+  ]
+)
+
+
+# Remove accent marks
+
+
+spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
+
+
+# Standardize compound surnames
+
+spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
+
+
+# Review unique values
+
+unique_identifiedBy <- data.frame(
+  identifiedBy = sort(unique(spp_link$identifiedBy))
+)
+
+View(unique_identifiedBy)
+
+spp_link$recordedBy   <- delete_accents(spp_link$recordedBy)
+spp_link$recordedBy   <- hyphenate_surname(spp_link$recordedBy)
+
+spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
+spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
+
+# Keep a backup of the curated column
+
+identifiedBy_curated <- spp_link$identifiedBy
+
+#delete "()"
+
+spp_link$identifiedBy <- gsub("[()]", "", spp_link$identifiedBy)
+```
 
