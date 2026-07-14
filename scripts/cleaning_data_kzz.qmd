@@ -408,8 +408,38 @@ spp_link$lifeForm <- gsub(
 
 spp_link$verbatimLifeForm <- spp_link$lifeForm
 
-#create lifeFormEn (English)
+#create dictionary lifeFormEn (English)
 
-
+dic_lifeForm <- c(
+  #"" = "",
+  "E" = "E",
+  "H" = "H",
+  "NV" = "NV",
+  "Arboles" = "Trees",
+  "Arboles, terrestres, autotrofos, erectos" = "Trees, terrestrial, autotrophic, erect",
+  "Arbusto o arbol" = "Shrub or tree",
+  "Arbusto o arbol, terrestres, autotrofos, erectos" = "Shrub or tree, terrestrial, autotrophic, erect",
+  "Arbustos" = "Shrubs",
+  "Arbustos a arboles, terrestres, autotrofos, erectos" = "Shrubs to trees, terrestrial, autotrophic, erect",
+  "Arbustos a arbolitos, terrestres, autotrofos, erectos" = "Shrubs to small trees, terrestrial, autotrophic, erect",
+  "Arbustos o arboles, terrestes o epifiticos, autotrofos, erectas" = "Shrubs or trees, terrestrial or epiphytic, autotrophic, erect",
+  "Arbustos o arboles, terrestres, autotrofas, erectos" = "Shrubs or trees, terrestrial, autotrophic, erect",
+  "Arbustos o arboles, terrestres, autotrofos, erectos" = "Shrubs or trees, terrestrial, autotrophic, erect",
+  "Arbustos o arbolitos, epifitico o epilitico, autotrofos, erectos" = "Shrubs or small trees, epiphytic or epilithic, autotrophic, erect",
+  "Arbustos o arbolitos, terrestres, autotrofos, erectos" = "Shrubs or small trees, terrestrial, autotrophic, erect",
+  "Arbustos, arbolitos o arboles, terrestres, autotrofos, erectos" = "Shrubs, small trees or trees, terrestrial, autotrophic, erect",
+  "Arbustos, hemiparasitos, erectos" = "Shrubs, hemiparasitic, erect",
+  "Arbustos, terrestres, autotrofos, erectos" = "Shrubs, terrestrial, autotrophic, erect",
+  "Arbustos, terrestres, autotrofos, escandentes" = "Shrubs, terrestrial, autotrophic, scandent",
+  "Arbustos, terrestres, autotrofos, tallo erecto palmiforme" = "Shrubs, terrestrial, autotrophic, palm-like erect stem",
+  "Arbustos, terrestres, autotrofos, tallos colgantes o pendulos" = "Shrubs, terrestrial, autotrophic, hanging or pendulous stems",
+  "Arbustos, terrestres, autotrofos, tallos erectos a escandentes" = "Shrubs, terrestrial, autotrophic, erect to scandent stems",
+  "Arbustos, terrestres, autotrofos, tallos erectos a postrados" = "Shrubs, terrestrial, autotrophic, erect to prostrate stems",
+  "Arbustos, terrestres, autotrofos, tallos o ramas escandentes" = "Shrubs, terrestrial, autotrophic, scandent stems or branches",
+  "Bejucos" = "Lianas",
+  "Bejucos, terrestres, autotrofos," = "Lianas, terrestrial, autotrophic",
+  "Hierba, terrestre, autotrofa, erecta" = "Herb, terrestrial, autotrophic, erect",
+  "Hierbas" = "Herbs"
+)
 ```
 
