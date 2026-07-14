@@ -1,0 +1,101 @@
+---
+title: "Cleaning data for occurrence and community databases" "Database #1" 
+subtitle: 'EpIG volunteership'
+format: html
+editor: visual
+date: today
+author: "Kelly Zuluaga" 
+editor_options: 
+  chunk_output_type: console
+---
+
+#Libraries
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+#library(rWCVP)
+library(CoordinateCleaner)
+library(ggplot2) 
+
+spp_link <- read.csv("data/Text/1_Raw/text__CR2024.csv")
+
+head(spp_link)
+View(spp_link)
+str(spp_link)
+glimpse(spp_link)
+
+
+str(spp_link)
+dplyr::glimpse(spp_link)
+```
+
+\
+
+```{r}
+
+#Dataset Structure
+
+str(spp_link$taxonRank) #[1:71897] "SPECIES"
+str(spp_link$lifeForm) #[1:71897] "E"
+str(spp_link$institutionCode) #[1:71897] "CR" (It doesn't correct. The column name should be countryCode)
+str(spp_link$eventDate) #[1:71897] All dates are completed
+str(spp_link$ocurrenceID)
+str(spp_link$basisOfRecord) #"PreservedSpecimen"
+str(spp_link$typeStatus) # [1:71897] NA
+str(spp_link$associatedReferences) #[1:71897]  NA
+str(spp_link$collectionCode) #[1:71897] NA
+str(spp_link$recordedBy) #[1:71897] Authors
+str(spp_link$identifiedBy) #[1:71897] Authors
+str(spp_link$datasetID) #[1:71897] CR2024
+str(spp_link$matchCodeEpig) #[1:71897] Numbers - not DarwinCore
+str(spp_link$matchedNameEpig) #[1:71897] Species
+str(spp_link$typeStatus) #[1:71897] NA
+```
+
+
+```{r}
+#unique values in columns
+
+sort(unique(spp_link$occurrenceID)) #ok
+
+sort(unique(spp_link$basisOfRecord)) #ok
+
+sort(unique(spp_link$typeStatus)) #ok
+
+sort(unique(spp_link$associatedReferences)) #ok
+
+sort(unique(spp_link$institutionCode)) #change by countryCode
+
+sort(unique(spp_link$taxonRank))#ok
+
+sort(unique(spp_link$collectionCode)) #ok
+
+sort(unique(spp_link$recordedBy)) #needs curation
+
+sort(unique(spp_link$recordNumber)) #review this "11.001 B"
+
+sort(unique(spp_link$identifiedBy)) #needs curation
+
+sort(unique(spp_link$lifeForm)) #needs curation
+
+sort(unique(spp_link$datasetID)) #ok
+
+sort(unique(spp_link$matchCodeEpig)) #ok 
+
+sort(unique(spp_link$matchedNameEpig)) #0, 1, 2 or 3
+
+sort(unique(spp_link$decimalLatitude)) #ok
+
+sort(unique(spp_link$decimalLongitude)) #ok
+
+sort(unique(spp_link$eventDate)) #all dates are ok. Year column doesn't need
+
+sort(unique(spp_link$changes)) #ok
+
+
+```
+
