@@ -403,3 +403,13 @@ spp_link$lifeForm <- gsub(
 
 ```
 
+```{r}
+#create verbatimlifeForm (SP)
+
+spp_link$verbatimLifeForm <- spp_link$lifeForm
+
+#create lifeFormEn (English)
+
+
+```
+
