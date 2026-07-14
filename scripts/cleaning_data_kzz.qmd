@@ -411,14 +411,16 @@ spp_link$verbatimLifeForm <- spp_link$lifeForm
 #create dictionary lifeFormEn (English)
 
 dic_lifeForm <- c(
-  #"" = "",
-  "E" = "E",
+ "E" = "E",
   "H" = "H",
   "NV" = "NV",
+
   "Arboles" = "Trees",
   "Arboles, terrestres, autotrofos, erectos" = "Trees, terrestrial, autotrophic, erect",
+
   "Arbusto o arbol" = "Shrub or tree",
   "Arbusto o arbol, terrestres, autotrofos, erectos" = "Shrub or tree, terrestrial, autotrophic, erect",
+
   "Arbustos" = "Shrubs",
   "Arbustos a arboles, terrestres, autotrofos, erectos" = "Shrubs to trees, terrestrial, autotrophic, erect",
   "Arbustos a arbolitos, terrestres, autotrofos, erectos" = "Shrubs to small trees, terrestrial, autotrophic, erect",
@@ -436,10 +438,98 @@ dic_lifeForm <- c(
   "Arbustos, terrestres, autotrofos, tallos erectos a escandentes" = "Shrubs, terrestrial, autotrophic, erect to scandent stems",
   "Arbustos, terrestres, autotrofos, tallos erectos a postrados" = "Shrubs, terrestrial, autotrophic, erect to prostrate stems",
   "Arbustos, terrestres, autotrofos, tallos o ramas escandentes" = "Shrubs, terrestrial, autotrophic, scandent stems or branches",
+
   "Bejucos" = "Lianas",
   "Bejucos, terrestres, autotrofos," = "Lianas, terrestrial, autotrophic",
+
   "Hierba, terrestre, autotrofa, erecta" = "Herb, terrestrial, autotrophic, erect",
-  "Hierbas" = "Herbs"
+
+  "Hierbas" = "Herbs",
+
+  "Hierbas a arbustos, terrestres, autotrofas, erectas" = "Herbs to shrubs, terrestrial, autotrophic, erect",
+  "Hierbas a arbustos, terrestres, autotrofas, tallos colgantes o pendulos" = "Herbs to shrubs, terrestrial, autotrophic, hanging or pendulous stems",
+  "Hierbas a arbustos, terrestres, autotrofas, tallos erectos a trepadores" = "Herbs to shrubs, terrestrial, autotrophic, erect to climbing stems",
+  "Hierbas a arbustos, terrestres, autotrofas, tallos o ramas escandentes" = "Herbs to shrubs, terrestrial, autotrophic, scandent stems or branches",
+
+  "Hierbas o bejucos terrestres, autotrofas, trepadores" = "Herbs or lianas, terrestrial, autotrophic, climbing",
+  "Hierbas o bejucos, terrestres, autotrofas, erectas o escandentes" = "Herbs or lianas, terrestrial, autotrophic, erect or scandent",
+  "Hierbas o bejucos, terrestres, autotrofas, trepadoras" = "Herbs or lianas, terrestrial, autotrophic, climbing",
+  "Hierbas o bejucos, terrestres, autotrofas, trepadores" = "Herbs or lianas, terrestrial, autotrophic, climbing",
+
+  "Hierbas sufruticosas arbustivas, terrestres, autotrofas, erectas" = "Subshrubs, terrestrial, autotrophic, erect",
+  "Hierbas sufruticosas arbustivas, terrestres, autotrofas, tallos o ramas escandentes" = "Subshrubs, terrestrial, autotrophic, scandent stems or branches",
+  "Hierbas sufruticosas, terrestres, autotrofas, erectas" = "Subshrubs, terrestrial, autotrophic, erect",
+
+  "Hierbas, acuaticas o palustres, autotrofas, erectas" = "Herbs, aquatic or marsh, autotrophic, erect",
+  "Hierbas, acuaticas o palustres, autotrofas, flotante o sumergida" = "Herbs, aquatic or marsh, autotrophic, floating or submerged",
+
+  "Hierbas, arbustos o arboles, terrestres, autotrofos, erectos" = "Herbs, shrubs or trees, terrestrial, autotrophic, erect",
+
+  "Hierbas, bejucos, autotrofas, erectas" = "Herbs and lianas, autotrophic, erect",
+  "Hierbas, bejucos, autotrofos, erectos" = "Herbs and lianas, autotrophic, erect",
+
+  "Hierbas, epifitas facultativas, autotrofas, erectas" = "Herbs, facultative epiphytes, autotrophic, erect",
+  "Hierbas, epifitas, autotrofas, colgantes" = "Herbs, epiphytic, autotrophic, hanging",
+  "Hierbas, epifitas, autotrofas, erectas" = "Herbs, epiphytic, autotrophic, erect",
+  "Hierbas, epifitas, autotrofas, escandentes" = "Herbs, epiphytic, autotrophic, scandent",
+  "Hierbas, epifitas, autotrofas, reptantes o trepadoras" = "Herbs, epiphytic, autotrophic, creeping or climbing",
+   "Hierbas, epiliticas, autotrofas, erectas" = "Herbs, epilithic, autotrophic, erect",
+  "Hierbas, epiliticas, terrestres, autotrofas, erectas" = "Herbs, epilithic or terrestrial, autotrophic, erect",
+  "Hierbas, epipetricas, autotrofas, erectas" = "Herbs, epipetric, autotrophic, erect",
+  "Hierbas, rastreras, autotrofas, erectas" = "Herbs, creeping, autotrophic, erect",
+
+  "Hierbas, terrestres o epiliticas, autotrofas, erectas" = "Herbs, terrestrial or epilithic, autotrophic, erect",
+  "Hierbas, terrestres o epiliticas, autotrofas, tallos erectos, cilindricos" = "Herbs, terrestrial or epilithic, autotrophic, erect, cylindrical stems",
+
+  "Hierbas, terrestres, autotrofas, -no definido-" = "Herbs, terrestrial, autotrophic, undefined",
+  "Hierbas, terrestres, autotrofas, cespitosa, erecta a decumbente" = "Herbs, terrestrial, autotrophic, tufted, erect to decumbent",
+  "Hierbas, terrestres, autotrofas, cespitosas, erectas" = "Herbs, terrestrial, autotrophic, tufted, erect",
+  "Hierbas, terrestres, autotrofas, erectas" = "Herbs, terrestrial, autotrophic, erect",
+  "Hierbas, terrestres, autotrofas, estoloniferas" = "Herbs, terrestrial, autotrophic, stoloniferous",
+  "Hierbas, terrestres, autotrofas, rastreras" = "Herbs, terrestrial, autotrophic, creeping",
+  "Hierbas, terrestres, autotrofas, rizomatosas, erectas" = "Herbs, terrestrial, autotrophic, rhizomatous, erect",
+  "Hierbas, terrestres, autotrofas, tallos colgantes o pendulos" = "Herbs, terrestrial, autotrophic, hanging or pendulous stems",
+  "Hierbas, terrestres, autotrofas, tallos erectos a postrados" = "Herbs, terrestrial, autotrophic, erect to prostrate stems",
+  "Hierbas, terrestres, autotrofas, tallos o ramas escandentes" = "Herbs, terrestrial, autotrophic, scandent stems or branches",
+  "Hierbas, terrestres, autotrofas, tallos postrados a escandentes" = "Herbs, terrestrial, autotrophic, prostrate to scandent stems",
+  "Hierbas, terrestres, autotrofas, tallos postrados o decumbentes" = "Herbs, terrestrial, autotrophic, prostrate or decumbent stems",
+  "Hierbas, terrestres, autotrofas, tallos trepadores" = "Herbs, terrestrial, autotrophic, climbing stems",
+
+  "Hierbas, terrestres, parasiticas, tallos o ramas escandentes" = "Herbs, terrestrial, parasitic, scandent stems or branches",
+  "Hierbas, terrestres, saprofitas, erectas" = "Herbs, terrestrial, saprophytic, erect",
+
+  "Palmas, terrestres, autotrofos, erecto" = "Palms, terrestrial, autotrophic, erect",
+
+  "Sufrutices, arboles o arbustos, terrestres, autotrofos, erectos" = "Subshrubs, trees or shrubs, terrestrial, autotrophic, erect",
+  "Sufrutices, arbustos o arboles, terrestres, autotrofos, erectos" = "Subshrubs, shrubs or trees, terrestrial, autotrophic, erect",
+  "Sufrutices, arbustos o arbolitos, terrestres, autotrofos, erectos" = "Subshrubs, shrubs or small trees, terrestrial, autotrophic, erect"
+
+)
+
+#create new column (English)
+
+spp_link$lifeForm <- trimws(spp_link$lifeForm)
+
+spp_link$lifeFormEN <- unname(dic_lifeForm[spp_link$lifeForm])
+
+
+#review unique values lifeFormEN. Create lifeFormEN by translating the original lifeForm values to English. Original lifeForm column is preserved unchanged.
+
+View(
+  unique(
+    spp_link[, c("lifeForm", "lifeFormEN")]
+  )
+)
+```
+
+
+```{r}
+#Export curated CVS
+
+readr::write_csv(
+  spp_link,
+  "data/text/2.Processed/text_CR2024.csv",
+  na = ""
 )
 ```
 
