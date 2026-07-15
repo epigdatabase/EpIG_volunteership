@@ -386,7 +386,7 @@ str(text_spplink)
 
 ```{r}
 
-# if (!"discardReason" %in% names(text_spplink)) spp_link$discardReason <- "" 
+if (!"discardReason" %in% names(text_spplink)) text_spplink$discardReason <- "" 
 ```
 
 # Revisar cada una de las columnas
@@ -414,6 +414,25 @@ conteo_recordNum <- text_spplink %>%
 
 conteo_recordNum                      # Identificado: s/n�     s.n. y vacios
 
+#Especificar cambios
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+condicion <- text_spplink$recordNumber %in% c("s/n�", "s.n.") | 
+             is.na(text_spplink$recordNumber) | 
+             str_trim(text_spplink$recordNumber) == ""
+
+text_spplink$discardReason[condicion] <- mapply(
+  agregar_comentario,
+  text_spplink$discardReason[condicion],
+  "character values replaced with NA"
+)
+
 # Cambiar valores que no son números y estan vacios a NA
 
 text_spplink <- text_spplink %>%
@@ -432,14 +451,14 @@ text_spplink <- text_spplink %>%
 
 text_spplink <- text_spplink %>%
   mutate(
-    VerbatimrecordedBy = recordedBy
+    verbatimrecordedBy = recordedBy
   )
 
 #identifiedBy
 
 text_spplink <- text_spplink %>%
   mutate(
-    VerbatimidentifiedBy = identifiedBy
+    verbatimidentifiedBy = identifiedBy
   )
 ```
 
@@ -451,11 +470,8 @@ conteo_identifiedBy <- text_spplink %>%
 
 conteo_identifiedBy
 
-#Corregir simbolos raros 
 
-#Identificado: 
-#M.G.Caxamb�         Tha�s Elias Almeida       A.M.Miranda (visto no splink - Herb�rio HST)      C.B. Gra�a       G. Proen�a
-#Lombardi, J�lio Ant�nio        Guimar�es, EF
+#Corregir simbolos raros 
 
 text_spplink$identifiedBy <- gsub("M.G.Caxamb�", "Caxambu, M.G.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Tha�s Elias Almeida", "Elias-Almeida, T.", text_spplink$identifiedBy)
@@ -472,15 +488,17 @@ text_spplink <- text_spplink %>%
 
 #Eliminar datos extra
 
-#Identificado:
-#Salino,A. c/o Lombardi,J.   Gasper, AL de   Det.: T. S. Coser 27 / V / 2011   A.V.Scatigna; M.S.Silva (conferido por M.Salazar-Ferreira)           Det.: L. Pataro 18 / II / 2011   Det.: T. S. Coser 17 / VI / 2011
-
 text_spplink$identifiedBy <- gsub("Salino,A. c/o Lombardi,J.","Salino, A. | Lombardi, J.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Gasper, AL de","Gasper, A.L.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Det.: T. S. Coser 27 / V / 2011","Coser, T. S.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Det.: L. Pataro 18 / II / 2011","Pataro, L.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Det.: T. S. Coser 17 / VI / 2011","Coser, T. S.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("A.V.Scatigna; M.S.Silva (conferido por M.Salazar-Ferreira)","Scatigna, A.V. | Silva, M.S.", text_spplink$identifiedBy)
+
+text_spplink <- text_spplink %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "assis_i_2026_specieslink_00122",
+                              "Scatigna, A.V. | Silva, M.S.", identifiedBy),
+  )
 
 ```
 
@@ -551,7 +569,10 @@ text_spplink$identifiedBy <- gsub("Y. Oshima-Franco", "Oshima-Franco, Y.", text_
 text_spplink$identifiedBy <- gsub("Moreira, R J", "Moreira, R.J.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Romaniuc Neto, S.", "Romaniuc-Neto, S.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Silva Junior, W.R.", "Silva-Junior, W.R.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("Yamada, M H.", "Yamada, M.H.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Yamada, M H", "Yamada, M.H.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Ferreira, L C S", "Ferreira, L.C.S.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Bonatto, L. D.", "Bonatto, L.D.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("Pereira, I. M.", "Pereira, I.M.", text_spplink$identifiedBy)
 
 #Autores con et al
 text_spplink$identifiedBy <- gsub("J.A.M.A. Gomes et al.", "Gomes, J.A.M.A. et al.", text_spplink$identifiedBy)
@@ -566,20 +587,6 @@ text_spplink$identifiedBy <- gsub("Schuh, SM; et al.", "Schuh, S.M. et al.", tex
 text_spplink <- text_spplink %>%
   mutate(
     identifiedBy = str_replace_all(identifiedBy, ";", " | ")
-  )
-
-# Punto final primer autor
-text_spplink <- text_spplink %>%
-  mutate(
-    identifiedBy = str_replace_all(
-      identifiedBy,
-      "\\s*\\|\\s*",   
-      " | "            
-    ) %>%
-    str_replace_all(
-      "([A-Z])\\s\\|", 
-      "\\1. |"         
-    )
   )
 
 #Apellidos del ultimo autor sin puntos
@@ -651,21 +658,18 @@ text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, reorganizar_autor
 # Corregir separador , y reorganizar autores
 
 text_spplink$identifiedBy <- gsub("M.A. da Silva, E.C. Smidt", "da Silva, M.A. | Smidt, E.C.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("E.L.F. Menezes, S.C.O. Giordani", "Menezes, E.L.F. | Giordani, S.C.O.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("E.L.F. Menezes, S.C.O. Giordani", "Menezes, E.L.F. | Giordani, S.C.O", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("E.L.M. Menezes, S.C.O. Giordani", "Menezes, E.L.M. | Giordani, S.C.O", text_spplink$identifiedBy)
 
 #Agregar punto a las iniciales
-
-library(stringr)
 
 puntuar_iniciales <- function(texto) {
   
   if (is.na(texto) || str_trim(texto) == "") return(texto)
   
-  # Separar por "|" (puede haber uno o varios autores)
   partes <- str_split(texto, "\\|")[[1]]
   partes <- str_trim(partes)
   
-  # Para cada parte: "Apellido, LETRASJUNTAS" -> "Apellido, L.E.T.R.A.S."
   procesar <- function(autor) {
     autor <- str_trim(autor)
     patron <- "^([A-Za-zÁÉÍÓÚÑáéíóúñ]+),\\s*([A-ZÁÉÍÓÚÑ.]+)$"
@@ -675,13 +679,12 @@ puntuar_iniciales <- function(texto) {
       apellido <- m[,2]
       iniciales_raw <- m[,3]
       
-      # Extrae solo las letras (ignora puntos existentes) y las une con puntos
       letras <- str_extract_all(iniciales_raw, "[A-ZÁÉÍÓÚÑ]")[[1]]
       iniciales_formateadas <- paste0(letras, ".", collapse = "")
       
       paste0(apellido, ", ", iniciales_formateadas)
     } else {
-      autor  # si no coincide, se deja igual
+      autor  
     }
   }
   
@@ -698,22 +701,29 @@ text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, puntuar_iniciales
 
 ```{r}
 text_spplink$identifiedBy <- gsub("L.C. Bernacci | D.A. Rodrigues", "Bernacci, L.C. | Rodrigues, D.A.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("Ferreira, A.W.C. | A.B.P.Martins", "Ferreira, A.W.C. | Martins, A.B.P.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("Smidt, EC. | Machnicki-Reis, M", "Smidt, E.C. | Machnicki-Reis, M.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("A.V.Scatigna | M.S.Silva (conferido por Salazar-Ferreira, M.)", "Scatigna, A.V. | Silva, M.S.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("Smidt, EC. | Toscano de Brito, ALV. | Santos, MC", "Smidt, E.C. | Toscano de Brito, A.L.V. | Santos, M.C.", text_spplink$identifiedBy)
+
+text_spplink <- text_spplink %>%
+  mutate(
+    identifiedBy = case_when(
+      occurrenceID %in% c("assis_i_2026_specieslink_00734",
+                          "assis_i_2026_specieslink_00755",
+                          "assis_i_2026_specieslink_00860") ~ 
+        "Smidt, E.C. | Toscano de Brito, A.L.V. | Santos, M.C.",
+      TRUE ~ identifiedBy
+    )
+  )
 ```
 
 #Agregar punto final
 
 ```{r}
+#Punto final a la ultima letra
 agregar_punto_final <- function(texto) {
   
   if (is.na(texto) || str_trim(texto) == "") return(texto)
   
   texto <- str_trim(texto)
   
-  # Si NO termina en punto, se lo agrega
   if (!str_detect(texto, "\\.$")) {
     texto <- paste0(texto, ".")
   }
@@ -722,5 +732,29 @@ agregar_punto_final <- function(texto) {
 }
 
 text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, agregar_punto_final)
+
+#Especificar cambios en identifiedBy
+
+# Función para agregar texto a discardReason sin borrar lo que ya había
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+# Identificar las filas donde el valor ORIGINAL es distinto al MODIFICADO
+# (usamos %in% de esta forma para que también funcione bien si hay NA)
+
+filas_cambiadas <- !is.na(text_spplink$verbatimidentifiedBy) & 
+                    !is.na(text_spplink$identifiedBy) &
+                    text_spplink$verbatimidentifiedBy != text_spplink$identifiedBy
+
+text_spplink$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+  text_spplink$discardReason[filas_cambiadas],
+  "standardize author names in identifiedBy"
+)
 ```
 
