@@ -225,7 +225,17 @@ idx <- which(voluntarios$dataset == "CR2024")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Kelly"
     voluntarios$startingDateDC[idx] <- "18/06/26"
+    voluntarios$finishingDateDC[idx] <- "14/07/26"
 }
+
+
+idx <- which(voluntarios$dataset == "literature2021")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Kelly"
+    voluntarios$startingDateDC[idx] <- "14/06/26"
+    #voluntarios$finishingDateDC[idx] <- "14/07/26"
+}
+
 
 
 #YOHAN
