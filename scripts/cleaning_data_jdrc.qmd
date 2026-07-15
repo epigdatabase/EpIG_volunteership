@@ -9,7 +9,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-#georef__assis_i_2026_specieslink
+# 1. georef__assis_i_2026_specieslink
 
 ```{r}
 # Cargar librerias y revisar información
@@ -360,7 +360,7 @@ spp_link <- spp_link %>%
 write.csv(spp_link, file = "data/Georreferencing/2.Processed/georef__assis_i_2026_specieslink.csv")
 ```
 
-#text__assis_i_2026_specieslink.csv
+#2. text__assis_i_2026_specieslink.csv
 
 ```{r}
 # Cargar librerias y revisar información
@@ -430,7 +430,7 @@ condicion <- text_spplink$recordNumber %in% c("s/n�", "s.n.") |
 text_spplink$discardReason[condicion] <- mapply(
   agregar_comentario,
   text_spplink$discardReason[condicion],
-  "character values replaced with NA"
+  "values in column identifiedBy replaced with NA"
 )
 
 # Cambiar valores que no son números y estan vacios a NA
@@ -735,7 +735,6 @@ text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, agregar_punto_fin
 
 #Especificar cambios en identifiedBy
 
-# Función para agregar texto a discardReason sin borrar lo que ya había
 agregar_comentario <- function(discardReason, comentario_nuevo) {
   if (is.na(discardReason) || str_trim(discardReason) == "") {
     return(comentario_nuevo)
@@ -743,9 +742,6 @@ agregar_comentario <- function(discardReason, comentario_nuevo) {
     return(paste(discardReason, comentario_nuevo, sep = " / "))
   }
 }
-
-# Identificar las filas donde el valor ORIGINAL es distinto al MODIFICADO
-# (usamos %in% de esta forma para que también funcione bien si hay NA)
 
 filas_cambiadas <- !is.na(text_spplink$verbatimidentifiedBy) & 
                     !is.na(text_spplink$identifiedBy) &
@@ -756,5 +752,80 @@ text_spplink$discardReason[filas_cambiadas] <- mapply(
   text_spplink$discardReason[filas_cambiadas],
   "standardize author names in identifiedBy"
 )
+```
+
+#Detectar información dañada en recordedBy y corregir
+
+```{r}
+conteo_recordedBy <- text_spplink %>%
+  count(recordedBy, sort = TRUE)
+
+conteo_recordedBy
+#Agregar NA a las filas
+text_spplink <- text_spplink %>%
+  mutate(
+    recordedBy = case_when(
+      recordedBy %in% c("s/col.") ~ NA_character_,  
+      TRUE ~ recordedBy       
+    )
+  )
+
+#Especificar cambios
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+condicion <- text_spplink$recordedBy %in% c("s/col.") | 
+             is.na(text_spplink$recordedBy) | 
+             str_trim(text_spplink$recordedBy) == ""
+
+text_spplink$discardReason[condicion] <- mapply(
+  agregar_comentario,
+  text_spplink$discardReason[condicion],
+  "values in column recordedBy replaced with NA"
+)
+
+```
+
+#Cambiar simbolos raros
+
+```{r}
+
+reemplazos <- c(
+  "Sim�es"        = "Simoes",
+  "Jord�o"        = "Jordao",
+  "Tha�s"         = "Thais",
+  "Concei��o"     = "Conceicao",
+  "Caxamb�"       = "Caxambu",
+  "Vit�rio"       = "Vitorio",
+  "Guar�oni"      = "Guarconi",
+  "Ara�jo"        = "Araujo",
+  "Salom�"        = "Salome",
+  "G�es"          = "Goes",
+  "Assump��o"     = "Assumpcao",
+  "Gra�a"         = "Graca",
+  "Proc�pio"      = "Procopio",
+  "C�ceres"       = "Caceres",
+  "Mendon�a"      = "Mendonca",
+  "Trov�"         = "Trova",
+  "Lob�o"         = "Lobao",
+  "Cantau�ria"    = "Cantuaria",
+  "Gon�alves"     = "Goncalves",
+  "S�"            = "Sa",
+  "Past�rio"      = "Pastorio",
+  "Fran�a"        = "Franca",
+  "Silva-J�nior"  = "Silva-Junior",
+  "Jos�"          = "Jose",
+  "Hon�rio"       = "Honorio",
+  "C�ndido"       = "Candido",
+  "Rom�o"         = "Romao"
+)
+
+text_spplink$recordedBy <- str_replace_all(text_spplink$recordedBy, reemplazos)
+
 ```
 
