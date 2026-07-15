@@ -33,7 +33,7 @@ str(spp_link)
 dplyr::glimpse(spp_link)
 ```
 
-\
+
 
 ```{r}
 
@@ -212,7 +212,7 @@ unique_recordedBy <- data.frame(
 )
 
 #delete commons
-spp_link$identifiedBy[grepl(",", spp_link$identifieddBy)] <- ""
+
 
 #add -  surnames
 
@@ -239,6 +239,10 @@ idx <- which(recordedBy_original != spp_link$recordedBy)
 recordedBy_original <- spp_link$recordedBy
 spp_link$recordedBy <- hyphenate_surname(spp_link$recordedBy)
 idx <- which(recordedBy_original != spp_link$recordedBy)
+
+idx <- which(spp_link$recordedBy == ", ")
+
+spp_link$recordedBy[idx] <- ""
 
 recordedBy_curated <- spp_link$recordedBy 
 
@@ -306,6 +310,10 @@ spp_link$recordedBy   <- hyphenate_surname(spp_link$recordedBy)
 spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
 spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
 
+
+#delete commons
+spp_link$identifiedBy[grepl(",", spp_link$identifieddBy)] <- ""
+
 # Keep a backup of the curated column
 
 identifiedBy_curated <- spp_link$identifiedBy
@@ -314,9 +322,11 @@ identifiedBy_curated <- spp_link$identifiedBy
 
 spp_link$identifiedBy <- gsub("[()]", "", spp_link$identifiedBy)
 
-spp_link$identifiedBy[spp_link$identifiedBy == ","] <- NA
-spp_link$identifiedBy[spp_link$identifiedBy == ","] <- NA
+idx <- grepl("^\\s*,\\s*$", spp_link$identifiedBy)
 
+spp_link$recordedBy[idx] <- ""
+
+unique(spp_link$identifiedBy)
 #all data are curated for now
 ```
 
