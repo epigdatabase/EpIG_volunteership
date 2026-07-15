@@ -533,3 +533,104 @@ write.table(x = dfBRhi,
             row.names = FALSE)
 ```
 
+##carranza_av_2004
+
+```{r}
+dfJ <- read.csv("C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/1.Raw/georef__carranza_av_2004.csv",sep = ",")
+View(dfJ)
+names(dfJ) # check names of the columns
+View(dfJ) # if you want to open and see the file
+head(dfJ) # if you want to see more or less the structure of the dataframe (df)
+
+```
+
+```{r}
+library(stringr)
+library(dplyr)
+
+dfJ <- dfJ %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | stringr::str_squish(locality) == "" ~ "non_georef",
+      stringr::str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+
+if (!"ok.2" %in% names(dfJ)) {
+  if (".ok_for_analysis" %in% names(dfJ)) {
+    dfJ$ok.2 <- dfJ$.ok_for_analysis
+  } else {
+    dfJ $ok.2 <- FALSE
+  }
+}
+if (!"discardReason" %in% names(dfJ)) dfJ$discardReason <- NA_character_
+
+names(dfJ)
+head(dfJ)
+View(dfJ)
+if (!"ok.2" %in% names(dfJ)) {
+  dfJ$ok.2 <- FALSE
+}
+
+```
+
+```{r}
+#StateProvince
+idx <- 1:12
+
+dfJ$stateProvince[idx] <- "Jujuy"
+dfJ$discardReason[idx] <- "corregido, se agregó la provincia (stateProvince)"
+dfJ$ok.2[idx] <- TRUE
+
+#AsignacionLocality
+dfJ$locality[idx] <- "Potrero de Yala Provincial Park"
+dfJ$discardReason[idx] <- "corregido, se agregó la localidad"
+dfJ$ok.2[idx] <- TRUE
+```
+
+```{r}
+coord <- c(
+  3205,  # Fila 1
+  1728,  # Fila 2
+  2056,  # Fila 3
+  2158,  # Fila 4
+  3206,  # Fila 5
+  1873,  # Fila 6
+  1653,  # Fila 7
+  1653,  # Fila 8
+  692,   # Fila 9
+  517,   # Fila 10
+  2974,  # Fila 11
+  3054   # Fila 12
+)
+
+dfJ$coordinateUncertaintyInMeters[1:12] <- coord
+
+dfJ$discardReason[1:12] <- "corregido, se actualizó coordinateUncertaintyInMeters"
+dfJ$ok.2[1:12] <- TRUE
+```
+
+```{r}
+write.table(x = dfJ, 
+            file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__carranza_av_2004.csv", 
+            sep = ",",       
+            dec = ".",       
+            na = "NA", 
+            row.names = FALSE)
+```
+
+##carranza_av_2023
+
+```{r}
+dfJk <- read.csv("C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/1.Raw/georef__carranza_av_2023.csv",sep = ",")
+View(dfJk)
+names(dfJk) # check names of the columns
+View(dfJk) # if you want to open and see the file
+head(dfJk) # if you want to see more or less the structure of the dataframe (df)
+
+```
+
+
