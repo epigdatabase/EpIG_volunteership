@@ -326,6 +326,12 @@ idx <- grepl("^\\s*,\\s*$", spp_link$identifiedBy)
 
 spp_link$recordedBy[idx] <- ""
 
+idx <- trimws(spp_link$identifiedBy) == ","
+
+spp_link$identifiedBy[idx] <- NA_character_
+
+dput(unique(spp_link$identifiedBy[grepl(",", spp_link$identifiedBy, fixed = TRUE)]))
+
 unique(spp_link$identifiedBy)
 #all data are curated for now
 ```
