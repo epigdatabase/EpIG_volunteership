@@ -211,6 +211,9 @@ unique_recordedBy <- data.frame(
   recordedBy = sort(unique(spp_link$recordedBy))
 )
 
+#delete commons
+spp_link$identifiedBy[grepl(",", spp_link$identifieddBy)] <- ""
+
 #add -  surnames
 
 hyphenate_surname <- function(x) {
