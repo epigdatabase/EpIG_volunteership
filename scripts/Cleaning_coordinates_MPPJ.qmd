@@ -273,9 +273,22 @@ idx <- which(voluntarios$dataset == "carranza_av_2023")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Johan"
     voluntarios$startingDate[idx] <- "11/07/26"
-    #voluntarios$finishingDate[idx] <- "11/07/26"
+    voluntarios$finishingDate[idx] <- "15/07/26"
 }
 
+idx <- which(voluntarios$dataset == "carranza_av_2004")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Johan"
+    voluntarios$startingDate[idx] <- "11/07/26"
+    voluntarios$finishingDate[idx] <- "15/07/26"
+}
+
+idx <- which(voluntarios$dataset == "BA2025")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Johan"
+    voluntarios$startingDate[idx] <- "15/07/26"
+    #voluntarios$finishingDate[idx] <- "11/07/26"
+}
 
 #GABRIEL MONTOYA
 idx <- which(voluntarios$dataset == "assis_i_2026_diagonal")
