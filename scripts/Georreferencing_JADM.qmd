@@ -582,13 +582,28 @@ if (!"ok.2" %in% names(dfJ)) {
 idx <- 1:12
 
 dfJ$stateProvince[idx] <- "Jujuy"
-dfJ$discardReason[idx] <- "corregido, se agregó la provincia (stateProvince)"
+
 dfJ$ok.2[idx] <- TRUE
 
 #AsignacionLocality
-dfJ$locality[idx] <- "Potrero de Yala Provincial Park"
-dfJ$discardReason[idx] <- "corregido, se agregó la localidad"
-dfJ$ok.2[idx] <- TRUE
+idx <- 1:12
+
+locality_en <- c(
+  "Potrero de Yala Provincial Park, Loza Hill",
+  "El Rodeo Lagoon",
+  "Yala, Loza Hill",
+  "Loza Hill, ascent after the landslide (Yala)",
+  "Loza Hill",
+  "Yala, El Rodeo Lagoon",
+  "Potrero de Yala Provincial Park, Laguna Hill",
+  "Yala, Laguna Hill",
+  "Yala, San Antonio Hill",
+  "Yala, Los Noques Lagoon",
+  "Yala, Las Varas Ravine",
+  "Las Varas Ravine"
+)
+
+dfJ$locality[idx] <- locality_en
 ```
 
 ```{r}
@@ -609,7 +624,7 @@ coord <- c(
 
 dfJ$coordinateUncertaintyInMeters[1:12] <- coord
 
-dfJ$discardReason[1:12] <- "corregido, se actualizó coordinateUncertaintyInMeters"
+dfJ$discardReason[1:12] <- "corregido, se agregó la provincia (stateProvince) Jujuy, se tradujo locality al inglés y se calculó coordinateUncertaintyInMeters"
 dfJ$ok.2[1:12] <- TRUE
 ```
 
@@ -633,4 +648,327 @@ head(dfJk) # if you want to see more or less the structure of the dataframe (df)
 
 ```
 
+```{r}
+library(stringr)
+library(dplyr)
 
+str(dfJk)
+
+if (!"ok.2" %in% names(dfJk)) {
+  if (".ok_for_analysis" %in% names(dfJk)) {
+    dfJk$ok.2 <- dfJk$.ok_for_analysis
+  } else {
+    dfJk$ok.2 <- FALSE
+  }
+}
+
+if (!"discardReason" %in% names(dfJk)) {
+  dfJk$discardReason <- NA_character_
+}
+
+names(dfJk)
+head(dfJk)
+View(dfJk)
+```
+
+```{r}
+idx <- 1:13
+
+dfJk$stateProvince[idx] <- "Jujuy"
+
+dfJk$ok.2[idx] <- TRUE
+
+locality_en <- c(
+  "Calilegua National Park. Mesada de las Colmenas Sector. Trail to the waterfall",
+  "Calilegua National Park. Mesada de las Colmenas Sector",
+  "Calilegua National Park. Trail from Los Toldos to Totorillas Stream headwaters",
+  "Calilegua National Park, southern sector, southern Aguas Negras stream",
+  "Calilegua National Park. Aguas Negras Sector",
+  "Calilegua National Park, Caimancito",
+  "Calilegua National Park, provincial route 83",
+  "Calilegua National Park, provincial route 83",
+  "Calilegua National Park, national route 83 sector, Aguas Negras stream",
+  "Calilegua National Park, provincial route 83",
+  "Calilegua National Park. Eastern Sector. Caimancito Subsector",
+  "Calilegua National Park. Eastern Sector. Caimancito",
+  "Calilegua National Park. Eastern Sector. Caimancito"
+)
+
+dfJk$locality[idx] <- locality_en
+```
+
+```{r}
+idx <- 1:13
+
+coord_uncertainty <- c(
+  7106, 7125, 11020, 17786, 631, 30765, 5892,
+  5892, 596, 8895, 28633, 29247, 29230
+)
+
+dfJk$coordinateUncertaintyInMeters[idx] <- coord_uncertainty
+
+dfJk$discardReason[idx] <- "corregido, se agregó la provincia (stateProvince) Jujuy, se tradujo locality al inglés y se calculó coordinateUncertaintyInMeters"
+```
+
+```{r}
+write.table(x = dfJ, 
+            file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__carranza_av_2023.csv", 
+            sep = ",",       
+            dec = ".",       
+            na = "NA", 
+            row.names = FALSE)
+```
+
+##BA2025
+
+```{r}
+dfEi <- read.csv("C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/1.Raw/georef__BA2025.csv",sep = ",")
+View(dfEi)
+names(dfEi) # check names of the columns
+View(dfEi) # if you want to open and see the file
+head(dfEi) # if you want to see more or less the structure of the dataframe (df)
+```
+
+```{r}
+library(stringr)
+library(dplyr)
+
+str(dfEi)
+
+if (!"ok.2" %in% names(dfEi)) {
+  if (".ok_for_analysis" %in% names(dfEi)) {
+    dfEi$ok.2 <- dfEi$.ok_for_analysis
+  } else {
+    dfEi$ok.2 <- FALSE
+  }
+}
+
+if (!"discardReason" %in% names(dfEi)) {
+  dfEi$discardReason <- NA_character_
+}
+
+names(dfEi)
+head(dfEi)
+View(dfEi)
+```
+
+```{r}
+idx <- which(dfEi$occurrenceID %in% c("BA2025_140", "BA2025_159"))
+
+dfEi$country[idx]     <- "Chile"
+dfEi$countryCode[idx] <- "CL"
+
+dfEi$discardReason[idx] <- paste0(
+  coalesce(dfEi$discardReason[idx], ""),
+  " | country/countryCode corregido de Switzerland/CH a Chile/CL (Taltal y Copiapó son ciudades chilenas)"
+)
+
+dfEi$ok.2[idx] <- TRUE
+```
+
+```{r}
+#Argentina
+dfEi <- dfEi %>%
+  mutate(
+    stateProvince = case_when(
+      !is.na(stateProvince) & str_squish(stateProvince) != "" ~ stateProvince,
+      country != "Argentina" ~ stateProvince,
+
+      str_detect(locality, regex("^Misiones|Cataratas del Iguaz|^San Ignacio$|Loreto \\(ruinas\\)|^Loreto$|Río Uruguaí",
+                                  ignore_case = TRUE)) ~ "Misiones",
+
+      str_detect(locality, regex("^Buenos Aires|Delta del Río Paraná|Otamendi|^Bernal$|Carmen de Patagones|desembocadura del Río Salado|Estación Florida",
+                                  ignore_case = TRUE)) ~ "Buenos Aires",
+
+      str_detect(locality, regex("San Salvador de Jujuy|Humahuaca|^Ledesma$|Valle Grande|^Cobos$|Cerro de Calilegua|Río Zapala",
+                                  ignore_case = TRUE)) ~ "Jujuy",
+
+      str_detect(locality, regex("^Alemania$|Coronel Juan Solá|^Orán,|^Cafayate$|Quebrada de San Lorenzo|Sierra de la Candelaria|El Antigal",
+                                  ignore_case = TRUE)) ~ "Salta",
+
+      str_detect(locality, regex("^Vipos$|^Tapia$|Yerba Buena|Siambón|Villa Nougués|El Timbó|Cadillal|Quebrada de Lules|San Miguel de Tucumán|Amaicha del Valle|Tapia a Raco|Cadillal a Tapia|Valle de Tafí|La Hoyada|Colalao del Valle|Tucumán, bosques",
+                                  ignore_case = TRUE)) ~ "Tucumán",
+
+      str_detect(locality, regex("Unquillo|Dique La Ciénaga|La Cumbre|Sierra Chica|Sierra Achala|^San Javier$",
+                                  ignore_case = TRUE)) ~ "Córdoba",
+
+      str_detect(locality, regex("Curuzú Cuatiá", ignore_case = TRUE)) ~ "Corrientes",
+
+      str_detect(locality, regex("Valle de Santa María", ignore_case = TRUE)) ~ "Catamarca",
+
+      TRUE ~ stateProvince
+    ),
+    discardReason = case_when(
+      country == "Argentina" & is.na(stateProvince) ~ "stateProvince ambiguo, requiere verificación manual (etiqueta original)",
+      !is.na(stateProvince) & country == "Argentina" ~ paste0(coalesce(discardReason, ""), " | stateProvince inferido por locality"),
+      TRUE ~ discardReason
+    )
+  )
+```
+
+```{r}
+#Bolivia
+dfEi <- dfEi %>%
+  mutate(
+    stateProvince = case_when(
+      !is.na(stateProvince) & str_squish(stateProvince) != "" ~ stateProvince,
+      country != "Bolivia" ~ stateProvince,
+
+      str_detect(locality, regex("Buenavista|Pampa Grande|Mairana|Santa Cruz de la Sierra",
+                                  ignore_case = TRUE)) ~ "Santa Cruz",
+
+      TRUE ~ stateProvince
+    ),
+    discardReason = case_when(
+      country == "Bolivia" & str_detect(locality, regex("Buenavista|Pampa Grande|Mairana|Santa Cruz de la Sierra", ignore_case = TRUE)) ~
+        paste0(coalesce(discardReason, ""), " | stateProvince inferido por locality (Santa Cruz)"),
+      country == "Bolivia" & (is.na(stateProvince) | str_squish(stateProvince) == "") ~
+        paste0(coalesce(discardReason, ""), " | stateProvince ambiguo, requiere verificación manual"),
+      TRUE ~ discardReason
+    ),
+    ok.2 = case_when(
+      country == "Bolivia" & str_detect(locality, regex("Buenavista|Pampa Grande|Mairana|Santa Cruz de la Sierra", ignore_case = TRUE)) ~ TRUE,
+      TRUE ~ ok.2
+    )
+  )
+```
+
+```{r}
+#Paraguay
+
+stateProvince_manual <- c(
+  "BA2025_001" = "Alto Parana",
+  "BA2025_026" = "Concepcion",
+  "BA2025_027" = "Concepcion",
+  "BA2025_075" = "Amambay",
+  "BA2025_076" = "Paraguari",
+  "BA2025_077" = "Paraguari",
+  "BA2025_078" = "Caaguazu",
+  "BA2025_079" = "Caaguazu",
+  "BA2025_085" = "Paraguari",
+  "BA2025_089" = "Paraguari",
+  "BA2025_095" = "Alto Parana",
+  "BA2025_096" = "Alto Parana",
+  "BA2025_113" = "Presidente Hayes",
+  "BA2025_130" = "Presidente Hayes",
+  "BA2025_141" = "Presidente Hayes",
+  "BA2025_179" = "Caazapa",
+  "BA2025_184" = "Amambay",
+  "BA2025_222" = "San Pedro",
+  "BA2025_223" = "Alto Paraguay",
+  "BA2025_230" = "Cordillera",
+  "BA2025_233" = "Alto Paraguay",
+  "BA2025_247" = "Alto Paraguay",
+  "BA2025_259" = "Canindeyu",
+  "BA2025_260" = "Canindeyu",
+  "BA2025_262" = "Cordillera"
+)
+
+for (id in names(stateProvince_manual)) {
+  row_idx <- which(dfEi$occurrenceID == id)
+  if (length(row_idx) == 0) next
+
+  dfEi$stateProvince[row_idx] <- stateProvince_manual[id]
+
+  already_logged <- str_detect(coalesce(dfEi$discardReason[row_idx], ""), "stateProvince corregido manualmente")
+  if (!already_logged) {
+    dfEi$discardReason[row_idx] <- paste0(
+      coalesce(dfEi$discardReason[row_idx], ""),
+      " | stateProvince corregido manualmente según etiqueta original"
+    )
+  }
+  dfEi$ok.2[row_idx] <- TRUE
+} 
+
+#Locality
+
+locality_en <- c(
+  "BA2025_001" = "Puerto Bertoni",
+  "BA2025_026" = "San Lazaro Colony",
+  "BA2025_027" = "San Lazaro Colony",
+  "BA2025_075" = "Amambay Mountains, Torin Hill",
+  "BA2025_076" = "Acahay Hill",
+  "BA2025_077" = "Acahay Hill",
+  "BA2025_078" = "Primera Estate",
+  "BA2025_079" = "Primera Estate",
+  "BA2025_085" = "Acahay Hill",
+  "BA2025_089" = "Acahay Hill",
+  "BA2025_095" = "Itakyry",
+  "BA2025_096" = "Itakyry",
+  "BA2025_113" = "Paraguayan Chaco, Loma Pora Ranch",
+  "BA2025_130" = "Paraguayan Chaco, Loma Pora Ranch",
+  "BA2025_141" = "Pink flowers and bracts",
+  "BA2025_179" = "Fulgencio Yegros, in the woodlands",
+  "BA2025_184" = "Mountain woodlands",
+  "BA2025_222" = "Paraguayan Chaco, Alegria Ranch",
+  "BA2025_223" = "Puerto Fonciere, on the limestone bluff of the Paraguay River",
+  "BA2025_230" = "San Bernardino, Ypacarai Lagoon",
+  "BA2025_233" = "Paraguayan Chaco, Puerto Casado woodlands",
+  "BA2025_247" = "Puerto Antequera, bluff of the Paraguay River",
+  "BA2025_259" = "Mbaracayú Forest Nature Reserve",
+  "BA2025_260" = "Mbaracayú Forest Nature Reserve",
+  "BA2025_262" = "Ybytyruzú Mountains"
+)
+
+for (id in names(locality_en)) {
+  row_idx <- which(dfEi$occurrenceID == id)
+  if (length(row_idx) == 0) next
+  dfEi$locality[row_idx] <- locality_en[id]
+}
+```
+
+```{r}
+dfEi <- dfEi %>%
+  mutate(
+    stateProvince = case_when(
+      !is.na(stateProvince) & str_squish(stateProvince) != "" ~ stateProvince,
+
+      # Brasil
+      country == "Brazil" & str_detect(locality, regex("Cubatão", ignore_case = TRUE)) ~ "São Paulo",
+      country == "Brazil" & str_detect(locality, regex("Penha de França|Serra do Ambrosio|Barro Preto", ignore_case = TRUE)) ~ "Minas Gerais",
+      country == "Brazil" & str_detect(locality, regex("Itatiaia", ignore_case = TRUE)) ~ "Rio de Janeiro",
+
+      # Cuba
+      country == "Cuba" & str_detect(locality, regex("Soledad", ignore_case = TRUE)) ~ "Cienfuegos",
+      country == "Cuba" & str_detect(locality, regex("Trinidad Hills", ignore_case = TRUE)) ~ "Sancti Spíritus",
+
+      # Estados Unidos
+      country == "United States" & str_detect(locality, regex("Jacksonville", ignore_case = TRUE)) ~ "Florida",
+
+      # México
+      country == "Mexico" & str_detect(locality, regex("Xicotepec", ignore_case = TRUE)) ~ "Puebla",
+
+      # Colombia
+      country == "Colombia" & str_detect(locality, regex("Turbaco", ignore_case = TRUE)) ~ "Bolívar",
+
+      # Uruguay
+      country == "Uruguay" & str_detect(locality, regex("Jardín Botánico", ignore_case = TRUE)) ~ "Montevideo",
+      country == "Uruguay" & str_detect(locality, regex("Cerro Arequita", ignore_case = TRUE)) ~ "Lavalleja",
+
+      TRUE ~ stateProvince
+    ),
+    discardReason = case_when(
+      country %in% c("Brazil","Cuba","United States","Mexico","Colombia","Uruguay") &
+        !is.na(stateProvince) & str_squish(stateProvince) != "" ~
+        paste0(coalesce(discardReason, ""), " | stateProvince inferido por locality"),
+      country %in% c("Brazil","Cuba","United States","Mexico","Colombia","Uruguay") &
+        (is.na(stateProvince) | str_squish(stateProvince) == "") ~
+        paste0(coalesce(discardReason, ""), " | stateProvince ambiguo, requiere verificación manual"),
+      TRUE ~ discardReason
+    ),
+    ok.2 = case_when(
+      country %in% c("Brazil","Cuba","United States","Mexico","Colombia","Uruguay") &
+        !is.na(stateProvince) & str_squish(stateProvince) != "" ~ TRUE,
+      TRUE ~ ok.2
+    )
+  ) 
+```
+
+```{r}
+write.table(x = dfEi, 
+            file = "C:/Users/User/Documents/EpiG/EpIG_volunteership/data/Georreferencing/2.Processed/georef__BA2025.csv", 
+            sep = ",",       
+            dec = ".",       
+            na = "NA", 
+            row.names = FALSE)
+```
