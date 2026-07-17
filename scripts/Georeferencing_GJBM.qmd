@@ -282,3 +282,15 @@ write.csv(dfAssisDiagonal, file = "C:/Users/gelar/Desktop/Voluntariado/EpIG_volu
 
 ```
 
+#Jimenez_d_2023
+```{r}
+dfAssisDiagonal <- read.csv2("./data/Georreferencing/1.Raw/georef__assis_i_2026_diagonal.csv",sep = ",")
+
+names(dfAs) # check names of the columns
+View(dfAssisDiagonal)
+# if you want to open and see the file
+str(dfAssisDiagonal) #solo
+headdfAssisDiagonalhead(dfCR) # if you want to see more or less the structure of the dataframe (df)
+
+```
+
