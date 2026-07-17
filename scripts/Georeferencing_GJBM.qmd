@@ -235,15 +235,50 @@ limpiar_texto <- function(texto) {
   return(texto_limpio)
 }
 
-dfAssisDiagonal$stateProvince_geo <- limpiar_texto(dfAssisDiagonal$stateProvince_geo)
+dfAssisDiagonal$stateProvince <- limpiar_texto(dfAssisDiagonal$stateProvince)
 
-dfAssisDiagonal$locality_geo <- limpiar_texto(dfAssisDiagonal$locality_geo)
+dfAssisDiagonal$locality <- limpiar_texto(dfAssisDiagonal$locality)
 ```
 
 
 ```{r}
 # CORRER AL FINAL
 write.csv(dfAssisDiagonal, file = "C:/Users/gelar/Desktop/X/AssisDiagonal/AssisDiagonal.csv")
+
+```
+
+```{r}
+dfAssisDiagonalCorregido <- read.csv2("C:/Users/gelar/Desktop/X/AssisDiagonal/AssisDiagonal.csv",sep = ";")
+str(dfAssisDiagonalCorregido)
+str(dfAssisDiagonal)
+```
+
+```{r}
+dfAssisDiagonal <- dfAssisDiagonal %>%
+
+  left_join(
+    dfAssisDiagonalCorregido %>% select(
+      occurrenceID, 
+      locality_geo1 = locality_geo, 
+      stateProvince_geo1 = stateProvince_geo
+    ),
+    by = "occurrenceID"
+  ) %>%
+  
+
+  mutate(
+    locality = coalesce(locality_geo1, locality_geo),
+    stateProvince = coalesce(stateProvince_geo1, stateProvince_geo)
+  ) %>%
+  
+  # 3. Eliminamos las columnas temporales para dejar la base de datos limpia
+  select(-locality_geo1, -stateProvince_geo1)
+dfAssisDiagonal$ok.2 <- T
+dfAssisDiagonal$discardReason <- "Inverse Geocoding, all localities and stateProvince where completed"
+```
+
+```{r}
+write.csv(dfAssisDiagonal, file = "C:/Users/gelar/Desktop/Voluntariado/EpIG_volunteership/data/Georreferencing/2.Processed/georef__georef__assis_i_2026_diagonal.csv")
 
 ```
 
