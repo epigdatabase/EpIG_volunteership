@@ -1,5 +1,6 @@
 ---
-title: "Cleaning data for occurrence and community databases" "Database #1" 
+title: "Cleaning data for occurrence and community databases" "Database #2 - -text_literature2021 " 
+
 subtitle: 'EpIG volunteership'
 format: html
 editor: visual
@@ -17,11 +18,11 @@ library(tidyverse)
 library(stringr)
 library(readr)
 library(sf)
-#library(rWCVP)
+library(rWCVP)
 library(CoordinateCleaner)
 library(ggplot2) 
 
-spp_link <- read.csv("data/Text/1_Raw/text__CR2024.csv")
+spp_link <- read.csv("data/Text/1_Raw/text__literature2021.csv")
 
 head(spp_link)
 View(spp_link)
@@ -39,21 +40,21 @@ dplyr::glimpse(spp_link)
 
 #Dataset Structure
 
-str(spp_link$taxonRank) #[1:71897] "SPECIES"
-str(spp_link$lifeForm) #[1:71897] "E"
-str(spp_link$institutionCode) #[1:71897] "CR" (It doesn't correct. The column name should be countryCode)
-str(spp_link$eventDate) #[1:71897] All dates are completed
-str(spp_link$ocurrenceID)
-str(spp_link$basisOfRecord) #"PreservedSpecimen"
-str(spp_link$typeStatus) # [1:71897] NA
-str(spp_link$associatedReferences) #[1:71897]  NA
-str(spp_link$collectionCode) #[1:71897] NA
-str(spp_link$recordedBy) #[1:71897] Authors
-str(spp_link$identifiedBy) #[1:71897] Authors
-str(spp_link$datasetID) #[1:71897] CR2024
-str(spp_link$matchCodeEpig) #[1:71897] Numbers - not DarwinCore
-str(spp_link$matchedNameEpig) #[1:71897] Species
-str(spp_link$typeStatus) #[1:71897] NA
+str(spp_link$taxonRank) #[1:10766] "SPECIES"
+str(spp_link$lifeForm) #[1:10766] "NA"
+str(spp_link$institutionCode) #[1:10766] "NA" 
+str(spp_link$eventDate) #[1:10766] "NA" 
+str(spp_link$ocurrenceID) #[1:10766] "NULL" 
+str(spp_link$basisOfRecord) ##[1:10766] "MaterialCitation" 
+str(spp_link$typeStatus) # #[1:10766] "NULL"  "Text"
+str(spp_link$associatedReferences) #[1:10766]  - Needs review
+str(spp_link$collectionCode) #[1:10766]
+str(spp_link$recordedBy) ##[1:10766] Authors "NA"
+str(spp_link$identifiedBy) ##[1:10766] "NA"
+str(spp_link$datasetID) #[1:10766] "literature2021"
+str(spp_link$matchCodeEpig) ##[1:10766]] Numbers ok
+str(spp_link$matchedNameEpig) #[1:71897] Species ok
+str(spp_link$typeStatus) ##[1:10766] "Text"
 ```
 
 
