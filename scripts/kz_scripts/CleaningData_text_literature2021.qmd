@@ -67,25 +67,25 @@ sort(unique(spp_link$basisOfRecord)) #ok
 
 sort(unique(spp_link$typeStatus)) #ok
 
-sort(unique(spp_link$associatedReferences)) #ok
+sort(unique(spp_link$associatedReferences)) #needs review
 
-sort(unique(spp_link$institutionCode)) #change by countryCode
+sort(unique(spp_link$institutionCode)) #ok
 
-sort(unique(spp_link$taxonRank))#ok
+sort(unique(spp_link$taxonRank))#ok "FAMILY"  "GENUS"   "HYBRID"  "SPECIES"
 
 sort(unique(spp_link$collectionCode)) #ok
 
-sort(unique(spp_link$recordedBy)) #needs curation
+sort(unique(spp_link$recordedBy)) #ok NA
 
-sort(unique(spp_link$recordNumber)) #review this "11.001 B"
+sort(unique(spp_link$recordNumber)) #ok NA
 
 sort(unique(spp_link$identifiedBy)) #needs curation
 
-sort(unique(spp_link$lifeForm)) #needs curation
+sort(unique(spp_link$lifeForm)) #ok NA
 
 sort(unique(spp_link$datasetID)) #ok
 
-sort(unique(spp_link$matchCodeEpig)) #ok 
+sort(unique(spp_link$matchCodeEpig)) #ok  "0, 1, 2 or 3"
 
 sort(unique(spp_link$matchedNameEpig)) #0, 1, 2 or 3
 
