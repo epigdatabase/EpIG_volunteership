@@ -39,9 +39,9 @@ dplyr::glimpse(spp_link)
 
 #Dataset Structure
 
-str(spp_link$taxonRank) #[1:71897] "SPECIES"
-str(spp_link$lifeForm) #[1:71897] "E"
-str(spp_link$institutionCode) #[1:71897] "CR" (It doesn't correct. The column name should be countryCode)
+str(spp_link$taxonRank) #[1:10766] "SPECIES"
+str(spp_link$lifeForm) #[1:10766] "NA"
+str(spp_link$institutionCode) #[1:10766] "NA" 
 str(spp_link$eventDate) #[1:71897] All dates are completed
 str(spp_link$ocurrenceID)
 str(spp_link$basisOfRecord) #"PreservedSpecimen"
