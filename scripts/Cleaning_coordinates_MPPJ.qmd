@@ -295,9 +295,15 @@ idx <- which(voluntarios$dataset == "assis_i_2026_diagonal")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Gabriel Montoya"
     voluntarios$startingDate[idx] <- "01/07/26"
+    voluntarios$finishingDate[idx] <- "17/07/25"
 }
 
-
+idx <- which(voluntarios$dataset == "jimenez_d_2023_usumacinta")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Gabriel Montoya"
+    voluntarios$startingDate[idx] <- "17/07/26"
+    #voluntarios$finishingDate[idx] <- "17/07/25"
+}
 
 
 
