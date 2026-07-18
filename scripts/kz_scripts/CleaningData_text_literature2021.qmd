@@ -1,0 +1,554 @@
+---
+title: "Cleaning data for occurrence and community databases" "Database #1" 
+subtitle: 'EpIG volunteership'
+format: html
+editor: visual
+date: today
+author: "Kelly Zuluaga" 
+editor_options: 
+  chunk_output_type: console
+---
+
+#Libraries
+
+```{r}
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+#library(rWCVP)
+library(CoordinateCleaner)
+library(ggplot2) 
+
+spp_link <- read.csv("data/Text/1_Raw/text__CR2024.csv")
+
+head(spp_link)
+View(spp_link)
+str(spp_link)
+glimpse(spp_link)
+
+
+str(spp_link)
+dplyr::glimpse(spp_link)
+```
+
+
+
+```{r}
+
+#Dataset Structure
+
+str(spp_link$taxonRank) #[1:71897] "SPECIES"
+str(spp_link$lifeForm) #[1:71897] "E"
+str(spp_link$institutionCode) #[1:71897] "CR" (It doesn't correct. The column name should be countryCode)
+str(spp_link$eventDate) #[1:71897] All dates are completed
+str(spp_link$ocurrenceID)
+str(spp_link$basisOfRecord) #"PreservedSpecimen"
+str(spp_link$typeStatus) # [1:71897] NA
+str(spp_link$associatedReferences) #[1:71897]  NA
+str(spp_link$collectionCode) #[1:71897] NA
+str(spp_link$recordedBy) #[1:71897] Authors
+str(spp_link$identifiedBy) #[1:71897] Authors
+str(spp_link$datasetID) #[1:71897] CR2024
+str(spp_link$matchCodeEpig) #[1:71897] Numbers - not DarwinCore
+str(spp_link$matchedNameEpig) #[1:71897] Species
+str(spp_link$typeStatus) #[1:71897] NA
+```
+
+
+```{r}
+#unique values in columns
+
+sort(unique(spp_link$occurrenceID)) #ok
+
+sort(unique(spp_link$basisOfRecord)) #ok
+
+sort(unique(spp_link$typeStatus)) #ok
+
+sort(unique(spp_link$associatedReferences)) #ok
+
+sort(unique(spp_link$institutionCode)) #change by countryCode
+
+sort(unique(spp_link$taxonRank))#ok
+
+sort(unique(spp_link$collectionCode)) #ok
+
+sort(unique(spp_link$recordedBy)) #needs curation
+
+sort(unique(spp_link$recordNumber)) #review this "11.001 B"
+
+sort(unique(spp_link$identifiedBy)) #needs curation
+
+sort(unique(spp_link$lifeForm)) #needs curation
+
+sort(unique(spp_link$datasetID)) #ok
+
+sort(unique(spp_link$matchCodeEpig)) #ok 
+
+sort(unique(spp_link$matchedNameEpig)) #0, 1, 2 or 3
+
+sort(unique(spp_link$decimalLatitude)) #ok
+
+sort(unique(spp_link$decimalLongitude)) #ok
+
+sort(unique(spp_link$eventDate)) #all dates are ok. Year column doesn't need
+
+sort(unique(spp_link$changes)) #ok
+
+colnames(spp_link)
+```
+
+```{r}
+#High detail inspection of data
+#========================================================================
+#ocurrenceID
+#========================================================================
+
+str(spp_link$occurrenceID)
+
+summary(spp_link$occurrenceID)
+
+sum(is.na(spp_link$occurrenceID))
+
+sum(spp_link$occurrenceID == "")
+
+length(unique(spp_link$occurrenceID))
+
+nrow(spp_link)
+
+anyDuplicated(spp_link$occurrenceID)
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$occurrenceID)
+
+#Not modifications
+
+#========================================================================
+
+#basisOfRecord
+
+str(spp_link$basisOfRecord)
+
+summary(spp_link$basisOfRecord)
+
+sort(unique(spp_link$basisOfRecord))
+
+table(spp_link$basisOfRecord,
+      useNA = "ifany")
+
+sum(is.na(spp_link$basisOfRecord))
+
+sum(spp_link$basisOfRecord == "")
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$basisOfRecord)
+
+#complies with Darwin Core requirements
+
+#========================================================================
+
+#taxonRank
+
+
+str(spp_link$taxonRank)
+
+summary(spp_link$taxonRank)
+
+sort(unique(spp_link$taxonRank))
+
+table(spp_link$taxonRank,
+      useNA = "ifany")
+
+sum(is.na(spp_link$taxonRank))
+
+sum(spp_link$taxonRank == "", na.rm = TRUE)
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$taxonRank)
+
+
+#taxonRank complies with Darwin Core requirements. At the word level, it's correct. However, Darwin Core spells it “subspecies” in lowercase.
+
+
+#==============================================================================
+
+#recordedBy
+
+str(spp_link$recordedBy)
+
+summary(spp_link$recordedBy)
+
+length(unique(spp_link$recordedBy))
+
+sum(is.na(spp_link$recordedBy))
+
+sum(spp_link$recordedBy == "")
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$recordedBy)
+
+grep("^\\s|\\s$", spp_link$recordedBy)
+
+grep("  +", spp_link$recordedBy)
+
+grep(",,", spp_link$recordedBy)
+
+grep("\\n|\\r", spp_link$recordedBy)
+
+grep("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$recordedBy)
+
+unique(spp_link$recordedBy[
+  grepl("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$recordedBy)
+])
+
+#remove accents marks 
+
+delete_accents <- function(x) {
+  iconv(x, from = "UTF-8", to = "ASCII//TRANSLIT")
+}
+
+spp_link$recordedBy   <- delete_accents(spp_link$recordedBy)
+spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
+
+unique_recordedBy <- data.frame(
+  recordedBy = sort(unique(spp_link$recordedBy))
+)
+
+#delete commons
+
+
+#add -  surnames
+
+hyphenate_surname <- function(x) {
+  sapply(x, function(i) {
+    if (is.na(i) || !grepl(",", i)) return(i)
+
+    partes <- strsplit(i, ",", fixed = TRUE)[[1]]
+
+    apellido <- trimws(partes[1])
+    nombre   <- trimws(paste(partes[-1], collapse = ","))
+
+    apellido <- gsub(" +", "-", apellido)
+
+    paste(apellido, nombre, sep = ", ")
+  }, USE.NAMES = FALSE)
+}
+
+spp_link$recordedBy <- hyphenate_surname(spp_link$recordedBy)
+
+recordedBy_original <- spp_link$recordedBy
+
+idx <- which(recordedBy_original != spp_link$recordedBy)
+recordedBy_original <- spp_link$recordedBy
+spp_link$recordedBy <- hyphenate_surname(spp_link$recordedBy)
+idx <- which(recordedBy_original != spp_link$recordedBy)
+
+idx <- which(spp_link$recordedBy == ", ")
+
+spp_link$recordedBy[idx] <- ""
+
+recordedBy_curated <- spp_link$recordedBy 
+
+View(spp_link["recordedBy"])
+```
+
+```{r}
+# =============================================================================
+# identifiedBy 
+# =============================================================================
+
+# Inspection
+
+str(spp_link$identifiedBy)
+
+summary(spp_link$identifiedBy)
+
+length(unique(spp_link$identifiedBy))
+
+sum(is.na(spp_link$identifiedBy))
+
+sum(spp_link$identifiedBy == "")
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$identifiedBy)
+
+grep("^\\s|\\s$", spp_link$identifiedBy)
+
+grep("  +", spp_link$identifiedBy)
+
+grep(",,", spp_link$identifiedBy)
+
+grep("\\n|\\r", spp_link$identifiedBy)
+
+grep("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$identifiedBy)
+
+unique(
+  spp_link$identifiedBy[
+    grepl("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$identifiedBy)
+  ]
+)
+
+
+# Remove accent marks
+
+
+spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
+
+
+# Standardize compound surnames
+
+spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
+
+
+# Review unique values
+
+unique_identifiedBy <- data.frame(
+  identifiedBy = sort(unique(spp_link$identifiedBy))
+)
+
+View(unique_identifiedBy)
+
+spp_link$recordedBy   <- delete_accents(spp_link$recordedBy)
+spp_link$recordedBy   <- hyphenate_surname(spp_link$recordedBy)
+
+spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
+spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
+
+
+#delete commons
+spp_link$identifiedBy[grepl(",", spp_link$identifieddBy)] <- ""
+
+# Keep a backup of the curated column
+
+identifiedBy_curated <- spp_link$identifiedBy
+
+#delete "()"
+
+spp_link$identifiedBy <- gsub("[()]", "", spp_link$identifiedBy)
+
+idx <- grepl("^\\s*,\\s*$", spp_link$identifiedBy)
+
+spp_link$recordedBy[idx] <- ""
+
+idx <- trimws(spp_link$identifiedBy) == ","
+
+spp_link$identifiedBy[idx] <- NA_character_
+
+dput(unique(spp_link$identifiedBy[grepl(",", spp_link$identifiedBy, fixed = TRUE)]))
+
+unique(spp_link$identifiedBy)
+#all data are curated for now
+```
+
+
+```{r}
+ #=============================================================================
+# lifeForm
+# =============================================================================
+
+View(data.frame(
+  lifeForm = sort(unique(spp_link$lifeForm))
+))
+
+str(spp_link$lifeForm)
+
+summary(spp_link$lifeForm)
+
+length(unique(spp_link$lifeForm))
+
+sort(unique(spp_link$lifeForm))
+
+table(spp_link$lifeForm,
+      useNA = "ifany")
+
+sum(is.na(spp_link$lifeForm))
+
+sum(spp_link$lifeForm == "", na.rm = TRUE)
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$lifeForm)
+
+grep("^\\s|\\s$", spp_link$lifeForm)
+
+grep("  +", spp_link$lifeForm)
+
+#delete final dot
+
+spp_link$lifeForm <- gsub("\\.$", "", spp_link$lifeForm)
+
+#correction of typograhic mistakes
+
+spp_link$lifeForm <- gsub(
+  "terestes",
+  "terrestres",
+  spp_link$lifeForm
+)
+
+spp_link$lifeForm <- gsub(
+  "epíiftas",
+  "epífitas",
+  spp_link$lifeForm
+)
+
+spp_link$lifeForm <- gsub(
+  "epìfitas",
+  "epífitas",
+  spp_link$lifeForm
+)
+
+spp_link$lifeForm <- gsub(
+  "autòtrofas",
+  "autótrofas",
+  spp_link$lifeForm
+)
+
+#delete all accents
+
+spp_link$lifeForm <- delete_accents(spp_link$lifeForm)
+
+#change "Sufructises" by "Sufrutices", corrected spelling form
+
+sum(grepl("Sufrúctises|Sufructises", spp_link$lifeForm))
+spp_link$lifeForm <- gsub(
+  "Sufrúctises|Sufructises",
+  "Sufrutices",
+  spp_link$lifeForm
+)
+
+#change ", , ," in lifeForm (287 celds)
+grep(", , ,", spp_link$lifeForm, value = TRUE)
+sum(grepl(", , ,", spp_link$lifeForm))
+
+spp_link$lifeForm <- gsub(
+  ", , ,",
+  "",
+  spp_link$lifeForm
+)
+
+```
+
+```{r}
+#create verbatimlifeForm (SP)
+
+spp_link$verbatimLifeForm <- spp_link$lifeForm
+
+#create dictionary lifeFormEn (English)
+
+dic_lifeForm <- c(
+ "E" = "E",
+  "H" = "H",
+  "NV" = "NV",
+
+  "Arboles" = "Trees",
+  "Arboles, terrestres, autotrofos, erectos" = "Trees, terrestrial, autotrophic, erect",
+
+  "Arbusto o arbol" = "Shrub or tree",
+  "Arbusto o arbol, terrestres, autotrofos, erectos" = "Shrub or tree, terrestrial, autotrophic, erect",
+
+  "Arbustos" = "Shrubs",
+  "Arbustos a arboles, terrestres, autotrofos, erectos" = "Shrubs to trees, terrestrial, autotrophic, erect",
+  "Arbustos a arbolitos, terrestres, autotrofos, erectos" = "Shrubs to small trees, terrestrial, autotrophic, erect",
+  "Arbustos o arboles, terrestes o epifiticos, autotrofos, erectas" = "Shrubs or trees, terrestrial or epiphytic, autotrophic, erect",
+  "Arbustos o arboles, terrestres, autotrofas, erectos" = "Shrubs or trees, terrestrial, autotrophic, erect",
+  "Arbustos o arboles, terrestres, autotrofos, erectos" = "Shrubs or trees, terrestrial, autotrophic, erect",
+  "Arbustos o arbolitos, epifitico o epilitico, autotrofos, erectos" = "Shrubs or small trees, epiphytic or epilithic, autotrophic, erect",
+  "Arbustos o arbolitos, terrestres, autotrofos, erectos" = "Shrubs or small trees, terrestrial, autotrophic, erect",
+  "Arbustos, arbolitos o arboles, terrestres, autotrofos, erectos" = "Shrubs, small trees or trees, terrestrial, autotrophic, erect",
+  "Arbustos, hemiparasitos, erectos" = "Shrubs, hemiparasitic, erect",
+  "Arbustos, terrestres, autotrofos, erectos" = "Shrubs, terrestrial, autotrophic, erect",
+  "Arbustos, terrestres, autotrofos, escandentes" = "Shrubs, terrestrial, autotrophic, scandent",
+  "Arbustos, terrestres, autotrofos, tallo erecto palmiforme" = "Shrubs, terrestrial, autotrophic, palm-like erect stem",
+  "Arbustos, terrestres, autotrofos, tallos colgantes o pendulos" = "Shrubs, terrestrial, autotrophic, hanging or pendulous stems",
+  "Arbustos, terrestres, autotrofos, tallos erectos a escandentes" = "Shrubs, terrestrial, autotrophic, erect to scandent stems",
+  "Arbustos, terrestres, autotrofos, tallos erectos a postrados" = "Shrubs, terrestrial, autotrophic, erect to prostrate stems",
+  "Arbustos, terrestres, autotrofos, tallos o ramas escandentes" = "Shrubs, terrestrial, autotrophic, scandent stems or branches",
+
+  "Bejucos" = "Lianas",
+  "Bejucos, terrestres, autotrofos," = "Lianas, terrestrial, autotrophic",
+
+  "Hierba, terrestre, autotrofa, erecta" = "Herb, terrestrial, autotrophic, erect",
+
+  "Hierbas" = "Herbs",
+
+  "Hierbas a arbustos, terrestres, autotrofas, erectas" = "Herbs to shrubs, terrestrial, autotrophic, erect",
+  "Hierbas a arbustos, terrestres, autotrofas, tallos colgantes o pendulos" = "Herbs to shrubs, terrestrial, autotrophic, hanging or pendulous stems",
+  "Hierbas a arbustos, terrestres, autotrofas, tallos erectos a trepadores" = "Herbs to shrubs, terrestrial, autotrophic, erect to climbing stems",
+  "Hierbas a arbustos, terrestres, autotrofas, tallos o ramas escandentes" = "Herbs to shrubs, terrestrial, autotrophic, scandent stems or branches",
+
+  "Hierbas o bejucos terrestres, autotrofas, trepadores" = "Herbs or lianas, terrestrial, autotrophic, climbing",
+  "Hierbas o bejucos, terrestres, autotrofas, erectas o escandentes" = "Herbs or lianas, terrestrial, autotrophic, erect or scandent",
+  "Hierbas o bejucos, terrestres, autotrofas, trepadoras" = "Herbs or lianas, terrestrial, autotrophic, climbing",
+  "Hierbas o bejucos, terrestres, autotrofas, trepadores" = "Herbs or lianas, terrestrial, autotrophic, climbing",
+
+  "Hierbas sufruticosas arbustivas, terrestres, autotrofas, erectas" = "Subshrubs, terrestrial, autotrophic, erect",
+  "Hierbas sufruticosas arbustivas, terrestres, autotrofas, tallos o ramas escandentes" = "Subshrubs, terrestrial, autotrophic, scandent stems or branches",
+  "Hierbas sufruticosas, terrestres, autotrofas, erectas" = "Subshrubs, terrestrial, autotrophic, erect",
+
+  "Hierbas, acuaticas o palustres, autotrofas, erectas" = "Herbs, aquatic or marsh, autotrophic, erect",
+  "Hierbas, acuaticas o palustres, autotrofas, flotante o sumergida" = "Herbs, aquatic or marsh, autotrophic, floating or submerged",
+
+  "Hierbas, arbustos o arboles, terrestres, autotrofos, erectos" = "Herbs, shrubs or trees, terrestrial, autotrophic, erect",
+
+  "Hierbas, bejucos, autotrofas, erectas" = "Herbs and lianas, autotrophic, erect",
+  "Hierbas, bejucos, autotrofos, erectos" = "Herbs and lianas, autotrophic, erect",
+
+  "Hierbas, epifitas facultativas, autotrofas, erectas" = "Herbs, facultative epiphytes, autotrophic, erect",
+  "Hierbas, epifitas, autotrofas, colgantes" = "Herbs, epiphytic, autotrophic, hanging",
+  "Hierbas, epifitas, autotrofas, erectas" = "Herbs, epiphytic, autotrophic, erect",
+  "Hierbas, epifitas, autotrofas, escandentes" = "Herbs, epiphytic, autotrophic, scandent",
+  "Hierbas, epifitas, autotrofas, reptantes o trepadoras" = "Herbs, epiphytic, autotrophic, creeping or climbing",
+   "Hierbas, epiliticas, autotrofas, erectas" = "Herbs, epilithic, autotrophic, erect",
+  "Hierbas, epiliticas, terrestres, autotrofas, erectas" = "Herbs, epilithic or terrestrial, autotrophic, erect",
+  "Hierbas, epipetricas, autotrofas, erectas" = "Herbs, epipetric, autotrophic, erect",
+  "Hierbas, rastreras, autotrofas, erectas" = "Herbs, creeping, autotrophic, erect",
+
+  "Hierbas, terrestres o epiliticas, autotrofas, erectas" = "Herbs, terrestrial or epilithic, autotrophic, erect",
+  "Hierbas, terrestres o epiliticas, autotrofas, tallos erectos, cilindricos" = "Herbs, terrestrial or epilithic, autotrophic, erect, cylindrical stems",
+
+  "Hierbas, terrestres, autotrofas, -no definido-" = "Herbs, terrestrial, autotrophic, undefined",
+  "Hierbas, terrestres, autotrofas, cespitosa, erecta a decumbente" = "Herbs, terrestrial, autotrophic, tufted, erect to decumbent",
+  "Hierbas, terrestres, autotrofas, cespitosas, erectas" = "Herbs, terrestrial, autotrophic, tufted, erect",
+  "Hierbas, terrestres, autotrofas, erectas" = "Herbs, terrestrial, autotrophic, erect",
+  "Hierbas, terrestres, autotrofas, estoloniferas" = "Herbs, terrestrial, autotrophic, stoloniferous",
+  "Hierbas, terrestres, autotrofas, rastreras" = "Herbs, terrestrial, autotrophic, creeping",
+  "Hierbas, terrestres, autotrofas, rizomatosas, erectas" = "Herbs, terrestrial, autotrophic, rhizomatous, erect",
+  "Hierbas, terrestres, autotrofas, tallos colgantes o pendulos" = "Herbs, terrestrial, autotrophic, hanging or pendulous stems",
+  "Hierbas, terrestres, autotrofas, tallos erectos a postrados" = "Herbs, terrestrial, autotrophic, erect to prostrate stems",
+  "Hierbas, terrestres, autotrofas, tallos o ramas escandentes" = "Herbs, terrestrial, autotrophic, scandent stems or branches",
+  "Hierbas, terrestres, autotrofas, tallos postrados a escandentes" = "Herbs, terrestrial, autotrophic, prostrate to scandent stems",
+  "Hierbas, terrestres, autotrofas, tallos postrados o decumbentes" = "Herbs, terrestrial, autotrophic, prostrate or decumbent stems",
+  "Hierbas, terrestres, autotrofas, tallos trepadores" = "Herbs, terrestrial, autotrophic, climbing stems",
+
+  "Hierbas, terrestres, parasiticas, tallos o ramas escandentes" = "Herbs, terrestrial, parasitic, scandent stems or branches",
+  "Hierbas, terrestres, saprofitas, erectas" = "Herbs, terrestrial, saprophytic, erect",
+
+  "Palmas, terrestres, autotrofos, erecto" = "Palms, terrestrial, autotrophic, erect",
+
+  "Sufrutices, arboles o arbustos, terrestres, autotrofos, erectos" = "Subshrubs, trees or shrubs, terrestrial, autotrophic, erect",
+  "Sufrutices, arbustos o arboles, terrestres, autotrofos, erectos" = "Subshrubs, shrubs or trees, terrestrial, autotrophic, erect",
+  "Sufrutices, arbustos o arbolitos, terrestres, autotrofos, erectos" = "Subshrubs, shrubs or small trees, terrestrial, autotrophic, erect"
+
+)
+
+#create new column (English)
+
+spp_link$lifeForm <- trimws(spp_link$lifeForm)
+
+spp_link$lifeFormEN <- unname(dic_lifeForm[spp_link$lifeForm])
+
+
+#review unique values lifeFormEN. Create lifeFormEN by translating the original lifeForm values to English. Original lifeForm column is preserved unchanged.
+
+View(
+  unique(
+    spp_link[, c("lifeForm", "lifeFormEN")]
+  )
+)
+```
+
+
+```{r}
+#Export curated CVS
+
+readr::write_csv(
+  spp_link,
+  "data/text/2.Processed/text_CR2024.csv",
+  na = ""
+)
+```
+
