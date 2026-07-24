@@ -406,7 +406,7 @@ unique(text_spplink$eventDate)                           #No necesita cambios
 
 ```
 
-#Detectar información dañada en recordNumber y corregir
+#-recordNumber: Detectar información dañada y corregir
 
 ```{r}
 conteo_recordNum <- text_spplink %>%
@@ -462,7 +462,7 @@ text_spplink <- text_spplink %>%
   )
 ```
 
-#Detectar información dañada en identifiedBy y corregir
+#-identifiedBy: Detectar información dañada y corregir
 
 ```{r}
 conteo_identifiedBy <- text_spplink %>%
@@ -627,7 +627,7 @@ text_spplink <- text_spplink %>%
     identifiedBy = str_replace_all(identifiedBy, "&", " | ")
   )
 
-reorganizar_autores_pipe <- function(texto) {
+reorganizar_autores_1 <- function(texto) {
   
   if (is.na(texto) || str_trim(texto) == "") return(texto)
   
@@ -653,7 +653,7 @@ reorganizar_autores_pipe <- function(texto) {
   paste(partes_reorganizadas, collapse = " | ")
 }
 
-text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, reorganizar_autores_pipe)
+text_spplink$identifiedBy <- sapply(text_spplink$identifiedBy, reorganizar_autores_1)
 
 # Corregir separador , y reorganizar autores
 
@@ -754,13 +754,12 @@ text_spplink$discardReason[filas_cambiadas] <- mapply(
 )
 ```
 
-#Detectar información dañada en recordedBy y corregir
+#-recordedBy: Detectar información dañada y corregir
 
 ```{r}
 conteo_recordedBy <- text_spplink %>%
   count(recordedBy, sort = TRUE)
 
-conteo_recordedBy
 #Agregar NA a las filas
 text_spplink <- text_spplink %>%
   mutate(
@@ -826,6 +825,177 @@ reemplazos <- c(
 )
 
 text_spplink$recordedBy <- str_replace_all(text_spplink$recordedBy, reemplazos)
+
+```
+
+#Corregir simbolos y puntos
+
+```{r}
+# Cambiar simbolo de separacion
+
+text_spplink <- text_spplink %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ";", " | ")
+  )
+
+#Agregar punto a las iniciales de 1 solo autor
+
+puntuar_iniciales_v2 <- function(autor) {
+  
+  if (is.na(autor) || str_trim(autor) == "") return(autor)
+  
+  autor <- str_trim(autor)
+  
+  patron <- "^([A-Za-zÁÉÍÓÚÑáéíóúñ\\s-]+),\\s*([A-ZÁÉÍÓÚÑ\\s.]+)$"
+  
+  if (str_detect(autor, patron)) {
+    m <- str_match(autor, patron)
+    apellido <- str_trim(m[,2])
+    iniciales_raw <- m[,3]
+    
+    letras <- str_extract_all(iniciales_raw, "[A-ZÁÉÍÓÚÑ]")[[1]]
+    iniciales_formateadas <- paste0(letras, ".", collapse = "")
+    
+    return(paste0(apellido, ", ", iniciales_formateadas))
+  } else {
+    return(autor) 
+  }
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, puntuar_iniciales_v2)
+
+#Agregar punto a las iniciales cuando hay varios autores
+
+puntuar_iniciales_inline <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, ",\\s*([A-ZÁÉÍÓÚÑ]{1,6})(?=\\s*(\\||$))", function(m) {
+    sapply(m, function(x) {
+      letras <- str_match(x, "[A-ZÁÉÍÓÚÑ]{1,6}")[1]
+      letras_separadas <- str_extract_all(letras, "[A-ZÁÉÍÓÚÑ]")[[1]]
+      paste0(", ", paste0(letras_separadas, ".", collapse = ""))
+    })
+  })
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, puntuar_iniciales_inline)
+
+#Corregir autores con et al
+
+corregir_et_al <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "\\s*\\|\\s*et al\\.?", " et al.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_et_al)
+```
+
+#Organización de autores
+
+```{r}
+#Ajustar autores con iniciales primero y luego apellido (E.L.F. Menezes)
+
+estandarizar_iniciales_apellido <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  # Busca cada bloque "Iniciales. Apellido" (antes de un "|" o al final del texto)
+  str_replace_all(
+    texto,
+    "((?:[A-ZÁÉÍÓÚÑ]\\.){1,4})\\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+)(?=\\s*(\\||$))",
+    function(m) {
+      sapply(m, function(x) {
+        partes <- str_match(x, "^((?:[A-ZÁÉÍÓÚÑ]\\.){1,4})\\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+)$")
+        iniciales <- partes[2]
+        apellido  <- partes[3]
+        paste0(apellido, ", ", iniciales)
+      })
+    }
+  )
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, estandarizar_iniciales_apellido)
+    
+
+#Corregir separador & y reorganizar autores
+
+text_spplink <- text_spplink %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, "&", " | ")
+  )
+
+reorganizar_autores_2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  partes <- str_split(texto, "\\|")[[1]]
+  partes <- str_trim(partes)
+  
+  reorganizar <- function(autor) {
+    autor <- str_trim(autor)
+    patron <- "^((?:[A-ZÁÉÍÓÚÑ]\\.)+)\\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+)$"
+    
+    if (str_detect(autor, patron)) {
+      m <- str_match(autor, patron)
+      iniciales <- m[,2]
+      apellido  <- m[,3]
+      return(paste0(apellido, ", ", iniciales))
+    } else {
+      return(autor)  
+    }
+  }
+  
+  partes_reorganizadas2 <- sapply(partes, reorganizar)
+  
+  paste(partes_reorganizadas2, collapse = " | ")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, reorganizar_autores_2)
+
+```
+
+#Corregir casos especificos
+
+```{r}
+#Autores con separador , y reorganizar
+
+text_spplink$recordedBy <- gsub("E.L.F. Menezes, Giordani, S.C.O.", "Menezes, E.L.F. | Giordani, S.C.O.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("E.L.F. Menezes, Giordani, C.O.", "Menezes, E.L.F. | Giordani, S.C.O.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("E.L.F. Menezes, Giordani, S.", "Menezes, E.L.F. | Giordani, S.C.O.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("E.L.F. Menezes, Pansarin, E.R.", "Menezes, E.L.F. | Pansarin, E.R.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("D.A. Costa, Antunes, K.", "Costa, D.A. | Antunes, K.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("G. Martinelli, T. Lima, Moraes, L.", "Martinelli, G. | Lima, T. | Moraes, L.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("I. M. Franco, C. O. Andrino, D. M. T. Francino, M. M. T. Cota e T. Coser, S.", "Franco, I. M. | Andrino, C.O. | Francino, D.M.T. | Cota, M. M. T. | Coser, T.S.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("K.H. Silva, D.A. Costa, Costa, F.N.", "Silva, K.H. | Costa, D.A. | Costa, F.N.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("T.S. Coser, Castro, R.M.", "Coser, T.S. | Castro, R.M.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("D.A. Costa, K.H. Silva, Costa, F.N.", "Costa, D.A. | Silva, K.H. | Costa, F.N.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("E.A.E. Guarconi, Scatigna, A.V.", "Guarconi, E.A.E. | Scatigna, A.V.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("F.N. Costa, K.H. Silva, Costa, D.Y.", "Costa, F.N. | Silva, K.H. | Costa, D.Y.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("F.N.Costa, S.N.Fonseca e Coser, T.S.", "Costa, F.N. | Fonseca, S.N. | Coser, T.S.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("I.M. Franco, A.S. Quaresma, F.N. Costa, I.M. Araujo, Cota, M.M.T.", "Franco, I.M. | Quaresma, A.S. | Costa, F.N. | Araujo, I.M. | Cota, M.M.T.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("K.H. Silva, F.N. Costa, A.T.C. Brant, B.M. Salome, D.A. Costa, Cunha, L.K.G.", "Silva, K.H. | Costa, F.N. | Brant, A.T.C. | Salome, B.M. | Costa, D.A. | Cunha, L.K.G.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("L.K.G. Cunha, K.H. Silva, F.N. Costa, A.T.C. Brant, Costa, D.A.", "Cunha, L.K.G. | Silva, K.H. | Costa, F.N. | Brant, A.T.C. | Costa, D.A.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("M.G. Caxambu, E.L. Siqueira, R.C.A. dos Santos | P.F.N.", "Caxambu, M.G. | Siqueira, E.L. | dos Santos, R.C.A.| Procopio, P.F.N", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("A. S. Quaresma, I. M. Franco, C. O. Andrino, M. P. Tannure | F. Costa, N.", "Quaresma, A. S. | Franco, I. M. | Andrino, C. O. | Tannure, M. P. | Costa, F.N.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("A.P. Silva, Oliveira, C.N.S.", "Silva, A.P. | Oliveira, C.N.S.", text_spplink$recordedBy)
+
+
+#Casos únicos
+
+text_spplink$recordedBy <- gsub("M.S. da Silva", "da Silva, M.S.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("M.S.da Silva", "da Silva, M.S.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Verdi, M. | N.L. de Souza | Klemz, G. | Klettenberg, D.H.", "Verdi, M. | Souza, N.L. | Klemz, G. | Klettenberg, D.H.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Thais Elias Almeida", "Elias-Almeida, T.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Alexandre Salino", "Salino, A.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Rodrigues, M.C. | A.C. Silva (2) | Polisello, B.O. | Carvalho, E.J.", "Rodrigues, M.C. | Silva, A.C. | Polisello, B.O. | Carvalho, E.J.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Salino,A. c/o Lombardi,J., Harald Schneider", "Salino, A. | Lombardi, J. | Schneider, H.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Thais Elias Almeida, Alexandre Salino", "Elias-Almeida, T. | Salino, A.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Thais Elias Almeida, Harald Schneider", "Elias-Almeida, T. | Schneider, H.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Bento Fernandes, C.E. | Capatti, V.A. | Teixeira, V.A.", "Bento-Fernandes, C.E. | Capatti, V.A. | Teixeira, V.A.", text_spplink$recordedBy)
+
 
 ```
 
