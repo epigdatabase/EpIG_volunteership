@@ -185,6 +185,21 @@ sum(is.na(spp_link$associatedReferences))
 
 sum(spp_link$associatedReferences == "")
 
+library(stringr)
+
+spp_link$referenceYear <- str_extract(
+  spp_link$associatedReferences,
+  "(19|20)[0-9]{2}"
+)
+
+spp_link$associatedReferences <- str_trim(
+  str_remove(
+    spp_link$associatedReferences,
+    "(19|20)[0-9]{2}[a-z]?$"
+  )
+)
+
+
 grep("Ã|Â|ƒ|\\n|\\r", spp_link$associatedReferences)
 
 grep("^\\s|\\s$", spp_link$associatedReferences)
@@ -283,7 +298,73 @@ spp_link$associatedReferences <- gsub(
   spp_link$associatedReferences
 )
 
+spp_link$associatedReferences <- gsub(
+  "KrÃ¶mer",
+  "Kromer",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
 
+spp_link$associatedReferences <- gsub(
+  "LÃ³pez",
+  "Lopez",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "MondragÃ³n",
+  "Mondragon",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "deMiranda",
+  "de Miranda",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "ProenÃ§a",
+  "Proenca",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "GonÃ§alves",
+  "Goncalves",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+library(stringr)
+
+# 1. Unir el apellido con et-al
+spp_link$associatedReferences <- str_replace_all(
+  spp_link$associatedReferences,
+  "\\s+et-al",
+  "-et-al"
+)
+
+# 2. Eliminar puntos dobles
+spp_link$associatedReferences <- str_replace_all(
+  spp_link$associatedReferences,
+  "et-al\\.\\.+",
+  "et-al."
+)
+
+
+text_literature2021$associatedReferences <- gsub(
+  "De la Rosa", "De-la-Rosa",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
+
+
+View(spp_link)
 # =============================================================================
 # referenceYear/"evendate"
 # =============================================================================
@@ -432,6 +513,10 @@ unique(spp_link$identifiedBy)
 
 
 ```{r}
+
+#Preview dataset
+View(spp_link) 
+
 #Export curated CVS
 
 readr::write_csv(
