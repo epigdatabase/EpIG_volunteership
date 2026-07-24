@@ -201,103 +201,131 @@ unique(spp_link$associatedReferences[
   grepl("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$associatedReferences)
 ])
 
-#remove accents marks 
+#extract year of associatedReferences column
 
-delete_accents <- function(x) {
-  iconv(x, from = "UTF-8", to = "ASCII//TRANSLIT")
-}
-
-spp_link$recordedBy   <- delete_accents(spp_link$associatedReferences)
-
-
-unique_associatedReferences <- data.frame(
-  associatedReferences = sort(unique(spp_link$associatedReferences))
+text_literature2021$referenceYear <- str_extract(
+  text_literature2021$associatedReferences,
+  "(19|20)\\d{2}"
 )
 
-#delete commons
-
-
-#add -  surnames
-
-hyphenate_surname <- function(x) {
-  sapply(x, function(i) {
-    if (is.na(i) || !grepl(",", i)) return(i)
-
-    partes <- strsplit(i, ",", fixed = TRUE)[[1]]
-
-    apellido <- trimws(partes[1])
-    nombre   <- trimws(paste(partes[-1], collapse = ","))
-
-    apellido <- gsub(" +", "-", apellido)
-
-    paste(apellido, nombre, sep = ", ")
-  }, USE.NAMES = FALSE)
-}
-
-#curated characters
-
-grep("Ã|Â|�", spp_link$associatedReferences, value = TRUE)
-idx <- grep("Ã|Â|�", spp_link$associatedReferences)
-
-spp_link[idx, c("associatedReferences")]
-
-spp_link$associatedReferences <-
-  iconv(
-    spp_link$associatedReferences,
-    from = "UTF-8",
-    to = "latin1"
+text_literature2021$associatedReferenceAuthors <- str_trim(
+  str_remove(
+    text_literature2021$associatedReferences,
+    "\\s*(19|20)\\d{2}[a-z]?$"
   )
+)
 
-library(stringi)
+#detect corrupted characters
+text_literature2021$associatedReferences <- gsub(
+  "CardelAºs", "Cárdenas",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
 
-spp_link[] <- lapply(spp_link, function(x) {
-  if (is.character(x)) {
-    stringi::stri_trans_general(x, "Latin-ASCII")
-  } else {
-    x
-  }
-})
+text_literature2021$associatedReferences <- gsub(
+  "KrA¶mer", "Krömer",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
 
+text_literature2021$associatedReferences <- gsub(
+  "LA³pez-Villalobos", "López-Villalobos",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
 
-library(stringi)
+text_literature2021$associatedReferences <- gsub(
+  "MondragA³n", "Mondragón",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
 
-spp_link$associatedReferences <-
-  stringi::stri_trans_general(
-    spp_link$associatedReferences,
-    "Latin-ASCII"
-  )
+text_literature2021$associatedReferences <- gsub(
+  "NA¶ske", "Nöske",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
 
+text_literature2021$associatedReferences <- gsub(
+  "MagalhA£es", "Magalhaes",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
 
-#changes in Author-et-al
+text_literature2021$associatedReferences <- gsub(
+  "CasaA+/-as", "Casañas",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
 
-spp_link$associatedReferences <- str_replace_all(
-  spp_link$associatedReferences,
-  "\\s+et al\\.",
-  "-et-al."
+text_literature2021$associatedReferences <- gsub(
+  "JA!uregui", "Jáuregui",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
+
+text_literature2021$associatedReferences <- gsub(
+  "ProenA§a", "Proenca",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
+
+text_literature2021$associatedReferences <- gsub(
+  "GonA§alves", "Goncalves",
+  text_literature2021$associatedReferences,
+  fixed = TRUE
+)
+
+#change & by and 
+spp_link$associatedReferences <- gsub(
+  " y ",
+  " & ",
+  spp_link$associatedReferences
 )
 
 
-spp_link$associatedReferences <- str_replace_all(
-  spp_link$associatedReferences,
-  "\\s*&\\s*",
-  " | "
-)
+# =============================================================================
+# referenceYear/"evendate"
+# =============================================================================
+
+
+#created referenceYear
+
 
 # Extraer el año
-spp_link$year <- str_extract(
-  spp_link$associatedReferences,
-  "\\b(19|20)\\d{2}\\b"
+text_literature2021$referenceYear <- sub(
+  ".*((19|20)[0-9]{2}).*",
+  "\\1",
+  text_literature2021$associatedReferences
 )
 
-# Eliminar el año de la referencia
-spp_link$associatedReferences <- str_remove(
-  spp_link$associatedReferences,
-  "\\s*(19|20)\\d{2}\\b"
+# Si no encontró un año, dejar NA
+
+text_literature2021$referenceYear[
+  !grepl("(19|20)[0-9]{2}", text_literature2021$associatedReferences)
+] <- NA
+
+# Eliminar el año de associatedReferences
+text_literature2021$associatedReferences <- trimws(
+  gsub("\\s*(19|20)[0-9]{2}[a-z]?$", "",
+       text_literature2021$associatedReferences)
 )
 
-# Eliminar espacios sobrantes
-spp_link$associatedReferences <- str_squish(spp_link$associatedReferences)
-spp_link$year <- as.integer(spp_link$year)
+spp_link$associatedReferences <- gsub(
+  "ArA\\(C\\)valo & Betancur",
+  "Arevalo & Betancur",
+  spp_link$associatedReferences
+)
+
+grep("ArA", spp_link$associatedReferences, value = TRUE)
+
+grep("daSilva", spp_link$associatedReferences, value = TRUE)
+
+#review
+
+View(data.frame(
+  associatedReferences = sort(unique(spp_link$associatedReferences))
+))
 
 ```
 
@@ -362,6 +390,19 @@ spp_link$recordedBy   <- hyphenate_surname(spp_link$recordedBy)
 spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
 spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
 
+#add space between letters
+spp_link$identifiedBy <- gsub("\\s*&\\s*", " & ", spp_link$identifiedBy)
+spp_link$identifiedBy <- gsub("\\s*-\\s*", " - ", spp_link$identifiedBy)
+spp_link$identifiedBy <- gsub("\\(RYS\\)", "(R Y S)", spp_link$identifiedBy)
+spp_link$identifiedBy <- gsub("\\(CyC\\)", "(C y C)", spp_link$identifiedBy)
+sort(unique(grep("Grupo de", spp_link$identifiedBy, value = TRUE)))
+unique(spp_link$identifiedBy[grep("Grupo de", spp_link$identifiedBy)])
+
+View(data.frame(
+  identifiedBy = sort(unique(spp_link$identifiedBy))
+))
+
+
 
 #delete commons
 spp_link$identifiedBy[grepl(",", spp_link$identifieddBy)] <- ""
@@ -391,29 +432,11 @@ unique(spp_link$identifiedBy)
 
 
 ```{r}
-#create new column (English)
-
-spp_link$lifeForm <- trimws(spp_link$lifeForm)
-
-spp_link$lifeFormEN <- unname(dic_lifeForm[spp_link$lifeForm])
-
-
-#review unique values lifeFormEN. Create lifeFormEN by translating the original lifeForm values to English. Original lifeForm column is preserved unchanged.
-
-View(
-  unique(
-    spp_link[, c("lifeForm", "lifeFormEN")]
-  )
-)
-```
-
-
-```{r}
 #Export curated CVS
 
 readr::write_csv(
   spp_link,
-  "data/text/2.Processed/text_CR2024.csv",
+  "data/text/2.Processed/text__literature2021.csv",
   na = ""
 )
 ```
