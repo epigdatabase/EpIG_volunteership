@@ -767,71 +767,157 @@ dfEi$ok.2[idx] <- TRUE
 ```
 
 ```{r}
-#Argentina
-dfEi <- dfEi %>%
-  mutate(
-    stateProvince = case_when(
-      !is.na(stateProvince) & str_squish(stateProvince) != "" ~ stateProvince,
-      country != "Argentina" ~ stateProvince,
 
-      str_detect(locality, regex("^Misiones|Cataratas del Iguaz|^San Ignacio$|Loreto \\(ruinas\\)|^Loreto$|Río Uruguaí",
-                                  ignore_case = TRUE)) ~ "Misiones",
+# ARGENTINA - stateProvince verificado manualmente
 
-      str_detect(locality, regex("^Buenos Aires|Delta del Río Paraná|Otamendi|^Bernal$|Carmen de Patagones|desembocadura del Río Salado|Estación Florida",
-                                  ignore_case = TRUE)) ~ "Buenos Aires",
+correcciones_AR <- c(
+  #Misiones
+  "BA2025_003" = "Misiones", 
+  "BA2025_004" = "Misiones", "BA2025_005" = "Misiones", "BA2025_006" = "Misiones",
+  "BA2025_012" = "Misiones", "BA2025_014" = "Misiones", "BA2025_016" = "Misiones",
+  "BA2025_017" = "Misiones", "BA2025_021" = "Misiones", "BA2025_022" = "Misiones",
+  "BA2025_023" = "Misiones", "BA2025_024" = "Misiones", "BA2025_025" = "Misiones",
+  "BA2025_028" = "Misiones", "BA2025_029" = "Misiones", "BA2025_031" = "Misiones",
+  "BA2025_032" = "Misiones", "BA2025_033" = "Misiones", "BA2025_034" = "Misiones",
+  "BA2025_035" = "Misiones", "BA2025_038" = "Misiones", "BA2025_039" = "Misiones",
+  "BA2025_040" = "Misiones", "BA2025_041" = "Misiones", "BA2025_042" = "Misiones",
+  "BA2025_043" = "Misiones", "BA2025_044" = "Misiones", "BA2025_045" = "Misiones",
+  "BA2025_046" = "Misiones", "BA2025_047" = "Misiones", "BA2025_048" = "Misiones",
+  "BA2025_049" = "Misiones", "BA2025_050" = "Misiones", "BA2025_051" = "Misiones",
+  "BA2025_052" = "Misiones", "BA2025_053" = "Misiones", "BA2025_054" = "Misiones",
+  "BA2025_055" = "Misiones", "BA2025_056" = "Misiones", "BA2025_062" = "Misiones",
+  "BA2025_063" = "Misiones", "BA2025_064" = "Misiones", "BA2025_065" = "Misiones",
+  "BA2025_066" = "Misiones", "BA2025_068" = "Misiones", "BA2025_069" = "Misiones",
+  "BA2025_070" = "Misiones", "BA2025_071" = "Misiones", "BA2025_255" = "Misiones",
+  "BA2025_256" = "Misiones", "BA2025_013" = "Misiones",
 
-      str_detect(locality, regex("San Salvador de Jujuy|Humahuaca|^Ledesma$|Valle Grande|^Cobos$|Cerro de Calilegua|Río Zapala",
-                                  ignore_case = TRUE)) ~ "Jujuy",
+  # Buenos Aires
+  "BA2025_036" = "Buenos Aires", "BA2025_037" = "Buenos Aires", "BA2025_067" = "Buenos Aires",
+  "BA2025_104" = "Buenos Aires", "BA2025_105" = "Buenos Aires", "BA2025_106" = "Buenos Aires",
+  "BA2025_124" = "Buenos Aires", "BA2025_195" = "Buenos Aires", "BA2025_196" = "Buenos Aires",
+  "BA2025_202" = "Buenos Aires",
 
-      str_detect(locality, regex("^Alemania$|Coronel Juan Solá|^Orán,|^Cafayate$|Quebrada de San Lorenzo|Sierra de la Candelaria|El Antigal",
-                                  ignore_case = TRUE)) ~ "Salta",
+  # Jujuy
+  "BA2025_058" = "Jujuy", "BA2025_059" = "Jujuy", "BA2025_086" = "Jujuy",
+  "BA2025_091" = "Jujuy", "BA2025_093" = "Jujuy", "BA2025_097" = "Jujuy",
+  "BA2025_098" = "Jujuy", "BA2025_099" = "Jujuy", "BA2025_101" = "Jujuy",
+  "BA2025_120" = "Jujuy", "BA2025_121" = "Jujuy", "BA2025_126" = "Jujuy",
+  "BA2025_163" = "Jujuy", "BA2025_186" = "Jujuy", "BA2025_228" = "Jujuy",
+  "BA2025_229" = "Jujuy", "BA2025_236" = "Jujuy", "BA2025_248" = "Jujuy",
 
-      str_detect(locality, regex("^Vipos$|^Tapia$|Yerba Buena|Siambón|Villa Nougués|El Timbó|Cadillal|Quebrada de Lules|San Miguel de Tucumán|Amaicha del Valle|Tapia a Raco|Cadillal a Tapia|Valle de Tafí|La Hoyada|Colalao del Valle|Tucumán, bosques",
-                                  ignore_case = TRUE)) ~ "Tucumán",
+  # Salta
+  "BA2025_092" = "Salta", "BA2025_094" = "Salta", "BA2025_118" = "Salta",
+  "BA2025_128" = "Salta", "BA2025_135" = "Salta", "BA2025_139" = "Salta",
+  "BA2025_162" = "Salta", "BA2025_164" = "Salta", "BA2025_165" = "Salta",
+  "BA2025_170" = "Salta", "BA2025_171" = "Salta", "BA2025_182" = "Salta",
+  "BA2025_200" = "Salta", "BA2025_206" = "Salta", "BA2025_208" = "Salta",
+  "BA2025_217" = "Salta", "BA2025_219" = "Salta", "BA2025_220" = "Salta",
+  "BA2025_221" = "Salta", "BA2025_238" = "Salta", "BA2025_239" = "Salta",
+  "BA2025_253" = "Salta", "BA2025_254" = "Salta", "BA2025_018" = "Salta",
 
-      str_detect(locality, regex("Unquillo|Dique La Ciénaga|La Cumbre|Sierra Chica|Sierra Achala|^San Javier$",
-                                  ignore_case = TRUE)) ~ "Córdoba",
+  #Tucuma
+  "BA2025_007" = "Tucuman", "BA2025_008" = "Tucuman", "BA2025_009" = "Tucuman",
+  "BA2025_010" = "Tucuman", "BA2025_011" = "Tucuman", "BA2025_057" = "Tucuman",
+  "BA2025_080" = "Tucuman", "BA2025_081" = "Tucuman", "BA2025_082" = "Tucuman",
+  "BA2025_083" = "Tucuman", "BA2025_100" = "Tucuman", "BA2025_109" = "Tucuman",
+  "BA2025_114" = "Tucuman", "BA2025_115" = "Tucuman", "BA2025_116" = "Tucuman",
+  "BA2025_117" = "Tucuman", "BA2025_119" = "Tucuman", "BA2025_122" = "Tucuman",
+  "BA2025_125" = "Tucuman", "BA2025_129" = "Tucuman", "BA2025_131" = "Tucuman",
+  "BA2025_132" = "Tucuman", "BA2025_134" = "Tucuman", "BA2025_136" = "Tucuman",
+  "BA2025_142" = "Tucuman", "BA2025_145" = "Tucuman", "BA2025_146" = "Tucuman",
+  "BA2025_148" = "Tucuman", "BA2025_149" = "Tucuman", "BA2025_150" = "Tucuman",
+  "BA2025_153" = "Tucuman", "BA2025_155" = "Tucuman", "BA2025_156" = "Tucuman",
+  "BA2025_157" = "Tucuman", "BA2025_160" = "Tucuman", "BA2025_166" = "Tucuman",
+  "BA2025_167" = "Tucuman", "BA2025_172" = "Tucuman", "BA2025_173" = "Tucuman",
+  "BA2025_174" = "Tucuman", "BA2025_175" = "Tucuman", "BA2025_176" = "Tucuman",
+  "BA2025_177" = "Tucuman", "BA2025_180" = "Tucuman", "BA2025_183" = "Tucuman",
+  "BA2025_190" = "Tucuman", "BA2025_191" = "Tucuman", "BA2025_192" = "Tucuman",
+  "BA2025_193" = "Tucuman", "BA2025_194" = "Tucuman", "BA2025_199" = "Tucuman",
+  "BA2025_201" = "Tucuman", "BA2025_205" = "Tucuman", "BA2025_207" = "Tucuman",
+  "BA2025_215" = "Tucuman", "BA2025_216" = "Tucuman", "BA2025_231" = "Tucuman",
+  "BA2025_232" = "Tucuman", "BA2025_234" = "Tucuman", "BA2025_237" = "Tucuman",
+  "BA2025_241" = "Tucuman", "BA2025_242" = "Tucuman", "BA2025_243" = "Tucuman",
+  "BA2025_244" = "Tucuman", "BA2025_246" = "Tucuman", "BA2025_250" = "Tucuman",
+  "BA2025_252" = "Tucuman", "BA2025_261" = "Tucuman", "BA2025_263" = "Tucuman",
 
-      str_detect(locality, regex("Curuzú Cuatiá", ignore_case = TRUE)) ~ "Corrientes",
+  #  Cordoba
+  "BA2025_110" = "Cordoba", "BA2025_112" = "Cordoba", "BA2025_123" = "Cordoba",
+  "BA2025_127" = "Cordoba", "BA2025_143" = "Cordoba", "BA2025_144" = "Cordoba",
+  "BA2025_161" = "Cordoba", "BA2025_203" = "Cordoba", "BA2025_218" = "Cordoba",
 
-      str_detect(locality, regex("Valle de Santa María", ignore_case = TRUE)) ~ "Catamarca",
+  # Corrientes 
+  "BA2025_019" = "Corrientes", "BA2025_107" = "Corrientes","BA2025_060" = "Corrientes",
 
-      TRUE ~ stateProvince
-    ),
-    discardReason = case_when(
-      country == "Argentina" & is.na(stateProvince) ~ "stateProvince ambiguo, requiere verificación manual (etiqueta original)",
-      !is.na(stateProvince) & country == "Argentina" ~ paste0(coalesce(discardReason, ""), " | stateProvince inferido por locality"),
-      TRUE ~ discardReason
-    )
-  )
+  #  Catamarca 
+  "BA2025_251" = "Catamarca", "BA2025_185" = "Catamarca",
+
+  #  Chaco 
+  "BA2025_020" = "Chaco", "BA2025_088" = "Chaco", "BA2025_090" = "Chaco",
+
+  #  Formosa 
+  "BA2025_030" = "Formosa", "BA2025_111" = "Formosa",
+
+  # Santiago del Estero 
+  "BA2025_072" = "Santiago del Estero", "BA2025_074" = "Santiago del Estero", 
+  "BA2025_087" = "Santiago del Estero", "BA2025_151" = "Santiago del Estero",
+  "BA2025_152" = "Santiago del Estero", "BA2025_154" = "Santiago del Estero",
+  "BA2025_181" = "Santiago del Estero", "BA2025_210" = "Santiago del Estero",
+  "BA2025_211" = "Santiago del Estero", "BA2025_214" = "Santiago del Estero",
+  "BA2025_213" = "Santiago del Estero",   "BA2025_235" = "Santiago del Estero",
+
+ # Rio Negro
+  "BA2025_102" = "Rio Negro", "BA2025_178" = "Rio Negro"
+)
+
+chequeo_pais <- dfEi %>%
+  filter(occurrenceID %in% names(correcciones_AR)) %>%
+  select(occurrenceID, country) 
+
+ids_pais_incorrecto <- chequeo_pais %>% filter(country != "Argentina")
+if (nrow(ids_pais_incorrecto) > 0) {
+  print(ids_pais_incorrecto)
+  warning("Hay IDs en correcciones_AR que no pertenecen a Argentina en dfEi. Revisar antes de aplicar.")
+}
+
+if (any(duplicated(names(correcciones_AR)))) {
+  warning("Hay occurrenceID duplicados en correcciones_AR: ",
+          paste(unique(names(correcciones_AR)[duplicated(names(correcciones_AR))]), collapse = ", "))
+}
+
+idx <- match(names(correcciones_AR), dfEi$occurrenceID)
+valid <- !is.na(idx)
+
+dfEi$stateProvince[idx[valid]] <- correcciones_AR[valid]
+dfEi$ok.2[idx[valid]] <- TRUE
+
+ya_registrado <- str_detect(coalesce(dfEi$discardReason[idx[valid]], ""), "stateProvince asignado")
+dfEi$discardReason[idx[valid]][!ya_registrado] <- paste0(
+  coalesce(dfEi$discardReason[idx[valid]][!ya_registrado], ""),
+  " | stateProvince asignado por verificacion geografica de locality"
+) 
 ```
 
 ```{r}
-#Bolivia
-dfEi <- dfEi %>%
-  mutate(
-    stateProvince = case_when(
-      !is.na(stateProvince) & str_squish(stateProvince) != "" ~ stateProvince,
-      country != "Bolivia" ~ stateProvince,
+correcciones_locality <- c(
+  "BA2025_001" = "Calilegua National Park",
+  "BA2025_002" = "Potrero de Yala Provincial Park"
+)
 
-      str_detect(locality, regex("Buenavista|Pampa Grande|Mairana|Santa Cruz de la Sierra",
-                                  ignore_case = TRUE)) ~ "Santa Cruz",
+idx <- match(names(correcciones_locality), dfEi$occurrenceID)
+valid <- !is.na(idx)
 
-      TRUE ~ stateProvince
-    ),
-    discardReason = case_when(
-      country == "Bolivia" & str_detect(locality, regex("Buenavista|Pampa Grande|Mairana|Santa Cruz de la Sierra", ignore_case = TRUE)) ~
-        paste0(coalesce(discardReason, ""), " | stateProvince inferido por locality (Santa Cruz)"),
-      country == "Bolivia" & (is.na(stateProvince) | str_squish(stateProvince) == "") ~
-        paste0(coalesce(discardReason, ""), " | stateProvince ambiguo, requiere verificación manual"),
-      TRUE ~ discardReason
-    ),
-    ok.2 = case_when(
-      country == "Bolivia" & str_detect(locality, regex("Buenavista|Pampa Grande|Mairana|Santa Cruz de la Sierra", ignore_case = TRUE)) ~ TRUE,
-      TRUE ~ ok.2
-    )
-  )
+dfEi$locality[idx[valid]] <- unname(correcciones_locality[valid])
+dfEi$ok.2[idx[valid]] <- TRUE
+
+mensaje <- "locality translated to English and standardized"
+
+dfEi$discardReason[idx[valid]] <- ifelse(
+  is.na(dfEi$discardReason[idx[valid]]) | dfEi$discardReason[idx[valid]] == "",
+  mensaje,
+  paste(dfEi$discardReason[idx[valid]], mensaje, sep = " | ")
+)
 ```
+
 
 ```{r}
 #Paraguay
@@ -918,50 +1004,16 @@ for (id in names(locality_en)) {
 ```
 
 ```{r}
-dfEi <- dfEi %>%
-  mutate(
-    stateProvince = case_when(
-      !is.na(stateProvince) & str_squish(stateProvince) != "" ~ stateProvince,
-
-      # Brasil
-      country == "Brazil" & str_detect(locality, regex("Cubatão", ignore_case = TRUE)) ~ "São Paulo",
-      country == "Brazil" & str_detect(locality, regex("Penha de França|Serra do Ambrosio|Barro Preto", ignore_case = TRUE)) ~ "Minas Gerais",
-      country == "Brazil" & str_detect(locality, regex("Itatiaia", ignore_case = TRUE)) ~ "Rio de Janeiro",
-
-      # Cuba
-      country == "Cuba" & str_detect(locality, regex("Soledad", ignore_case = TRUE)) ~ "Cienfuegos",
-      country == "Cuba" & str_detect(locality, regex("Trinidad Hills", ignore_case = TRUE)) ~ "Sancti Spíritus",
-
-      # Estados Unidos
-      country == "United States" & str_detect(locality, regex("Jacksonville", ignore_case = TRUE)) ~ "Florida",
-
-      # México
-      country == "Mexico" & str_detect(locality, regex("Xicotepec", ignore_case = TRUE)) ~ "Puebla",
-
-      # Colombia
-      country == "Colombia" & str_detect(locality, regex("Turbaco", ignore_case = TRUE)) ~ "Bolívar",
-
-      # Uruguay
-      country == "Uruguay" & str_detect(locality, regex("Jardín Botánico", ignore_case = TRUE)) ~ "Montevideo",
-      country == "Uruguay" & str_detect(locality, regex("Cerro Arequita", ignore_case = TRUE)) ~ "Lavalleja",
-
-      TRUE ~ stateProvince
-    ),
-    discardReason = case_when(
-      country %in% c("Brazil","Cuba","United States","Mexico","Colombia","Uruguay") &
-        !is.na(stateProvince) & str_squish(stateProvince) != "" ~
-        paste0(coalesce(discardReason, ""), " | stateProvince inferido por locality"),
-      country %in% c("Brazil","Cuba","United States","Mexico","Colombia","Uruguay") &
-        (is.na(stateProvince) | str_squish(stateProvince) == "") ~
-        paste0(coalesce(discardReason, ""), " | stateProvince ambiguo, requiere verificación manual"),
-      TRUE ~ discardReason
-    ),
-    ok.2 = case_when(
-      country %in% c("Brazil","Cuba","United States","Mexico","Colombia","Uruguay") &
-        !is.na(stateProvince) & str_squish(stateProvince) != "" ~ TRUE,
-      TRUE ~ ok.2
-    )
-  ) 
+ dfEi <- d %>%
+ mutate(
+ georef_class = case_when(
+ is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+ str_detect(locality, regex(
+ "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+ ignore_case = TRUE)) ~ "detailed",
+ TRUE ~ "simple"
+ )
+ )
 ```
 
 ```{r}
