@@ -184,6 +184,23 @@ for (code in codeCR) {
   }
 }
 
+################################################
+
+dfCR_mal <- read.table("clipboard",header = T )
+dfCR_mal
+# 2. Asegurarte de extraer los códigos como un vector simple (asumiendo que la columna se llama 'code' o es la primera)
+# Si tu tabla tiene una columna específica, reemplaza 'code' por el nombre real de tu columna:
+codigos_malos <- dfCR_mal[[1]] 
+
+# 3. Encontrar los índices en tu data frame principal (dfCR) donde el ID coincide con los códigos malos
+# (Reemplaza 'occurrenceID' por la columna de ID correspondiente en tu dfCR)
+idx <- which(dfCR$occurrenceID %in% codigos_malos)
+
+# 4. Aplicar los cambios si se encontraron coincidencias
+if (length(idx) > 0) {
+  dfCR$ok.2[idx] <- FALSE
+  dfCR$discardReason[idx] <- "Impossible to correct, locality information was vague"
+}
 
 
 ```
