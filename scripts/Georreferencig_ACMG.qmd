@@ -138,12 +138,6 @@ str(dfCR_ref)
 ```{r}
 str(dfCR)
 
-dfCR_ref$decimalLongitude <- as.numeric(dfCR_ref$decimalLongitude) #Convertir a numerico
-dfCR_ref$decimalLatitude <- as.numeric(dfCR_ref$decimalLatitude)
-dfCR_ref$insertidumbre <- as.numeric(dfCR_ref$insertidumbre)
-dfCR$coordinateUncertaintyInMeters <- as.numeric(dfCR$coordinateUncertaintyInMeters)
-dfCR$decimalLongitude <- as.numeric(dfCR$decimalLongitude)
-dfCR$decimalLatitude <- as.numeric(dfCR$decimalLatitude)
 dfCR <- dfCR %>% # Archivo original
 
   left_join( 
@@ -151,7 +145,7 @@ dfCR <- dfCR %>% # Archivo original
       occurrenceID, #Este es el campo para union de las columnas
       longitude_corregida = decimalLongitude, 
       latitude_corregida  = decimalLatitude,
-      incertidumbre = insertidumbre,
+      incertidumbre = coordinateUncertaintyInMeters,
       lo_corr = Localidad
     ),
     by = "occurrenceID" # Campo por medio del cual se realiza la unión
@@ -194,82 +188,18 @@ for (code in codeCR) {
 
 ```
 
-#Mapa visualización Plots
+
+
+```{r}
+library(qs2)
+saveRDS(dfCR, file = "C:/Epig_V2/EpIG_volunteership/data/Georreferencing/2.Processed/georef__CR2024.rds")
+```
 
 
 
-```{r} 
-# --- 1. INSTALACIÓN Y CARGA DE LIBRERÍAS ---
-paquetes <- c("tidyverse", "sf", "maptiles", "tidyterra", "rgeoboundaries")
-instalar <- paquetes[!(paquetes %in% installed.packages()[,"Package"])]
-if(length(instalar)) install.packages(instalar)
 
-library(tidyverse)
-library(sf)
-library(maptiles)
-library(tidyterra)
-library(rgeoboundaries) # Carga límites políticos oficiales actualizados
 
-options(timeout = 300)
 
-# --- 2. CARGA Y LIMPIEZA DE DATOS ---
-ruta_csv <- "C:/Desktop/Voluntariado epifitas/entrenamiento/CR_simple.csv" 
-datos <- read.csv(ruta_csv, sep = ";", check.names = FALSE)
 
-datos_limpios <- datos %>%
-  mutate(
-    decimalLongitude = as.numeric(as.character(decimalLongitude)),
-    decimalLatitude = as.numeric(as.character(decimalLatitude))
-  ) %>%
-  filter(!is.na(decimalLongitude), !is.na(decimalLatitude)) %>%
-  filter(decimalLongitude != 0, decimalLatitude != 0)
 
-datos_sf <- st_as_sf(datos_limpios, coords = c("decimalLongitude", "decimalLatitude"), crs = 4326)
 
-# --- 3. DESCARGA DE LÍMITES EN LÍNEA Y RASTER ---
-# Descarga los cantones oficiales de Costa Rica (ADM2) directamente desde la API en línea
-cr_cantones_online <- geoboundaries(country = "Costa Rica", adm_lvl = "adm2")
-
-# Bounding box exacto basado en la distribución de tus datos
-bbox_datos <- st_bbox(datos_sf)
-
-# Descargar imagen satelital base
-mapa_fondo <- maptiles::get_tiles(bbox_datos, provider = "Esri.WorldImagery", zoom = 7)
-
-# Centro para el título
-x_centro <- mean(range(datos_limpios$decimalLongitude))
-
-# --- 4. EXPORTACIÓN DIRECTA SILENCIOSA (EVITA TIMEOUTS DE RSTUDIO) ---
-ruta_guardado <- "C:/Desktop/Voluntariado epifitas/entrenamiento/mapa_epifitas.png"
-
-# Abre el archivo en disco directamente
-png(filename = ruta_guardado, width = 2400, height = 2000, res = 300)
-
-ggplot() +
-  # 1. Mapa Base Satelital
-  geom_spatraster_rgb(data = mapa_fondo) +
-  
-  # 2. Cantones Oficiales actualizados (Descargados en línea)
-  geom_sf(data = cr_cantones_online, fill = NA, color = "white", linewidth = 0.3) +
-  
-  # 3. Puntos optimizados
-  geom_point(data = datos_limpios, 
-             aes(x = decimalLongitude, y = decimalLatitude),
-             color = "yellow", fill = "red", size = 1.2, shape = 21, stroke = 0.2) +
-  
-  # 4. Título Centrado
-  annotate("text", x = x_centro, y = bbox_datos["ymax"] - 0.1, 
-           label = "EPÍFITAS", 
-           color = "white", size = 5, fontface = "bold") +
-  
-  # 5. Encuadre exacto
-  coord_sf(xlim = c(bbox_datos["xmin"], bbox_datos["xmax"]), 
-           ylim = c(bbox_datos["ymin"], bbox_datos["ymax"]), 
-           datum = NA, expand = FALSE) + 
-  theme_void() +
-  theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
-
-# Cierra el dispositivo y guarda la imagen
-dev.off()
-
-cat("¡Mapa generado con cantones descargados en línea en:", ruta_guardado, "\n")
