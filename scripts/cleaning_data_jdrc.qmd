@@ -1532,5 +1532,15 @@ text_spplink$discardReason[filas_cambiadas2] <- mapply(
   "standardized author names in recordedBy"
 )
 
+#Convertir columna de lista a caracter y guardar
+
+text_spplink$discardReason <- sapply(text_spplink$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_spplink, file = "data/Text/2.Processed/text__assis_i_2026_specieslink.csv")
+
 ```
 
