@@ -1532,7 +1532,7 @@ text_spplink$discardReason[filas_cambiadas2] <- mapply(
   "standardized author names in recordedBy"
 )
 
-#Convertir columna de lista a caracter y guardar
+#Convertir columna creada de lista a caracter y guardar
 
 text_spplink$discardReason <- sapply(text_spplink$discardReason, function(x) {
   if (is.null(x) || length(x) == 0) return(NA_character_)
