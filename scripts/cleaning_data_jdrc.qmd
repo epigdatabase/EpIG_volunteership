@@ -468,8 +468,6 @@ text_spplink <- text_spplink %>%
 conteo_identifiedBy <- text_spplink %>%
   count(identifiedBy, sort = TRUE)
 
-conteo_identifiedBy
-
 
 #Corregir simbolos raros 
 
@@ -556,8 +554,8 @@ text_spplink$identifiedBy <- gsub("Navarro, M W", "Navarro, M.W.", text_spplink$
 text_spplink$identifiedBy <- gsub("M.Salazar-Ferreira", "Salazar-Ferreira, M.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Alexandre Salino", "Salino, A.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("C.N.S;Oliveira", "Oliveira, C.N.s.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("A.L.S. Amaral Jr.", "Amaral Jr, A.L.S.", text_spplink$identifiedBy)
-text_spplink$identifiedBy <- gsub("J.E. Nascimento Jr.", "Nascimento Jr, J.E.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("A.L.S. Amaral Jr.", "Amaral-Junior, A.L.S.", text_spplink$identifiedBy)
+text_spplink$identifiedBy <- gsub("J.E. Nascimento Jr.", "Nascimento-Junior, J.E.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("J. Paula-Souza", "Paula-Souza, J.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("Det.: I. M. Pereira", "Pereira, I. M.", text_spplink$identifiedBy)
 text_spplink$identifiedBy <- gsub("George Zizka", "Zizka, G.", text_spplink$identifiedBy)
@@ -712,6 +710,16 @@ text_spplink <- text_spplink %>%
       TRUE ~ identifiedBy
     )
   )
+
+text_spplink <- text_spplink %>%
+  mutate(
+    identifiedBy = case_when(
+      occurrenceID %in% c("assis_i_2026_specieslink_01340",
+                          "assis_i_2026_specieslink_01418") ~ 
+        "Ferreira-Junior, M.",
+      TRUE ~ identifiedBy
+    )
+  )
 ```
 
 #Agregar punto final
@@ -750,7 +758,7 @@ filas_cambiadas <- !is.na(text_spplink$verbatimidentifiedBy) &
 text_spplink$discardReason[filas_cambiadas] <- mapply(
   agregar_comentario,
   text_spplink$discardReason[filas_cambiadas],
-  "standardize author names in identifiedBy"
+  "standardized author names in identifiedBy"
 )
 ```
 
@@ -902,7 +910,6 @@ estandarizar_iniciales_apellido <- function(texto) {
   
   if (is.na(texto) || str_trim(texto) == "") return(texto)
   
-  # Busca cada bloque "Iniciales. Apellido" (antes de un "|" o al final del texto)
   str_replace_all(
     texto,
     "((?:[A-ZÁÉÍÓÚÑ]\\.){1,4})\\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+)(?=\\s*(\\||$))",
@@ -960,6 +967,110 @@ text_spplink$recordedBy <- sapply(text_spplink$recordedBy, reorganizar_autores_2
 #Corregir casos especificos
 
 ```{r}
+
+#Especiales
+
+#1
+corregir_NL_de_Souza <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "N\\.L\\. de Souza", "Souza, N.L.")
+}
+
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_NL_de_Souza)
+
+#2
+corregir_Bento_Fernandes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Bento Fernandes", "Bento-Fernandes")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_Bento_Fernandes)
+
+#3
+quitar_pipe_final <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, fixed("Costa da Silva, M.J. |"), "Costa da Silva, M.J.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, quitar_pipe_final)
+
+#4
+quitar_numero <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, fixed("A.C. Silva (2)"), "Silva, A.C.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, quitar_numero)
+
+#5
+corregir_lughadha <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Nic Lughadha, E.", "Nic-Lughadha, E.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_lughadha)
+
+#6
+corregir_andrade <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "S. de Andrade", "de Andrade, S.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_andrade)
+
+#7
+corregir_ferreira <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Ferreira Junior, C.A.", "Ferreira-Junior, C.A.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_ferreira)
+
+#8
+corregir_fernandes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Fernandes Neto, J.G.", "Fernandes-Neto, J.G.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_fernandes)
+
+#9
+corregir_fraga <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Fraga, C.N., et al", "Fraga, C.N. et al")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_fraga)
+
+#10
+corregir_fraga <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Fraga, C.N., et al", "Fraga, C.N. et al")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_fraga)
+
 #Autores con separador , y reorganizar
 
 text_spplink$recordedBy <- gsub("E.L.F. Menezes, Giordani, S.C.O.", "Menezes, E.L.F. | Giordani, S.C.O.", text_spplink$recordedBy)
@@ -968,34 +1079,458 @@ text_spplink$recordedBy <- gsub("E.L.F. Menezes, Giordani, S.", "Menezes, E.L.F.
 text_spplink$recordedBy <- gsub("E.L.F. Menezes, Pansarin, E.R.", "Menezes, E.L.F. | Pansarin, E.R.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("D.A. Costa, Antunes, K.", "Costa, D.A. | Antunes, K.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("G. Martinelli, T. Lima, Moraes, L.", "Martinelli, G. | Lima, T. | Moraes, L.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("I. M. Franco, C. O. Andrino, D. M. T. Francino, M. M. T. Cota e T. Coser, S.", "Franco, I. M. | Andrino, C.O. | Francino, D.M.T. | Cota, M. M. T. | Coser, T.S.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("K.H. Silva, D.A. Costa, Costa, F.N.", "Silva, K.H. | Costa, D.A. | Costa, F.N.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("T.S. Coser, Castro, R.M.", "Coser, T.S. | Castro, R.M.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("D.A. Costa, K.H. Silva, Costa, F.N.", "Costa, D.A. | Silva, K.H. | Costa, F.N.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("E.A.E. Guarconi, Scatigna, A.V.", "Guarconi, E.A.E. | Scatigna, A.V.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("F.N. Costa, K.H. Silva, Costa, D.Y.", "Costa, F.N. | Silva, K.H. | Costa, D.Y.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("F.N.Costa, S.N.Fonseca e Coser, T.S.", "Costa, F.N. | Fonseca, S.N. | Coser, T.S.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("I.M. Franco, A.S. Quaresma, F.N. Costa, I.M. Araujo, Cota, M.M.T.", "Franco, I.M. | Quaresma, A.S. | Costa, F.N. | Araujo, I.M. | Cota, M.M.T.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("F.N. Costa, S.N. Fonseca, Coser, T.S.", "Costa, F.N. | Fonseca, S.N. | Coser, T.S.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("K.H. Silva, F.N. Costa, A.T.C. Brant, B.M. Salome, D.A. Costa, Cunha, L.K.G.", "Silva, K.H. | Costa, F.N. | Brant, A.T.C. | Salome, B.M. | Costa, D.A. | Cunha, L.K.G.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("L.K.G. Cunha, K.H. Silva, F.N. Costa, A.T.C. Brant, Costa, D.A.", "Cunha, L.K.G. | Silva, K.H. | Costa, F.N. | Brant, A.T.C. | Costa, D.A.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("M.G. Caxambu, E.L. Siqueira, R.C.A. dos Santos | P.F.N.", "Caxambu, M.G. | Siqueira, E.L. | dos Santos, R.C.A.| Procopio, P.F.N", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("A. S. Quaresma, I. M. Franco, C. O. Andrino, M. P. Tannure | F. Costa, N.", "Quaresma, A. S. | Franco, I. M. | Andrino, C. O. | Tannure, M. P. | Costa, F.N.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("F.N. Costa, K.H. Silva, L.K.G. Cunha, Ribeiro, F.M.F.", "Costa, F.N. | Silva, K.H. | Cunha, L.K.G. | Ribeiro, F.M.F.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("A.P. Silva, Oliveira, C.N.S.", "Silva, A.P. | Oliveira, C.N.S.", text_spplink$recordedBy)
-
+text_spplink$recordedBy <- gsub("G. Martinelli, T. Lima, Maurenza, D.", "Martinelli, G. | Lima, T. | Maurenza, D.", text_spplink$recordedBy)
 
 #Casos únicos
 
 text_spplink$recordedBy <- gsub("M.S. da Silva", "da Silva, M.S.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("M.S.da Silva", "da Silva, M.S.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("Verdi, M. | N.L. de Souza | Klemz, G. | Klettenberg, D.H.", "Verdi, M. | Souza, N.L. | Klemz, G. | Klettenberg, D.H.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("Thais Elias Almeida", "Elias-Almeida, T.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("Alexandre Salino", "Salino, A.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("Rodrigues, M.C. | A.C. Silva (2) | Polisello, B.O. | Carvalho, E.J.", "Rodrigues, M.C. | Silva, A.C. | Polisello, B.O. | Carvalho, E.J.", text_spplink$recordedBy)
 text_spplink$recordedBy <- gsub("Salino,A. c/o Lombardi,J., Harald Schneider", "Salino, A. | Lombardi, J. | Schneider, H.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("Thais Elias Almeida, Alexandre Salino", "Elias-Almeida, T. | Salino, A.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("Thais Elias Almeida, Harald Schneider", "Elias-Almeida, T. | Schneider, H.", text_spplink$recordedBy)
-text_spplink$recordedBy <- gsub("Bento Fernandes, C.E. | Capatti, V.A. | Teixeira, V.A.", "Bento-Fernandes, C.E. | Capatti, V.A. | Teixeira, V.A.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Elias-Almeida, T., Salino, A.", "Elias-Almeida, T. | Salino, A.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("Elias-Almeida, T., Harald Schneider", "Elias-Almeida, T. | Schneider, H.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("G. Martinelli, Baez, C.", "Martinelli, G. | Baez, C.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("C.B. Graca, Saraiva, J.R.", "Graca, C.B. | Saraiva, J.R.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("C.B.R. Munhoz, P. Emmert, T.R.B Mello", "Munhoz, C.B.R. | Emmert, P. | Mello, T.R.B.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("G. Guerra, Silva, R.S.", "Guerra, G. | Silva, R.S.", text_spplink$recordedBy)
+text_spplink$recordedBy <- gsub("K.H. Silva, Costa, F.N.", "Silva, K.H. | Costa, F.N.", text_spplink$recordedBy)
 
+corregir_jordao <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Jordao, M, V.M.", "Jordao, V.M.M.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_jordao)
+
+
+corregir_monzoli <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Monzoli, L, J.V.", "Monzoli, L.J.V.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_monzoli)
+
+corregir_paula <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "J. Paula-Souza", "Paula-Souza, J.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_paula)
+
+corregir_gasper1 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Gasper, A.L.", "de Gasper, A.L.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_gasper1)
+
+corregir_gasper2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Gasper, AL de", "de Gasper, A.L.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_gasper2)
+```
+
+#Revisar por apellidos
+
+```{r}
+#Caxambu
+
+correcciones_caxambu <- c(
+  "M.G. Caxambu, E.L. Siqueira, R.C.A. dos Santos | P.F.N." = "Caxambu, M.G. | Siqueira, E.L. | dos Santos, R.C.A. | Procopio, P.F.N.",
+  "M.G. Caxambu, E.L. Siqueira | Santos, T.M." = "Caxambu, M.G. | Siqueira, E.L. | Santos, T.M.",
+  "M.G. Caxambu, E.L. Siqueira, B.G. Manoel | Antunes, S." = "Caxambu, M.G. | Siqueira, E.L. | Manoel, B.G. | Antunes, S.",
+  "M.G. Caxambu, E.L. Siqueira, B.M. Castignaro |" = "Caxambu, M.G. | Siqueira, E.L. | Castignaro, B.M.",
+  "M.G. Caxambu, E.L. Siqueira, P.F.N. Procopio | Coelho, K." = "Caxambu, M.G. | Siqueira, E.L. | Procopio, P.F.N. | Coelho, K."
+)
+
+corregir_por_diccionario <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_caxambu)) {
+    original <- names(correcciones_caxambu)[i]
+    nuevo <- correcciones_caxambu[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto)  # si no coincide con ninguna de la lista, se deja igual
+}
+  
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario)
+
+text_spplink <- text_spplink %>%
+  mutate(
+    recordedBy = ifelse(occurrenceID == "assis_i_2026_specieslink_00093",
+                              "Caxambu, M.G. | Siqueira, E.L. | Castignaro, B.M.", recordedBy),
+  )
+
+#Franco
+
+diccionario_franco <- c(
+  "F.N. Costa, I.M. Araujo, I.M. Franco, A.S. Quaresma, Cota, M.M.T." = 
+    "Costa, F.N. | Araujo, I.M | Franco, I.M | Quaresma, A.S | Cota, M.M.T.",
+
+  "I. M. Franco, A. S. Quaresma, F. N. Costa, I. M. Araujo | M. M. Cota, T." = 
+    "Franco, I.M. | Quaresma, A.S. | Costa, F.N. | Araujo, I.M. | Cota, M.M.T.",
+  
+  "I.M. Franco, A.S. Quaresma, F.N. Costa, I.M. Araujo, Cota, M.M.T." = 
+    "Franco, I.M. | Quaresma, A.S. | Costa, F.N. | Araujo, I.M. | Cota, M.M.T",
+
+  "I. M. Franco, S. C. Santos | S. N. de Castro" = 
+    "Franco, I.M. | Santos, S.C. | de Castro, S.N.",
+
+  "I.M. Franco, A.C.R. Cruz, P.R. Silva, Araujo, T.Q." = 
+    "Franco, I.M. | Cruz, A.C.R. | Silva, P.R. | Araujo, T.Q.",
+
+  "I.M. Franco, Araujo, T.Q." = 
+    "Franco, I.M. | Araujo, T.Q.",
+
+  "I.M. Franco, C.O. Andrino, Costa, F.N." = 
+    "Franco, I.M. | Andrino, C.O. | Costa, F.N.",
+
+  "I.M. Franco, S.C. Santos, S.N. de Castro" = 
+    "Franco, I.M. | Santos, S.C. | de Castro, S.N.",
+  
+  "A. S. Quaresma, I. M. Franco, C. O. Andrino, M. P. Tannure | F. Costa, N." = 
+    "Quaresma, A.S. | Franco, I.M | Andrino, C.O. | Tannure, M. P. | Costa, F.N.",
+
+  "Y. Oshima-Franco, E.M.R. Suzuki | Vila, M.M.D.C." = 
+    "Oshima-Franco, Y. | Suzuki, E.M.R. | Vila, M.M.D.C.",
+  
+  "I. M. Franco, C. O. Andrino, D. M. T. Francino, M. M. T. Cota e T. Coser, S." = 
+    "Franco, I.M. | Andrino, C.O | Francino, D.M.T. | Cota, M.M.T. | Coser, T.S."
+)
+
+corregir_por_diccionario2 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_franco)) {
+    original <- str_squish(names(diccionario_franco)[i])
+    if (texto_comparar == original) {
+      return(diccionario_franco[i])
+    }
+  }
+  return(texto)
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario2)
+
+#Costa y Siqueira
+
+diccionario_costa_siqueira <- c(
+  "D.A.Costa,F.N.Costa e Fonseca, S.N." = 
+    "Costa, D.A. | Costa, F.N. | Fonseca, S.N.",
+  
+  "D.A.Costa,F.N.Costa e" = 
+    "Costa, D.A. | Costa, F.N.",
+
+  "D.A. Costa, F.N. Costa, Aguiar, M.C." = 
+    "Costa, D.A. | Costa, F.N. | Aguiar, M.C.",
+
+  "E.L. Siqueira, G.G. Quinto, P.F.N. Procopio | Brito, L.F." = 
+    "Siqueira, E.L. | Quinto, G.G. | Procopio, P.F.N. | Brito, L.F.",
+
+  "E.L. Siqueira, R.C. Alencar | Troi, L." = 
+    "Siqueira, E.L. | Alencar, R.C. | Troi, L."
+)
+
+corregir_por_diccionario3 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_costa_siqueira)) {
+    original <- str_squish(names(diccionario_costa_siqueira)[i])
+    if (texto_comparar == original) {
+      return(diccionario_costa_siqueira[i])
+    }
+  }
+  return(texto)
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario3)
+
+#Junior
+
+diccionario_junior <- c(
+  "Aona, L.Y.S. | Biggs, N. | Jardim, J.G. | Lucas, E. | Mazine, F.F. | Victor Junior, V.V. | Costa, G." = 
+    "Aona, L.Y.S. | Biggs, N. | Jardim, J.G. | Lucas, E. | Mazine, F.F. | Victor-Junior, V.V. | Costa, G.",
+  
+  "Korte, A. | M.J. Rigon-Junior" = 
+    "Korte, A. | Rigon-Junior, M.J.",
+
+  "Pingal, M. | Armorim Santos, T. | Rodrigues da Silva Junior, M. | Braga Godinho, L. | Pais Chaves, T." = 
+    "Pingal, M. | Armorim-Santos, T. | Rodrigues-da Silva-Junior, M. | Braga-Godinho, L. | Pais-Chaves, T.",
+
+  "Silva Junior, W.R." = 
+    "Silva-Junior, W.R.",
+
+  "Mott Jr, A.L. | Peters, J.P.L. | Rautmann, A. | Taques, G." = 
+    "Mott-Junior, A.L. | Peters, J.P.L. | Rautmann, A. | Taques, G.",
+  
+  "Zappi, D.C. | Mello-Silva, R. | C.A. Ferreira Jr | Araujo, F.A.L. | Candido, E.S." = 
+    "Zappi, D.C. | Mello-Silva, R. | Ferreira-Junior, C.A. | Araujo, F.A.L. | Candido, E.S."
+)
+
+corregir_por_diccionario4 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_junior)) {
+    original <- str_squish(names(diccionario_junior)[i])
+    if (texto_comparar == original) {
+      return(diccionario_junior[i])
+    }
+  }
+  return(texto)
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario4)
+
+corregir_junior1 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Ferreira Jr, M.", "Ferreira-Junior, M.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_junior1)
+
+corregir_junior2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Ferreira Jr, C.A.", "Ferreira-Junior, C.A.")
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_junior2)
+
+#Almeida
+
+diccionario_almeida <- c(
+  "Elias-Almeida, T. | Salino, A., C.Delfini, D.B.Oliveira, D.C.Diaz, Rijon, J." = 
+    "Elias-Almeida, T. | Salino, A. | Delfini, C. | Oliveira, D.B. | Diaz, D.C. | Rigon-Junior, M.J.",
+  
+  "F.N. Costa, C.B. Graca, G.R. Paiva, R.B.P. Almeida, C. Iannarelli, Caceres, S.Y." = 
+    "Costa, F.N. | Graca, C.B. | Paiva, G.R. | Almeida, R.B.P. | Iannarelli, C. | Caceres, S.Y."
+)
+
+corregir_por_diccionario5 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_almeida)) {
+    original <- str_squish(names(diccionario_almeida)[i])
+    if (texto_comparar == original) {
+      return(diccionario_almeida[i])
+    }
+  }
+  return(texto)
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario5)
+
+#Costa
+
+diccionario_costa <- c(
+  "F.N. Costa, Mendonca, C.V.." = 
+    "Costa, F.N. | Mendonca, C.V.",
+  
+  "F.N. Costa, P.T. Sano, M. Trova, L. Enchternacht, M.M.T. Cota, N. Roque, R.R. Silva, Andrino, C.O." = 
+    "Costa, F.N. | Sano, P.T. | Trova, M. | Enchternacht, L. | Cota, M.M.T. | Roque, N. | Silva, R.R. | Andrino, C.O.",
+
+  "F.N. Costa, S.N. Fonseca, Lucca, M." = 
+    "Costa, F.N. | Fonseca, S.N. | Lucca, M.",
+
+  "F.N. Costa, S.N. Fonseca, N.P. Silva, Andrino, C.O." = 
+    "Costa, F.N. | Fonseca, S.N. | Silva, N.P. | Andrino, C.O.",
+
+  "F.N.Costa, S.N. Fonseca, Lucas, M." = 
+    "Costa, F.N. | Fonseca, S.N. | Lucca, M.",
+  
+  "F.N. Costa, Mendonca, C.V." = 
+    "Costa, F.N. | Mendonca, C.V.",
+  
+  "L.B. Costa, D.J.P. Goncalves, C.N.S. Oliveira, Cota, M.M.T." = 
+    "Costa, L.B. | Goncalvesa, D.J.P. | Oliveira, C.N.S. | Cota, M.M.T.",
+  
+  "F.N.Costa,P.T.Sano,R.R.Silva e Fonseca, S.N." = 
+    "Costa, F.N. | Sano, P.T. | Silva, R.R. | Fonseca, S.N."
+)
+
+corregir_por_diccionario6 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_costa)) {
+    original <- str_squish(names(diccionario_costa)[i])
+    if (texto_comparar == original) {
+      return(diccionario_costa[i])
+    }
+  }
+  return(texto)
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario6) 
+
+#Cota
+
+diccionario_cota <- c(
+  "Cota, M.M.T., Diniz, M.F." = 
+    "Cota, M.M.T. | Diniz, M.F.",
+  
+  "Cota, M.M.T., M.F. Diniz." = 
+    "Cota, M.M.T. | Diniz, M.F.",
+
+  "Cota, M.M.T., M.F.Diniz." = 
+    "Cota, M.M.T. | Diniz, M.F."
+)
+
+corregir_por_diccionario7 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_cota)) {
+    original <- str_squish(names(diccionario_cota)[i])
+    if (texto_comparar == original) {
+      return(diccionario_cota[i])
+    }
+  }
+  return(texto)
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario7)
+
+#Otros casos
+
+diccionario_otros <- c(
+  "L.M. Porto de Paula, Antonini, Y." = 
+    "Porto de Paula, L.M. | Antonini, Y.",
+  
+  "Laiana Leite" = 
+    "Leite, L.",
+
+  "Pereira-Silva, G. | Barreto dos Santos, A.J. | Moreira, G.A. | Pereira, J.B." = 
+    "Pereira-Silva, G. | dos Santos, A.J.B. | Moreira, G.A. | Pereira, J.B.",
+
+  "Simon, M.F. | Simon, M.F. | Moreira, G.A. | Pereira-Silva, G. | Pereira, J.B. | Pereira do Amaral, J. | Moser, P." = 
+    "Simon, M.F. | Moreira, G.A. | Pereira-Silva, G. | Pereira, J.B. | Pereira do Amaral, J. | Moser, P.",
+  
+  "Zappi, D.C. | Milliken, W. | Lewis, G.P. | Biggs, N. | Scalon V. Romao, G. Savassi, A.P. | Rando, J.G. | Flores, T.L." = 
+    "Zappi, D.C. | Milliken, W. | Lewis, G.P. | Biggs, N. | Scalon V. Romao, G. | Savassi, A.P. | Rando, J.G. | Flores, T.L."
+  
+)
+
+corregir_por_diccionario8 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_otros)) {
+    original <- str_squish(names(diccionario_otros)[i])
+    if (texto_comparar == original) {
+      return(diccionario_otros[i])
+    }
+  }
+  return(texto)
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, corregir_por_diccionario8)
+
+```
+
+#Reestructuración de apellidos
+
+```{r}
+
+quitar_pipe_final2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, fixed("Santos, K.N. |"), "Santos, K.N.")
+} 
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, quitar_pipe_final2)
+
+reemplazos_final <- c(
+  "M.M.T. Cota"        = "Cota, M.M.T.",
+  "M.M.T.Cota"        = "Cota, M.M.T.",
+  "Tim e Firmeza, B."         = "Firmeza, B.T.",
+  "Time Firmeza, B."     = "Firmeza, B.T.",
+  "El Ottra, J.H.L.E."       = "Ottra, J.H.L.E.",
+  "Oliveira, Halley C de"       = "de Oliveira, H.C.",
+  "E. Carvalho, J."      = "Carvalho, E.J.",
+  "Silva, da, C.F."        = "da Silva, C.F.",
+  "Antonio Jose Barreto dos Santos"          = "dos Santos, A.J.B."
+)
+
+text_spplink$recordedBy <- str_replace_all(text_spplink$recordedBy, reemplazos_final)
+
+```
+
+#Eliminar "dall" y cambios
+
+```{r}
+
+eliminar_dall <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  if (texto == "Dall") {
+    return(NA_character_)
+  }
+  
+  texto <- str_replace_all(texto, fixed("| Dall"), "")
+  
+  str_squish(texto)  
+}
+
+text_spplink$recordedBy <- sapply(text_spplink$recordedBy, eliminar_dall)
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario2 <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas2 <- !is.na(text_spplink$verbatimrecordedBy) & 
+                    !is.na(text_spplink$recordedBy) &
+                    text_spplink$verbatimrecordedBy != text_spplink$recordedBy
+
+text_spplink$discardReason[filas_cambiadas2] <- mapply(
+  agregar_comentario2,
+  text_spplink$discardReason[filas_cambiadas2],
+  "standardized author names in recordedBy"
+)
 
 ```
 
