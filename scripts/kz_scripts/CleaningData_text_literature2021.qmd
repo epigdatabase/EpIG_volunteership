@@ -398,6 +398,43 @@ spp_link$associatedReferences <- gsub(
   spp_link$associatedReferences
 )
 
+spp_link$associatedReferences <- gsub(
+  "MagalhÃ£es & Lopes",
+  "Magallanes & Lopes",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "ObermÃ¼ller-et-al\\.",
+  "Obermüller-et-al.",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "ObermÃ¼ller-et-al.",
+  "Obermüller-et-al.",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "ArÃ©valo",
+  "Arevalo.",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+spp_link$associatedReferences <- gsub(
+  "CasaÃ±as & JÃ¡uregui",
+  "Casanas & Jáuregui",
+  spp_link$associatedReferences,
+  fixed = TRUE
+)
+
+#
+
 grep("ArA", spp_link$associatedReferences, value = TRUE)
 
 grep("daSilva", spp_link$associatedReferences, value = TRUE)
