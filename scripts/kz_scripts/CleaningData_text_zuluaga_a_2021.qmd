@@ -22,7 +22,9 @@ library(rWCVP)
 library(CoordinateCleaner)
 library(ggplot2) 
 
-spp_link <- read.csv("data/Text/1_Raw/text__literature2021.csv")
+spp_link <- read.csv(
+  "C:/Users/kelly/Downloads/EpiG V2/EpIG_volunteership/data/Text/1_Raw/text__zuluaga_a_2021.csv"
+)
 
 head(spp_link)
 View(spp_link)
@@ -40,12 +42,12 @@ dplyr::glimpse(spp_link)
 
 #Dataset Structure
 
-str(spp_link$taxonRank) #[1:10766] "SPECIES"
-str(spp_link$lifeForm) #[1:10766] "NA"
-str(spp_link$institutionCode) #[1:10766] "NA" 
-str(spp_link$eventDate) #[1:10766] "NA" 
+str(spp_link$taxonRank) #[1:4486] "SPECIES"
+str(spp_link$lifeForm) #[1:4486] "NA"
+str(spp_link$institutionCode) #[1:4486] "MO" "CAS" "US" "A" "A" "B" "MO" "MO" "P" "P" "" "AMAZ" .
+str(spp_link$eventDate) #[1:4486] ok
 str(spp_link$ocurrenceID) #[1:10766] "NULL" 
-str(spp_link$basisOfRecord) ##[1:10766] "MaterialCitation" 
+str(spp_link$basisOfRecord) ##[1:10766] "PreservedSpecimen" 
 str(spp_link$typeStatus) # #[1:10766] "NULL"  "Text"
 str(spp_link$associatedReferences) #[1:10766]  - Needs review
 str(spp_link$collectionCode) #[1:10766]
