@@ -95,16 +95,18 @@ unique(dfCR$country)
 ```
 
 ```{r}
-dfCR1 <- dfCR %>%
-  filter(country=="Costa Rica") %>%
+dfCR17 <- dfCR %>%
+  filter(country=="Cuba") %>%
   select(
     occurrenceID,
     decimalLatitude, decimalLongitude,
     locality, country, countryCode,
-    changes,
-    georef_class
+    changes
   )
-unique(dfCR1$country)
+# unique(dfCR2$country)
+
+#################
+
 
 ```
 
@@ -112,12 +114,10 @@ unique(dfCR1$country)
 
 
 ```{r}
-write.csv(dfCR1, file = "C:/Desktop/Voluntariado epifitas/entrenamiento/CR1.csv")
+write.csv(dfCR17, file = "C:/Desktop/Voluntariado epifitas/entrenamiento/17_Cuba.csv")
 ```
 
-```{r}
-write_xlsx(dfCR1, "C:/Desktop/Voluntariado epifitas/entrenamiento/CR_simple.xlsx")
-```
+#####
 
 ```{r}
 #coordinateUncertaintyInMeters
@@ -212,7 +212,13 @@ library(qs2)
 saveRDS(dfCR, file = "C:/Epig_V2/EpIG_volunteership/data/Georreferencing/2.Processed/georef__CR2024.rds")
 ```
 
+# Carga de paquetes para analisis de datos esñaciales
 
+```{r}
+install.packages("ctv")
+library(ctv)
+install.views("Spatial")
+```
 
 
 
