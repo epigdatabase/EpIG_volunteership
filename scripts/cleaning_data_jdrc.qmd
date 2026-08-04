@@ -1544,3 +1544,69 @@ write.csv(text_spplink, file = "data/Text/2.Processed/text__assis_i_2026_species
 
 ```
 
+#3. text__assis_i_2026_literature.csv
+
+```{r}
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+
+text_literature <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__assis_i_2026_literature.csv")
+
+view(text_literature)
+
+```
+
+# Crear columna de comentarios
+
+```{r}
+
+if (!"discardReason" %in% names(text_literature)) text_literature$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_literature$basisOfRecord)                       #No necesita cambios
+unique(text_literature$typeStatus)                          #No necesita cambios 
+unique(text_literature$associatedReferences)                #No necesita cambios
+unique(text_literature$institutionCode)                     #Necesita estandarización
+unique(text_literature$taxonRank)                           #No necesita cambios
+unique(text_literature$collectionCode)                      #No necesita cambios
+unique(text_literature$recordedBy)                          #No necesita cambios
+unique(text_literature$recordNumber)                        #No necesita cambios
+unique(text_literature$identifiedBy)                        #No necesita cambios
+unique(text_literature$habitat)                             #No necesita cambios
+unique(text_literature$lifeForm)                            #No necesita cambios
+unique(text_literature$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim para institutionCode
+
+```{r}
+#institutionCode
+
+text_literature <- text_literature %>%
+  mutate(
+    verbatiminstitutionCode = institutionCode
+  )
+
+```
+
+#-institutionCode: Detectar información dañada y corregir
+
+```{r}
+conteo_institutionCode <- text_literature %>%
+  count(institutionCode, sort = TRUE)
+
+
+
+```
