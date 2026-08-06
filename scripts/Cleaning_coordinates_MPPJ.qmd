@@ -218,8 +218,16 @@ idx <- which(voluntarios$dataset == "assis_i_2026_literature")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "27/07/26"
-    #voluntarios$finishingDateDC[idx] <- "27/07/26"
+    voluntarios$finishingDateDC[idx] <- "06/08/26"
 }
+
+idx <- which(voluntarios$dataset == "assis_i_2026_diagonal")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "06/08/26"
+    #voluntarios$finishingDateDC[idx] <- "06/08/26"
+}
+
 
 
 #CAMILO
