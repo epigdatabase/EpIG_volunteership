@@ -1557,6 +1557,7 @@ library(sf)
 library(CoordinateCleaner)
 library(ggplot2)
 library(stringi)
+library(readxl)
 
 text_literature <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__assis_i_2026_literature.csv")
 
@@ -1607,6 +1608,82 @@ text_literature <- text_literature %>%
 conteo_institutionCode <- text_literature %>%
   count(institutionCode, sort = TRUE)
 
-
+#Obtener acronimos
+write.csv(conteo_institutionCode, file = "C:/VOLUNTARIADO/institutionCode.csv")
 
 ```
+
+#Reemplazar nombres por acrónimos con un join
+
+```{r}
+
+instituciones <- read_excel("C:/VOLUNTARIADO/institutionCode.xlsx", sheet = "acronimos") %>%
+  rename(
+    acronym = Acrónimo,
+    institution = Institución
+  )
+
+text_literature <- text_literature %>%
+  left_join(instituciones, by = c("institutionCode" = "institution")) %>%
+  mutate(institutionCode = coalesce(acronym, institutionCode)) %>%  # si no hay acrónimo, deja el original
+  select(-acronym)                      
+
+```
+
+#Corregir manualmente los duplicados
+
+```{r}
+instituciones_duplicados <- c(
+  "Museu Paraense Emílio Goeldi, Coordenação de Botânica, Belém, PA, Brazil" = "MPEG",
+  "Museu Paraense Emílio Goeldi, Coordenação de Botânica, Terra Firme, Belém, PA, Brazil" = "MPEG",
+  "Instituto de Pesquisa Jardim Botânico do Rio de Janeiro, Rio de Janeiro, RJ, Brazil" = "JBRJ",
+  "Instituto de Pesquisas Jardim Botânico do Rio de Janeiro" = "JBRJ",
+  "Universidade Federal da Integração Latino-Americana" = "UNILA",
+  "UNIVERSIDADE FEDERAL DA INTEGRAÇÃO LATINO AMERICANA" = "UNILA",
+  "Universidade Federal de Sergipe, Itabaiana, SE, Brazil" = "UFS",
+  "Universidade Federal de Sergipe, São Cristóvão, SE, Brazil" = "UFS",
+  "Universidade Federal de Sergipe" = "UFS",
+  "Universidade Federal Rural da Amazônia, Belém, Pará, Brazil" = "UFRA",
+  "Herbário HCP, Universidade Federal Rural da Amazônia" = "UFRA",
+  "Universidade Estadual do Norte Fluminense Darcy Ribeiro, Rio de Janeiro state, Brazil" = "UENF",
+  "Universidade Estadual do Norte Fluminense Darcy Ribeiro" = "UENF"
+)
+
+text_literature$institutionCode <- str_replace_all(text_literature$institutionCode, instituciones_duplicados)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+#Especificar cambios en institutionCode
+
+agregar_comentario3 <- function(discardReason, comentario_nuevo2) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo2)
+  } else {
+    return(paste(discardReason, comentario_nuevo2, sep = " / "))
+  }
+}
+
+filas_cambiadas3 <- !is.na(text_literature$institutionCode) & 
+                    !is.na(text_literature$verbatiminstitutionCode) &
+                    text_literature$verbatiminstitutionCode != text_literature$institutionCode
+
+text_literature$discardReason[filas_cambiadas3] <- mapply(
+  agregar_comentario3,
+  text_literature$discardReason[filas_cambiadas3],
+  "institution names converted to acronyms in institutionCode"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_literature$discardReason <- sapply(text_literature$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_literature, file = "data/Text/2.Processed/text__assis_i_2026_literature.csv")
+```
+
