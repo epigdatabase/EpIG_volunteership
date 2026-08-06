@@ -1687,3 +1687,58 @@ text_literature$discardReason <- sapply(text_literature$discardReason, function(
 write.csv(text_literature, file = "data/Text/2.Processed/text__assis_i_2026_literature.csv")
 ```
 
+#3. text__assis_i_2026_diagonal.csv
+
+```{r}
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_diagonal <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__assis_i_2026_diagonal.csv")
+
+view(text_diagonal)
+```
+
+# Crear columna de comentarios
+
+```{r}
+
+if (!"discardReason" %in% names(text_diagonal)) text_diagonal$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_diagonal$basisOfRecord)                       #No necesita cambios
+unique(text_diagonal$typeStatus)                          #No necesita cambios 
+unique(text_diagonal$associatedReferences)                #Necesita estandarización
+unique(text_diagonal$institutionCode)                     #No necesita cambios
+unique(text_diagonal$taxonRank)                           #No necesita cambios
+unique(text_diagonal$collectionCode)                      #No necesita cambios
+unique(text_diagonal$recordedBy)                          #No necesita cambios
+unique(text_diagonal$recordNumber)                        #No necesita cambios
+unique(text_diagonal$identifiedBy)                        #No necesita cambios
+unique(text_diagonal$lifeForm)                            #No necesita cambios
+unique(text_diagonal$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim para associatedReferences
+
+```{r}
+#associatedReferences
+
+text_diagonal <- text_diagonal %>%
+  mutate(
+    verbatimassociatedReferences = associatedReferences
+  )
+
+```
