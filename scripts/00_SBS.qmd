@@ -10,7 +10,7 @@ editor_options:
 ## libraries
 
 ```{r}
-packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr","ggplot")
+packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "readr", "purrr","ggplot")
 
 # Install packages not yet installed [for the first time]
 installed_packages <- packages %in% rownames(installed.packages())
@@ -25,7 +25,6 @@ Sys.setlocale("LC_ALL", "Spanish_Spain.1252") # en Windows
 
 
 ```
-
 
 ## Automating to Speed Up Searches
 
@@ -216,16 +215,6 @@ limpiar_texto <- function(texto) {
 processed_amaz_data$stateProvince <- limpiar_texto(processed_amaz_data$stateProvince)
 ```
 
-
-# To evaluate
-
-```{r}
-processed_amaz_data <- processed_amaz_data %>%
-  mutate(
-    discardReason = if_else(ok.2 == FALSE, "Left as original", discardReason)
-  )
-```
-
 # Read of txt
 
 ```{r}
@@ -262,4 +251,231 @@ processed_amaz_data <- processed_amaz_data %>%
 ```{r}
 write.csv(processed_amaz_data, file = "../data/Georreferencing/2.Processed/georef__AMAZ2024.csv")
 ```
+
+# Asissi DataFrame
+
+```{r}
+asissi_data <- read.csv("../data/Georreferencing/2.Processed/georef__assis_i_2026_specieslink.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+asissi_data <- asissi_data %>%
+  mutate(
+    locality = stri_trans_general(locality, id = "Latin-ASCII")
+  )
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+library(tidygeocoder)
+library(purrr)
+library(geosphere)
+library(stringi)
+
+safe_geocode_arcgis <- function(df, address_col, lat_name, lon_name, chunk_size = 200) {
+  if (nrow(df) == 0) {
+    return(tibble(!!address_col := character(), !!lat_name := numeric(), !!lon_name := numeric()))
+  }
+  
+  df_temp <- df %>% rename(temp_address = all_of(address_col))
+  
+  chunks <- split(df_temp, ceiling(seq_len(nrow(df_temp)) / chunk_size))
+  
+  res <- purrr::imap_dfr(chunks, function(chunk, i) {
+    message(sprintf("  -> Geocodificando lote %s de %s...", i, length(chunks)))
+    geocode(chunk, address = temp_address, method = "arcgis", lat = lat_temp, long = lon_temp, quiet = TRUE)
+  })
+  
+  if (!"lat_temp" %in% names(res)) res$lat_temp <- NA_real_
+  if (!"lon_temp" %in% names(res)) res$lon_temp <- NA_real_
+  
+  res %>% 
+    rename(!!address_col := temp_address, !!lat_name := lat_temp, !!lon_name := lon_temp) %>% 
+    select(all_of(c(address_col, lat_name, lon_name)))
+}
+
+clean_locality_text <- function(x) {
+  x %>% 
+    stringi::stri_trans_general(id = "Latin-ASCII") %>% 
+    str_replace_all("[\\.,:;\\(\\)\\[\\]/-]", " ") %>% 
+    str_squish()
+}
+
+simplify_locality_text <- function(x) {
+  x_clean <- clean_locality_text(x)
+  x_clean <- str_remove_all(x_clean, regex("\\b(km|kilometer|carretera|road|near|cerca de|trocha|quebrada|qbrda|qda|fundo|comunidad|caserio|estacion|bosque|bordes|rocosos)\\b", ignore_case = TRUE))
+  x_clean <- str_remove_all(x_clean, "\\b[0-9]+\\b") %>% str_squish()
+  ifelse(str_count(x_clean, "\\S+") > 5, str_extract(x_clean, "^(\\S+\\s+){0,4}\\S+"), x_clean) %>% str_squish()
+}
+
+verify_and_correct_coordinates <- function(data, distance_threshold_km = 20) {
+  
+  if (!"countryCode" %in% names(data)) data$countryCode <- NA_character_
+  if (!"stateProvince" %in% names(data)) data$stateProvince <- NA_character_
+  if (!"discardReason" %in% names(data)) data$discardReason <- ""
+  if (!"coordinateUncertaintyInMeters" %in% names(data)) data$coordinateUncertaintyInMeters <- NA_real_
+  
+  data_parsed <- data %>%
+    mutate(
+      lat_orig = as.numeric(decimalLatitude),
+      lon_orig = as.numeric(decimalLongitude),
+      discardReason_orig = as.character(discardReason),
+      
+      has_original = !is.na(lat_orig) & !is.na(lon_orig) & !(lat_orig == 0 & lon_orig == 0),
+      
+      loc_raw = str_squish(as.character(locality)),
+      state_raw = str_squish(as.character(stateProvince)),
+      is_empty_loc = is.na(loc_raw) | loc_raw == ""
+    )
+  
+  to_reverse <- data_parsed %>%
+    filter(is_empty_loc & has_original) %>%
+    distinct(lat_orig, lon_orig)
+  
+  if (nrow(to_reverse) > 0) {
+    message("Iniciando Reverse Geocoding (Buscando nombres para coordenadas sin texto)...")
+    chunks_rev <- split(to_reverse, ceiling(seq_len(nrow(to_reverse)) / 200))
+    
+    rev_geo <- purrr::imap_dfr(chunks_rev, function(chunk, i) {
+      message(sprintf("  -> Reverse Geocoding lote %s de %s...", i, length(chunks_rev)))
+      reverse_geocode(chunk, lat = lat_orig, long = lon_orig, method = "arcgis", address = "rev_locality", quiet = TRUE)
+    })
+    
+    data_parsed <- data_parsed %>%
+      left_join(rev_geo, by = c("lat_orig", "lon_orig")) %>%
+      mutate(
+        reversed_flag = if_else(is_empty_loc & has_original & !is.na(rev_locality), TRUE, FALSE),
+        locality = if_else(reversed_flag, rev_locality, as.character(locality)),
+        loc_raw = str_squish(as.character(locality)),
+        is_empty_loc = is.na(loc_raw) | loc_raw == ""
+      ) %>%
+      select(-rev_locality)
+  } else {
+    data_parsed <- data_parsed %>% mutate(reversed_flag = FALSE)
+  }
+  
+  data_parsed <- data_parsed %>%
+    mutate(
+      query_clean = pmap_chr(list(clean_locality_text(loc_raw), clean_locality_text(state_raw), "Brazil"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", "))),
+      query_simple = pmap_chr(list(simplify_locality_text(loc_raw), clean_locality_text(state_raw), "Brazil"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", "))),
+      query_state = pmap_chr(list(clean_locality_text(state_raw), "Brazil"), ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", ")))
+    )
+  
+  unique_queries <- data_parsed %>% 
+    filter(!is_empty_loc) %>% 
+    distinct(query_clean, query_simple, query_state) %>% 
+    filter(query_clean != "Brazil")
+  
+  message("Iniciando Nivel 1: Búsqueda con texto limpio...")
+  geo_1 <- unique_queries %>% distinct(query_clean) %>% safe_geocode_arcgis("query_clean", "lat_1", "lon_1")
+  failed_1 <- unique_queries %>% left_join(geo_1, by = "query_clean") %>% filter(is.na(lat_1))
+  
+  message("Iniciando Nivel 2: Búsqueda con texto simplificado (para los que fallaron en el Nivel 1)...")
+  geo_2 <- failed_1 %>% distinct(query_simple) %>% safe_geocode_arcgis("query_simple", "lat_2", "lon_2")
+  failed_2 <- failed_1 %>% left_join(geo_2, by = "query_simple") %>% filter(is.na(lat_2))
+  
+  message("Iniciando Nivel 3: Búsqueda solo por Estado (para el resto)...")
+  geo_3 <- failed_2 %>% distinct(query_state) %>% safe_geocode_arcgis("query_state", "lat_3", "lon_3")
+  
+  message("Consolidando resultados finales...")
+  geo_dictionary <- unique_queries %>%
+    left_join(geo_1, by = "query_clean") %>%
+    left_join(geo_2, by = "query_simple") %>%
+    left_join(geo_3, by = "query_state") %>%
+    mutate(
+      new_lat = coalesce(lat_1, lat_2, lat_3),
+      new_lon = coalesce(lon_1, lon_2, lon_3)
+    ) %>%
+    select(query_clean, new_lat, new_lon)
+  
+  data_final <- data_parsed %>%
+    left_join(geo_dictionary, by = "query_clean") %>%
+    rowwise() %>%
+    mutate(
+      distance_error_km = if_else(has_original & !is.na(new_lat),
+                                   distHaversine(c(lon_orig, lat_orig), c(new_lon, new_lat)) / 1000, 
+                                   NA_real_),
+      
+      is_too_far = isTRUE(distance_error_km > distance_threshold_km),
+      needs_correction = (!has_original | is_too_far) & !is.na(new_lat),
+      is_missing_country = is.na(countryCode) | str_squish(countryCode) == "",
+      
+      decimalLatitude = if_else(needs_correction, new_lat, lat_orig),
+      decimalLongitude = if_else(needs_correction, new_lon, lon_orig),
+      countryCode = if_else(is_missing_country, "BR", as.character(countryCode)),
+      
+      coordinateUncertaintyInMeters = if_else(
+        needs_correction | is.na(coordinateUncertaintyInMeters),
+        as.numeric(sample(c(250, 400, 500, 600, 800, 1000, 1200, 1500, 1800), 1)),
+        as.numeric(coordinateUncertaintyInMeters)
+      ),
+      
+      change_notes = case_when(
+        needs_correction & is_missing_country & reversed_flag ~ "Locality found via reverse geocoding; Coordinates corrected; CountryCode filled with BR",
+        needs_correction & is_missing_country ~ "Coordinates corrected; CountryCode filled with BR",
+        needs_correction & !is_missing_country ~ "Coordinates corrected",
+        !needs_correction & is_missing_country & reversed_flag ~ "Locality found via reverse geocoding; CountryCode filled with BR",
+        !needs_correction & !is_missing_country & reversed_flag ~ "Locality found via reverse geocoding",
+        !needs_correction & is_missing_country ~ "CountryCode filled with BR",
+        TRUE ~ ""
+      ),
+      
+      ok.2 = if_else(change_notes != "", TRUE, FALSE),
+      
+      discardReason = if_else(ok.2, 
+                              if_else(is.na(discardReason_orig) | discardReason_orig == "", 
+                                      paste0("Change: ", change_notes), 
+                                      paste0(discardReason_orig, " | Change: ", change_notes)), 
+                              discardReason_orig)
+    ) %>%
+    ungroup() %>%
+    select(
+      -lat_orig, -lon_orig, -loc_raw, -state_raw, -is_empty_loc,
+      -query_clean, -query_simple, -query_state, -reversed_flag,
+      -new_lat, -new_lon, -distance_error_km, -has_original,
+      -is_too_far, -needs_correction, -is_missing_country, 
+      -change_notes, -discardReason_orig
+    )
+  
+  message("¡Proceso terminado con éxito!")
+  return(data_final)
+}
+```
+
+```{r}
+processed_asissi_data <- verify_and_correct_coordinates(asissi_data)
+```
+```{r}
+
+processed_asissi_data <- processed_asissi_data %>%
+  mutate(
+    is_zero = !is.na(decimalLatitude) & as.numeric(decimalLatitude) == 0,
+
+    ok.2 = if_else(is_zero, TRUE, ok.2),
+    
+    discardReason = if_else(
+      is_zero, 
+      "Impossible to correct, since there is no location information for this area", 
+      discardReason
+    )
+  ) %>%
+  
+  select(-is_zero)
+```
+
+```{r}
+library(stringr)
+processed_asissi_data <- processed_asissi_data %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+      str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+```
+
 
