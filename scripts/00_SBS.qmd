@@ -446,6 +446,8 @@ verify_and_correct_coordinates <- function(data, distance_threshold_km = 20) {
 ```{r}
 processed_asissi_data <- verify_and_correct_coordinates(asissi_data)
 ```
+
+
 ```{r}
 
 processed_asissi_data <- processed_asissi_data %>%
@@ -478,4 +480,8 @@ processed_asissi_data <- processed_asissi_data %>%
   )
 ```
 
+```{r}
+write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__assis_i_2026.csv")
+```
 
+# New DataFrame
