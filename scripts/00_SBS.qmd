@@ -481,7 +481,7 @@ processed_asissi_data <- processed_asissi_data %>%
 ```
 
 ```{r}
-write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__assis_i_2026.csv")
+write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__assis_i_2026_specieslink.csv")
 ```
 
 # New DataFrame
