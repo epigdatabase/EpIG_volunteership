@@ -1740,5 +1740,12 @@ text_diagonal <- text_diagonal %>%
   mutate(
     verbatimassociatedReferences = associatedReferences
   )
+```
+
+#-associatedReferences: Detectar información dañada y corregir
+
+```{r}
+conteo_associatedReferences <- text_diagonal %>%
+  count(associatedReferences, sort = TRUE)
 
 ```
