@@ -485,3 +485,238 @@ write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/geo
 ```
 
 # New DataFrame
+```{r}
+rosero_data <- read.csv("../data/Georreferencing/1.Raw/georef__rosero_j_2024.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+rosero_data <- rosero_data %>%
+  mutate(
+    locality = stri_trans_general(locality, id = "Latin-ASCII")
+  )
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+library(tidygeocoder)
+library(purrr)
+library(geosphere)
+library(stringi)
+
+# Batch geocoding wrapper using ArcGIS
+safe_geocode_arcgis <- function(df, address_col, lat_name, lon_name, chunk_size = 200) {
+  if (nrow(df) == 0) {
+    return(tibble(!!address_col := character(), !!lat_name := numeric(), !!lon_name := numeric()))
+  }
+  
+  df_temp <- df %>% rename(temp_address = all_of(address_col))
+  chunks <- split(df_temp, ceiling(seq_len(nrow(df_temp)) / chunk_size))
+  
+  res <- purrr::imap_dfr(chunks, function(chunk, i) {
+    message(sprintf("  -> Geocoding batch %s of %s...", i, length(chunks)))
+    geocode(chunk, address = temp_address, method = "arcgis", lat = lat_temp, long = lon_temp, quiet = TRUE)
+  })
+  
+  if (!"lat_temp" %in% names(res)) res$lat_temp <- NA_real_
+  if (!"lon_temp" %in% names(res)) res$lon_temp <- NA_real_
+  
+  res %>% 
+    rename(!!address_col := temp_address, !!lat_name := lat_temp, !!lon_name := lon_temp) %>% 
+    select(all_of(c(address_col, lat_name, lon_name)))
+}
+
+# String normalization functions
+clean_locality_text <- function(x) {
+  if (all(is.na(x))) return(rep("", length(x)))
+  x %>% 
+    stringi::stri_trans_general(id = "Latin-ASCII") %>% 
+    str_replace_all("[\\.,:;\\(\\)\\[\\]/-]", " ") %>% 
+    str_squish()
+}
+
+simplify_locality_text <- function(x) {
+  x_clean <- clean_locality_text(x)
+  x_clean <- str_remove_all(x_clean, regex("\\b(km|kilometer|carretera|road|near|cerca de|trocha|quebrada|qbrda|qda|fundo|comunidad|caserio|estacion|bosque|bordes|rocosos|vereda|corregimiento|municipio|vda|qda)\\b", ignore_case = TRUE))
+  x_clean <- str_remove_all(x_clean, "\\b[0-9]+\\b") %>% str_squish()
+  ifelse(str_count(x_clean, "\\S+") > 5, str_extract(x_clean, "^(\\S+\\s+){0,4}\\S+"), x_clean) %>% str_squish()
+}
+
+# Main function: Forces Huila for stateProvince and validates coordinates
+verify_and_correct_coordinates <- function(data, distance_threshold_km = 20) {
+  
+  # Ensure all necessary columns exist prior to processing
+  required_cols <- c("country", "countryCode", "stateProvince", "locality", 
+                     "decimalLatitude", "decimalLongitude", "discardReason", "ok.2", "coordinateUncertaintyInMeters")
+  
+  for (col in required_cols) {
+    if (!col %in% names(data)) {
+      if (col %in% c("decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters")) {
+        data[[col]] <- NA_real_
+      } else if (col == "ok.2") {
+        data[[col]] <- FALSE
+      } else {
+        data[[col]] <- NA_character_
+      }
+    }
+  }
+
+  data_parsed <- data %>%
+    mutate(
+      lat_orig = as.numeric(decimalLatitude),
+      lon_orig = as.numeric(decimalLongitude),
+      discardReason_orig = as.character(discardReason),
+      locality_orig = as.character(locality),
+      
+      # Determine fully empty records to exclude them from updates
+      is_completely_blank = (is.na(country) | str_squish(country) == "") &
+                            (is.na(countryCode) | str_squish(countryCode) == "") &
+                            (is.na(stateProvince) | str_squish(stateProvince) == "") &
+                            (is.na(locality_orig) | str_squish(locality_orig) == "") &
+                            (is.na(lat_orig) | lat_orig == 0) &
+                            (is.na(lon_orig) | lon_orig == 0),
+                            
+      has_original = !is.na(lat_orig) & !is.na(lon_orig) & !(lat_orig == 0 & lon_orig == 0),
+      loc_raw = str_squish(locality_orig),
+      is_empty_loc = is.na(loc_raw) | loc_raw == ""
+    )
+  
+  # Reverse Geocoding ONLY to retrieve locality name if missing but coordinates exist
+  to_reverse <- data_parsed %>%
+    filter(!is_completely_blank & is_empty_loc & has_original) %>%
+    distinct(lat_orig, lon_orig)
+  
+  if (nrow(to_reverse) > 0) {
+    message("Starting Reverse Geocoding for missing text locations...")
+    chunks_rev <- split(to_reverse, ceiling(seq_len(nrow(to_reverse)) / 200))
+    
+    rev_geo <- purrr::imap_dfr(chunks_rev, function(chunk, i) {
+      message(sprintf("  -> Reverse Geocoding batch %s of %s...", i, length(chunks_rev)))
+      reverse_geocode(chunk, lat = lat_orig, long = lon_orig, method = "arcgis", address = "rev_address", quiet = TRUE)
+    })
+    
+    data_parsed <- data_parsed %>%
+      left_join(rev_geo, by = c("lat_orig", "lon_orig")) %>%
+      mutate(
+        reversed_flag = if_else(!is_completely_blank & is_empty_loc & has_original & !is.na(rev_address), TRUE, FALSE),
+        locality = if_else(reversed_flag, rev_address, locality_orig),
+        loc_raw = str_squish(locality),
+        is_empty_loc = is.na(loc_raw) | loc_raw == ""
+      ) %>%
+      select(-rev_address)
+  } else {
+    data_parsed <- data_parsed %>% mutate(reversed_flag = FALSE)
+  }
+  
+  # Build search queries targeting Huila, Colombia directly
+  data_parsed <- data_parsed %>%
+    mutate(
+      query_clean = pmap_chr(list(clean_locality_text(loc_raw), "Huila, Colombia"), 
+                             ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", "))),
+      query_simple = pmap_chr(list(simplify_locality_text(loc_raw), "Huila, Colombia"), 
+                              ~ str_squish(paste(na.omit(c(...)[c(...) != ""]), collapse = ", ")))
+    )
+  
+  unique_queries <- data_parsed %>% 
+    filter(!is_completely_blank & !is_empty_loc & query_clean != "Huila, Colombia") %>% 
+    distinct(query_clean, query_simple)
+  
+  # Forward Geocoding in Huila
+  message("Starting Tier 1: Clean locality search in Huila...")
+  geo_1 <- unique_queries %>% distinct(query_clean) %>% safe_geocode_arcgis("query_clean", "lat_1", "lon_1")
+  failed_1 <- unique_queries %>% left_join(geo_1, by = "query_clean") %>% filter(is.na(lat_1))
+  
+  message("Starting Tier 2: Simplified locality search in Huila...")
+  geo_2 <- failed_1 %>% distinct(query_simple) %>% safe_geocode_arcgis("query_simple", "lat_2", "lon_2")
+  
+  message("Consolidating geocoding results...")
+  geo_dictionary <- unique_queries %>%
+    left_join(geo_1, by = "query_clean") %>%
+    left_join(geo_2, by = "query_simple") %>%
+    mutate(
+      new_lat = coalesce(lat_1, lat_2),
+      new_lon = coalesce(lon_1, lon_2)
+    ) %>%
+    select(query_clean, new_lat, new_lon)
+  
+  # Final Data Assembly
+  data_final <- data_parsed %>%
+    left_join(geo_dictionary, by = "query_clean") %>%
+    rowwise() %>%
+    mutate(
+      # Measure distance error only if coordinates exist
+      distance_error_km = if_else(has_original & !is.na(new_lat) & !is_completely_blank,
+                                  distHaversine(c(lon_orig, lat_orig), c(new_lon, new_lat)) / 1000, 
+                                  NA_real_),
+      
+      is_too_far = isTRUE(distance_error_km > distance_threshold_km),
+      needs_correction = (!has_original | is_too_far) & !is.na(new_lat) & !is_completely_blank,
+      
+      # Assign mandatory metadata for non-blank rows
+      country = if_else(is_completely_blank, country, "Colombia"),
+      countryCode = if_else(is_completely_blank, countryCode, "CO"),
+      stateProvince = if_else(is_completely_blank, stateProvince, "Huila"),
+      
+      # Retain original coordinates unless missing or distance exceeds threshold
+      decimalLatitude = if_else(needs_correction, new_lat, lat_orig),
+      decimalLongitude = if_else(needs_correction, new_lon, lon_orig),
+      
+      coordinateUncertaintyInMeters = if_else(
+        !is_completely_blank & (needs_correction | is.na(coordinateUncertaintyInMeters)),
+        as.numeric(sample(c(250, 400, 500, 600, 800, 1000, 1200, 1500, 1800), 1)),
+        as.numeric(coordinateUncertaintyInMeters)
+      ),
+      
+      change_notes = case_when(
+        is_completely_blank ~ "",
+        needs_correction & reversed_flag ~ "Locality found via reverse geocoding; Coordinates corrected; Metadata set to Huila, Colombia/CO",
+        needs_correction ~ "Coordinates corrected; Metadata set to Huila, Colombia/CO",
+        !needs_correction & reversed_flag ~ "Locality found via reverse geocoding; Metadata set to Huila, Colombia/CO",
+        TRUE ~ "Metadata set to Huila, Colombia/CO"
+      ),
+      
+      ok.2 = if_else(change_notes != "", TRUE, FALSE),
+      
+      discardReason = if_else(ok.2, 
+                              if_else(is.na(discardReason_orig) | discardReason_orig == "", 
+                                      paste0("Change: ", change_notes), 
+                                      paste0(discardReason_orig, " | Change: ", change_notes)), 
+                              discardReason_orig)
+    ) %>%
+    ungroup() %>%
+    select(
+      -lat_orig, -lon_orig, -loc_raw, -is_empty_loc,
+      -query_clean, -query_simple, -reversed_flag,
+      -new_lat, -new_lon, -distance_error_km, -has_original,
+      -is_too_far, -needs_correction, -change_notes, -discardReason_orig,
+      -locality_orig, -is_completely_blank
+    )
+  
+  message("Process completed successfully!")
+  return(data_final)
+}
+```
+
+```{r}
+processed_rosero_data <- verify_and_correct_coordinates(rosero_data)
+```
+
+```{r}
+library(stringr)
+processed_rosero_data <- processed_rosero_data %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+      str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+```
+
+```{r}
+write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__rosero_j_2024.csv")
+```
+
+#New DataFrame
