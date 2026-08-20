@@ -1,0 +1,1074 @@
+---
+title: "EpIG 2.0 data collection"
+subtitle: "Two years of occurrence data gathering for Neotropical vascular epiphytes"
+author: "Maria Judith Carmona Higuita"
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    embed-resources: true
+    code-fold: true
+    code-summary: "Show code"
+    fig-width: 11
+    fig-height: 6
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(sf)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(here)
+library(rnaturalearth)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Load EpIG 2.0 complete database (1,372,136 records — full product)
+db_epig2   <- readRDS(here("data/occurrences/raw/db_EpIG2_clean_all.rds"))
+db_mod     <- readRDS(here("data/occurrences/processed/db_modelling_strict.rds"))
+db_thinned <- readRDS(here("data/occurrences/processed/db_thinned_025.rds"))
+db         <- db_epig2
+
+# EpIG 1.0 (MSc thesis, 2021): raw occurrence table (5 families, GBIF + herbaria)
+epig1_path        <- here("data", "occurrences", "raw", "database_final_2021.rda")
+db_prev_available <- file.exists(epig1_path)
+
+# EpIG 1.0 species matched against EpIG-Backbone (species-level crosswalk)
+epig1_matched_path <- here("data", "occurrences", "temp", "db_prev_matched.rds")
+db_prev_matched_ok <- file.exists(epig1_matched_path)
+
+if (db_prev_available) {
+  load(epig1_path)                                # loads `occs_final`
+  db_epig1 <- occs_final %>% mutate(scientificName = species)
+  rm(occs_final)
+}
+```
+
+# EpIG-DB v2.0
+
+EpIG-DB v2.0 (Epiphyte Inventory Group database, version 2.0) is a comprehensive occurrence database for vascular epiphytes across the Neotropics, assembled between 2024 and 2026 as part of this doctoral thesis. It represents a major expansion of the original EpIG database used in the MSc thesis (database_final_2021.rda), which covered only 5 families (Orchidaceae, Bromeliaceae, Araceae, Piperaceae, Polypodiaceae) from a limited set of online repositories.
+
+EpIG-DB v2.0 extends coverage to **all vascular epiphyte families** across the Neotropical region, integrating records from herbaria contacted directly, open repositories (including GBIF, iNaturalist, ATRIUM, and INABIO), personal data shared by researchers, and community-level inventories from TurboVeg plot databases. EpIG-DB v2.0 is thus a multi-source integration, not a re-packaging of any single repository; GBIF contributes a subset of the occurrence records alongside these other sources.
+
+The assembly involved two years of data harmonisation: column-by-column cleaning, taxonomic backbone standardisation (EpIG-Backbone), georeferencing of uncoordinated records, and integration of checklists to fill geographic gaps.
+
+Over 100 (out of the +400) Latin American and European herbaria were contacted directly between 2022 and 2024 to request downloadable datasets or digitisation of non-online specimens. For several herbaria, data arrived in institution-specific formats that required column-by-column mapping to the Darwin Core standard. Records from small regional herbaria often lacked georeferenced coordinates; a georeferencing campaign using GEOLocate, Google Maps, and field knowledge added approximate coordinates to approximately 3,000 records that would otherwise have been unusable.
+
+All datasets arrived with different taxonomic systems (Plants of the World, Tropicos, GBIF backbone, local checklists). The EpIG-Backbone pipeline reconciled all names using the World Flora Online backbone as master reference (since Epilist 1.0 uses this source), followed by POWO and TROPICOS for species not present in WFO. Community data from forest inventory studies were converted to occurrence-level records and integrated with the occurrence dataset, filling geographic gaps in remote Amazonian and Choco localities where herbarium collecting is sparse.
+
+------------------------------------------------------------------------
+
+# Data sources
+
+## Source group composition
+
+```{r source-composition, fig.height=4}
+#| fig-cap: "Records by source group. Single source groups capture the integration of multiple underlying databases per category."
+
+source_counts <- db %>%
+  filter(!is.na(source_group)) %>%
+  count(source_group, name = "n") %>%
+  arrange(desc(n)) %>%
+  mutate(
+    pct       = round(100 * n / sum(n), 1),
+    label     = paste0(format(n, big.mark = ","), " (", pct, "%)")
+  )
+
+ggplot(source_counts, aes(x = reorder(source_group, n), y = n)) +
+  geom_col(fill = "#4a7fb5", colour = "white", width = 0.7) +
+  geom_text(aes(label = label), hjust = -0.05, size = 3.2, colour = "grey30") +
+  coord_flip() +
+  scale_y_continuous(
+    labels = scales::comma,
+    expand = expansion(mult = c(0, 0.25))
+  ) +
+  labs(
+    x     = NULL,
+    y     = "Number of records",
+    title = "EpIG 2.0: records by source group"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor  = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+------------------------------------------------------------------------
+
+# Database overview
+
+```{r db-overview}
+summary_stats <- tibble(
+  Metric = c(
+    "Total records",
+    "Records with valid coordinates",
+    "Unique species",
+    "Unique genera",
+    "Unique families",
+    "Countries represented",
+    "Year range (with year information)",
+    "Median collection year",
+    "Source groups",
+    "Databases (by source group)"
+  ),
+  Value = c(
+    format(nrow(db_epig2), big.mark = ","),
+    format(sum(!is.na(db_epig2$decimalLatitude) & !is.na(db_epig2$decimalLongitude)), big.mark = ","),
+    format(n_distinct(db_epig2$scientificName, na.rm = TRUE), big.mark = ","),
+    format(n_distinct(db_epig2$genus, na.rm = TRUE), big.mark = ","),
+    format(n_distinct(db_epig2$family, na.rm = TRUE), big.mark = ","),
+    format(n_distinct(db_epig2$country, na.rm = TRUE), big.mark = ","),
+    paste0(min(db_epig2$year, na.rm = TRUE), " – ", max(db_epig2$year, na.rm = TRUE)),
+    as.character(round(median(as.numeric(db_epig2$year), na.rm = TRUE))),
+    format(n_distinct(db_epig2$source_group, na.rm = TRUE)),
+    db_epig2 %>%
+      filter(!is.na(source_group), !is.na(datasetID)) %>%
+      group_by(source_group) %>%
+      summarise(n = n_distinct(datasetID)) %>%
+      arrange(source_group) %>%
+      mutate(label = paste0(source_group, ": ", n)) %>%
+      pull(label) %>%
+      paste(collapse = "; ")
+  )
+)
+
+summary_stats %>%
+  kable(caption = "EpIG 2.0 complete database: overview") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+------------------------------------------------------------------------
+
+# From EpIG-DB v2.0 to modelling database version
+
+## Assembly and cleaning cascade
+
+EpIG-DB v2.0 as delivered contains **1,372,136 records**: 1,263,220 from individual occurrence CSV files (herbaria + repositories) and 108,916 derived from TurboVeg community plot data (31,664 plots exported at occurrence level). This merged table has 52 columns aligned to Darwin Core and constitutes the full database product.
+
+For the species distribution models in this thesis, a subset was prepared applying a series of conservative decisions described below. These decisions reflect the specific requirements of ensemble small-model (ESM) modelling for endemic epiphytes and are not part of EpIG-DB v2.0 itself.
+
+The full data-joining and cleaning workflow is documented in **`docs/archive/0_Join_TV_datasets.qmd`** in this repository.
+
+The cleaning cascade removed records in four main stages, followed by spatial thinning to one record per species per 0.25-degree cell:
+
+```{r cleaning-funnel, fig.height=4.5}
+#| fig-cap: "Records retained at each cleaning and thinning step. db_thinned_025.rds is the input to all modelling scripts."
+
+# Numbers from the join/cleaning workflow (0_Join_TV_datasets.qmd)
+# Some are hardcoded from the cleaning run; update if re-run
+n_raw_occ     <- 1263220L               # occurrence CSVs (herbaria + repositories)
+n_raw_comm    <-  108916L               # TurboVeg community plots → occurrence level
+n_raw_join    <- 1372136L               # raw merge occurrence + community TurboVeg
+n_after_dedup <- n_raw_join - 11622L    # 11,622 duplicate occurrenceIDs removed
+n_modelling   <- nrow(db_mod)           # db_modelling_strict.rds
+n_thinned     <- nrow(db_thinned)       # db_thinned_025.rds (0.25 degree, 1 per cell)
+spp_thinned   <- n_distinct(db_thinned$scientificName)
+
+step_labels <- c(
+  "Raw join\n(occ + community)",
+  "After duplicate\nID fix",
+  "db_modelling_strict\n(cleaned)",
+  "db_thinned_025\n(0.25° thinning)"
+)
+
+cleaning_steps <- tibble(
+  Step = factor(step_labels, levels = step_labels),
+  n    = c(n_raw_join, n_after_dedup, n_modelling, n_thinned),
+  fill = c("raw", "step", "step", "final")
+)
+
+ggplot(cleaning_steps, aes(x = Step, y = n, fill = fill)) +
+  geom_col(width = 0.6, colour = "white") +
+  geom_text(
+    aes(label = scales::comma(n)),
+    vjust = -0.4, size = 3.3, colour = "grey30"
+  ) +
+  scale_fill_manual(
+    values = c("raw" = "grey65", "step" = "#4a7fb5", "final" = "#2c5f8a"),
+    guide  = "none"
+  ) +
+  scale_y_continuous(
+    labels = scales::comma,
+    expand = expansion(mult = c(0, 0.15))
+  ) +
+  labs(
+    title    = "EpIG 2.0: from raw database to modelling input",
+    subtitle = paste0(
+      scales::comma(n_raw_join), " records → ",
+      scales::comma(n_thinned), " thinned records | ",
+      scales::comma(spp_thinned), " species"
+    ),
+    x = NULL, y = "Records"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.x = element_blank(),
+    axis.text.x        = element_text(size = 9)
+  )
+```
+
+## Data sources by type in EpIG v2.0
+
+```{r sources-split}
+#| tbl-cap: "Contribution of each source type to the raw EpIG 2.0 join before cleaning."
+
+tibble(
+  `Source type`   = c("Occurrence data (CSVs)", "Community data (TurboVeg)"),
+  `N records`     = c(n_raw_occ, n_raw_comm),
+  `%`             = round(100 * c(n_raw_occ, n_raw_comm) / n_raw_join, 1),
+  `Origin`        = c(
+    "Herbaria (direct), GBIF, iNaturalist, ATRIUM, INABIO, researchers and literature",
+    "TurboVeg 3 (31,664 plots): community plots converted to occurrence level"
+  )
+) %>%
+  kable(big.mark = ",") %>%
+  kable_styling(full_width = TRUE, bootstrap_options = c("striped","hover"))
+```
+
+```{r}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+db %>%
+  count(dataset, sort = TRUE)
+
+species_source <- db %>%
+  distinct(dataset, scientificName)
+
+species_by_source <- species_source %>%
+  count(dataset, name = "N_species") %>%
+  mutate(percent_species = round(
+      100 * N_species / n_distinct(species_source$scientificName),1))
+
+occ_species <- species_source %>%
+  filter(dataset == "Occurrence data") %>%
+  pull(scientificName) %>%
+  unique()
+
+comm_species <- species_source %>%
+  filter(dataset == "Community data") %>%
+  pull(scientificName) %>%
+  unique()
+
+occ_only <- setdiff(occ_species, comm_species)
+
+comm_only <- setdiff(comm_species, occ_species)
+
+shared <- intersect(occ_species, comm_species)
+
+venn_counts <- tibble(
+  category = c(
+    "Occurrence only",
+    "Shared",
+    "Community only"),
+  N_species = c(
+    length(occ_only),
+    length(shared),
+    length(comm_only)))
+
+total_species <- length(union(occ_species, comm_species))
+
+library(ggVennDiagram)
+
+venn_list <- list(
+  `Occurrence data` = occ_species,
+  `Community data` = comm_species
+)
+
+venn_plot <- ggVennDiagram(
+  venn_list,
+  label_alpha = 0
+) +
+  scale_fill_gradient(low = "white", high = "grey50") +
+  theme_void()
+```
+
+![](images/e016dbc1-0278-498a-befc-97160bf56d93.png){fig-align="center"}
+
+## Modelling dataset: decisions and filters
+
+```{r exclusions-table}
+#| tbl-cap: "Filters applied to prepare the thesis modelling dataset. These are thesis-specific decisions, not corrections to EpIG 2.0."
+
+tibble(
+  `Step` = c("1","2a","2b","3","4","5","6"),
+  `Exclusion`   = c(
+    "Duplicate occurrenceIDs",
+    "Backbone source: SOURCE = MS or NSPP",
+    "EpiList filter (confirmed epiphytes only)",
+    "38 families excluded (conservative)",
+    "Individual genera/species excluded within retained families",
+    "Non-Neotropical records",
+    "Records without valid coordinates"
+  ),
+  `N removed` = c(
+    "11,622",
+    "included in EpiList step",
+    "2,241",
+    "6,536",
+    "7",
+    "< 600",
+    "< 100"
+  ),
+  `Reason` = c(
+    "Duplicate IDs generated during community → occurrence conversion (TurboVeg pipeline); rebuilt with unique IDs post-join",
+    "Morphospecies (MS) and informal species names (NSPP) in the EpIG-Backbone cannot be reliably tracked through the pipeline",
+    "Cross-referenced against EpiList (confirmed Neotropical epiphyte checklist); non-epiphyte species (e.g. Alpinia zerumbet, Cautleya spicata) removed at this step",
+    "38 families retained in EpIG-Backbone but set aside for this thesis: the EpiList (Taylor et al. 2021) was used as reference (37 families), plus Zingiberaceae added after species-level review (Alpinia, Cautleya — Asian, not Neotropical epiphytes). Applied via families_excluded.txt",
+    "Ceiba (non-epiphytic, backbone error); Pyrrosia (Polypodiaceae genus, native to Asia, not Neotropical)",
+    "Records outside Morrone (2022) Neotropical boundary",
+    "Records missing decimalLatitude or decimalLongitude"
+  )
+) %>%
+  kable() %>%
+  kable_styling(full_width = TRUE, bootstrap_options = c("striped","hover"))
+```
+
+### Rationale for filter choices
+
+EpIG-Backbone was intentionally inclusive — retaining morphospecies, informal names, and all families with any epiphyte representation — because the database is designed to serve multiple uses beyond SDM. The additional filters here reflect the stricter requirements of species distribution modelling, where every included species must be a formally described, taxonomically stable entity and every record must represent a reliable signal of the species' distribution.
+
+**Morphospecies and informal names (SOURCE = MS, NSPP).** Morphospecies (MS) are backbone entries that cannot be resolved to a stable species-level identity and may represent complexes of undescribed or unresolved taxa. Fitting a niche model to a morphospecies would conflate the environmental requirements of potentially distinct biological units, producing range estimates that do not correspond to any single species. NSPP records represent field observations assigned by experts to a named species but considered likely accidental or atypical of that species' general habitat use. Both categories were excluded to ensure the modelling pool consists entirely of formally described, pipeline-trackable species whose occurrences can be interpreted as true distributional signal.
+
+**EpiList filter (confirmed epiphyte status).** EpiList (Zotz et al. 2021) is the most comprehensive peer-reviewed synthesis of vascular epiphyte life-form status worldwide, covering all growth-form categories and representing decades of systematic revision by epiphyte specialists. EpIG-Backbone extends beyond EpiList by incorporating species added through recent taxonomic revisions and expert contributions since the list was published. For this thesis, EpiList (Zotz et al. 2021) served as the conservative baseline for confirmed epiphyte status: species absent from EpiList were excluded because their epiphytic habit is not yet established in the peer-reviewed literature. This step removed borderline cases — facultative epiphytes, species with disputed life-form assignments, and entries that had entered the backbone through taxonomic ambiguities or habitat misclassification (e.g. *Alpinia zerumbet*, *Cautleya spicata*).
+
+**Family exclusions (rule-based).** The exclusion of 38 families was entirely rule-based: families present in EpIG-Backbone but absent from EpiList were excluded without case-by-case review, consistent with the conservative approach above. The only exception requiring individual species-level verification was Zingiberaceae, where the two EpIG-Backbone representatives (*Alpinia zerumbet*, *Cautleya spicata*) were confirmed to be Asian ornamental species with no Neotropical epiphyte status. *Pyrrosia* (Polypodiaceae) was excluded separately by genus filter: the genus is native to the Old World, and its presence in the backbone resulted from taxonomic ambiguities during backbone assembly.
+
+**Neotropical boundary (Morrone 2022).** Records outside the Neotropical region were removed using the biogeographic regionalization of Morrone (2022), the most recent and comprehensive synthesis of Neotropical biogeography, built on over a century of systematic, paleontological, and distributional evidence. Morrone (2022) is the standard reference framework for Neotropical biogeographic studies and its provinces are the units within which the hotspot results of this thesis are interpreted. The use of this boundary is consistent throughout the project: the same dissolved polygon (`Neotropic_dissolved.shp`) defines the study extent for geographic filtering, map visualisations, and model projections.
+
+------------------------------------------------------------------------
+
+**Families excluded via `families_excluded.txt` (38 families):** These families are present in the EpIG-Backbone but were set aside for this thesis. The decision is conservative: rather than including borderline cases, families not listed in EpiList (Zotz et al. 2021) were excluded (37 families), plus Zingiberaceae after species-level review (Alpinia zerumbet and Cautleya spicata are Asian species, not Neotropical epiphytes). Pyrrosia (Polypodiaceae) was excluded separately by genus filter.
+
+```{r families-excluded-list}
+# Source: data/occurrences/families_excluded.txt
+families_excluded <- c(
+  "Alismataceae","Alstroemeriaceae","Apiaceae","Arecaceae","Athyriaceae",
+  "Bignoniaceae","Cannabaceae","Caryophyllaceae","Celastraceae","Convolvulaceae",
+  "Cystopteridaceae","Davalliaaceae","Didymochlaenaceae","Dioscoreaceae",
+  "Diplaziopsidaceae","Eriocaulaceae","Fabaceae","Geraniaceae","Gleicheniaceae",
+  "Hemidictyaceae","Loganiaceae","Loranthaceae","Lygodiaceae","Marattiaceae",
+  "Meliaceae","Menispermaceae","Oxalidaceae","Passifloraceae","Petiveriaceae",
+  "Polygonaceae","Santalaceae","Sapindaceae","Schoepfiaceae","Thelypteridaceae",
+  "Verbenaceae","Vittariaceae","Woodsiaceae","Zingiberaceae"
+)
+
+tibble(
+  Family = sort(families_excluded),
+  `N families` = ""
+) %>%
+  mutate(col = (row_number() - 1) %/% ceiling(n() / 3) + 1) %>%
+  group_by(col) %>%
+  mutate(row = row_number()) %>%
+  ungroup() %>%
+  dplyr::select(row, col, Family) %>%
+  pivot_wider(names_from = col, values_from = Family,
+              names_prefix = "Col") %>%
+  dplyr::select(-row) %>%
+  kable(col.names = NULL) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = "condensed")
+```
+
+> **Note:** The complete cleaning code is in `docs/archive/0_Join_TV_datasets.qmd`. Save run summaries to `outputs/evaluation/00_cleaning_summary.csv` for reproducibility.
+
+------------------------------------------------------------------------
+
+# Comparison with MSc version (included EpIG-DB v1.0)
+
+MSc thesis (2021) covered 5 families (Orchidaceae, Bromeliaceae, Araceae, Piperaceae, Polypodiaceae) from a limited set of open repositories. The comparison below uses `db_prev_matched.rds` (the species-level match between MSc-thesis + EpIG-DB v1.0 names and the new EpIG-Backbone) to quantify gains, losses, and net expansion for the same 5 families.
+
+```{r epig-comparison}
+if (db_prev_matched_ok) {
+  library(rnaturalearth)
+
+  # epig1_matched_path defined in setup chunk
+  db_prev_matched <- readRDS(epig1_matched_path)
+
+  fam5 <- c("Orchidaceae","Bromeliaceae","Araceae","Piperaceae","Polypodiaceae")
+  db_fam5 <- db %>% filter(family %in% fam5)
+
+  # Only exact-match records from old db for fair comparison
+  old <- db_prev_matched %>%
+    filter(match_code == 1) %>%
+    dplyr::select(scientificName, family, decimalLatitude, decimalLongitude)
+
+  new5 <- db_fam5 %>%
+    dplyr::select(scientificName, family, decimalLatitude, decimalLongitude)
+
+  spp_old     <- unique(old$scientificName)
+  spp_new     <- unique(new5$scientificName)
+  spp_gained  <- setdiff(spp_new, spp_old)
+  spp_lost    <- setdiff(spp_old, spp_new)   # names renamed by backbone
+  spp_shared  <- intersect(spp_old, spp_new)
+
+  tibble(
+    Metric  = c("EpIG 1.0 species (5 families, match=1)",
+                "EpIG 2.0 species (same 5 families)",
+                "Shared species",
+                "Species gained (new in EpIG 2.0)",
+                "Names lost (synonymised by backbone)"),
+    N = c(length(spp_old), length(spp_new),
+          length(spp_shared), length(spp_gained), length(spp_lost))
+  ) %>%
+    kable(
+      caption = "EpIG 1.0 vs EpIG 2.0: 5-family species comparison",
+      big.mark = ","
+    ) %>%
+    kable_styling(full_width = FALSE, bootstrap_options = c("striped","hover")) %>%
+    row_spec(4, bold = TRUE, background = "#d4edda") %>%
+    row_spec(5, background = "#fff3cd")
+
+} else {
+  cat("db_prev_matched.rds not found: re-run EpIG matching pipeline.\n")
+}
+```
+
+```{r epig-comparison-by-family}
+#| fig-cap: "Species gained and lost per family between EpIG 1.0 and EpIG 2.0 (same 5 families)."
+
+if (db_prev_matched_ok) {
+  # Per-family breakdown
+  gain_fam <- db_fam5 %>%
+    filter(!scientificName %in% spp_old) %>%
+    count(family, name = "gained")
+
+  lost_fam <- old %>%
+    filter(!scientificName %in% spp_new) %>%
+    count(family, name = "lost")
+
+  fam_delta <- full_join(gain_fam, lost_fam, by = "family") %>%
+    replace_na(list(gained = 0, lost = 0)) %>%
+    pivot_longer(c(gained, lost), names_to = "direction", values_to = "n") %>%
+    mutate(n_signed = ifelse(direction == "lost", -n, n))
+
+  ggplot(fam_delta, aes(x = family, y = n_signed, fill = direction)) +
+    geom_col(position = "identity", width = 0.55, colour = "white") +
+    geom_hline(yintercept = 0, linewidth = 0.4, colour = "grey40") +
+    scale_fill_manual(
+      values = c("gained" = "#5b8c5a", "lost" = "#c0392b"),
+      labels = c("Gained (new in EpIG 2.0)", "Lost (synonymised)"),
+      name   = NULL
+    ) +
+    scale_y_continuous(labels = scales::comma) +
+    labs(
+      title    = "Species change per family: EpIG 1.0 → EpIG 2.0",
+      subtitle = "Green = net new species | Red = names synonymised by backbone",
+      x = NULL, y = "N species"
+    ) +
+    theme_bw() +
+    theme(panel.grid.minor   = element_blank(),
+          panel.grid.major.x = element_blank(),
+          legend.position    = "top")
+}
+```
+
+```{r epig-records-comparison, fig.height=3.5}
+#| fig-cap: "Record count per family: EpIG 1.0 (exact-matched records) vs EpIG 2.0."
+
+if (db_prev_matched_ok) {
+  old_recs <- old %>% count(family, name = "v1") %>% filter(family %in% fam5)
+  new_recs <- new5 %>% count(family, name = "v2")
+
+  full_join(old_recs, new_recs, by = "family") %>%
+    replace_na(list(v1 = 0, v2 = 0)) %>%
+    pivot_longer(c(v1, v2), names_to = "version", values_to = "n") %>%
+    mutate(version = recode(version, v1 = "EpIG 1.0", v2 = "EpIG 2.0")) %>%
+    ggplot(aes(x = family, y = n, fill = version)) +
+    geom_col(position = "dodge", width = 0.6, colour = "white") +
+    scale_fill_manual(values = c("EpIG 1.0" = "grey65", "EpIG 2.0" = "#4a7fb5"),
+                      name = NULL) +
+    scale_y_continuous(labels = scales::comma) +
+    labs(
+      title    = "Records per family: EpIG 1.0 vs EpIG 2.0",
+      x = NULL, y = "Records"
+    ) +
+    theme_bw() +
+    theme(panel.grid.minor    = element_blank(),
+          panel.grid.major.x  = element_blank(),
+          legend.position     = "top")
+}
+```
+
+------------------------------------------------------------------------
+
+# Geographic coverage
+
+## Occurrence density map
+
+```{r density-map, fig.width=12, fig.height=7}
+#| fig-cap: "EpIG 2.0 occurrence density at 0.25° resolution on the Morrone (2022) Neotropical boundary. Red = high density; pale = low density."
+
+# Aggregate to 0.25° grid
+grid_counts <- db_epig2 %>%
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude)) %>%
+  mutate(
+    lon_bin = round(decimalLongitude / 0.25) * 0.25,
+    lat_bin = round(decimalLatitude  / 0.25) * 0.25
+  ) %>%
+  count(lon_bin, lat_bin)
+
+# Neotropics boundary (Morrone 2022)
+neot <- tryCatch(
+  sf::st_read(here("data", "Neotropics_Morrone", "Neotropic_dissolved.shp"), quiet = TRUE),
+  error = function(e) NULL
+)
+
+# World basemap
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+p_map <- ggplot() +
+  geom_sf(data = world, fill = "grey92", colour = "grey75", linewidth = 0.15) +
+  geom_tile(
+    data  = grid_counts,
+    aes(x = lon_bin, y = lat_bin, fill = n),
+    width = 0.25, height = 0.25
+  ) +
+  {if (!is.null(neot))
+    geom_sf(data = neot, fill = NA, colour = "grey40", linewidth = 0.45)} +
+  scale_fill_distiller(
+    palette   = "Spectral",
+    direction = -1,
+    trans     = "log10",
+    labels    = scales::comma,
+    name      = "Records\n(log₁₀)"
+  ) +
+  coord_sf(xlim = c(-118, -30), ylim = c(-38, 27), expand = FALSE) +
+  labs(
+    title    = "EpIG 2.0: occurrence density (0.25° grid)",
+    subtitle = paste0(
+      format(sum(grid_counts$n), big.mark = ","),
+      " georeferenced records · ",
+      format(nrow(grid_counts), big.mark = ","),
+      " occupied 0.25° cells"
+    ),
+    x = NULL, y = NULL
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title        = element_text(face = "bold", margin = margin(b = 3)),
+    plot.subtitle     = element_text(colour = "grey40", size = 9),
+    legend.position   = "right",
+    legend.key.height = unit(1.5, "cm"),
+    plot.margin       = margin(6, 6, 6, 6)
+  )
+
+p_map
+```
+
+## Species richness map
+
+```{r richness-map, fig.width=12, fig.height=7}
+#| fig-cap: "EpIG 2.0 species richness at 0.25° resolution. Red cells = highest diversity."
+
+richness_grid <- db_epig2 %>%
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude),
+         !is.na(scientificName)) %>%
+  mutate(
+    lat_cell = round(decimalLatitude / 0.25) * 0.25,
+    lon_cell = round(decimalLongitude / 0.25) * 0.25
+  ) %>%
+  group_by(lat_cell, lon_cell) %>%
+  summarise(n_species = n_distinct(scientificName), .groups = "drop")
+
+ggplot() +
+  geom_sf(data = world, fill = "grey92", colour = "grey75", linewidth = 0.15) +
+  geom_tile(
+    data  = richness_grid,
+    aes(x = lon_cell, y = lat_cell, fill = n_species),
+    width = 0.25, height = 0.25
+  ) +
+  {if (!is.null(neot))
+    geom_sf(data = neot, fill = NA, colour = "grey40", linewidth = 0.45)} +
+  scale_fill_distiller(
+    palette   = "Spectral",
+    direction = -1,
+    labels    = scales::comma,
+    name      = "Species\nrichness"
+  ) +
+  coord_sf(xlim = c(-118, -30), ylim = c(-38, 27), expand = FALSE) +
+  labs(
+    title    = "EpIG 2.0: species richness (0.25° grid)",
+    subtitle = paste0(
+      format(n_distinct(db_epig2$scientificName), big.mark = ","),
+      " species · ",
+      format(nrow(richness_grid), big.mark = ","),
+      " occupied 0.25° cells"
+    ),
+    x = NULL, y = NULL
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title        = element_text(face = "bold", margin = margin(b = 3)),
+    plot.subtitle     = element_text(colour = "grey40", size = 9),
+    legend.position   = "right",
+    legend.key.height = unit(1.5, "cm"),
+    plot.margin       = margin(6, 6, 6, 6)
+  )
+```
+
+------------------------------------------------------------------------
+
+# Taxonomic composition
+
+## Top families by record count
+
+```{r family-records-bar, fig.height=5}
+#| fig-cap: "Top 15 families by number of records in EpIG 2.0."
+
+family_records <- db %>%
+  filter(!is.na(family)) %>%
+  count(family, name = "n_records") %>%
+  arrange(desc(n_records)) %>%
+  head(15)
+
+ggplot(family_records, aes(x = reorder(family, n_records), y = n_records)) +
+  geom_col(fill = "#4a7fb5", colour = "white", width = 0.7) +
+  geom_text(
+    aes(label = scales::comma(n_records)),
+    hjust = -0.1, size = 3.2, colour = "grey30"
+  ) +
+  coord_flip() +
+  scale_y_continuous(
+    labels = scales::comma,
+    expand = expansion(mult = c(0, 0.22))
+  ) +
+  labs(
+    title = "Top 15 families by record count",
+    x = NULL, y = "Records"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+## Top families by species richness
+
+```{r family-species-bar, fig.height=5}
+#| fig-cap: "Top 15 families by number of unique species in EpIG 2.0."
+
+family_spp <- db %>%
+  filter(!is.na(family), !is.na(scientificName)) %>%
+  group_by(family) %>%
+  summarise(n_species = n_distinct(scientificName), .groups = "drop") %>%
+  arrange(desc(n_species)) %>%
+  head(15)
+
+ggplot(family_spp, aes(x = reorder(family, n_species), y = n_species)) +
+  geom_col(fill = "#5b8c5a", colour = "white", width = 0.7) +
+  geom_text(
+    aes(label = scales::comma(n_species)),
+    hjust = -0.1, size = 3.2, colour = "grey30"
+  ) +
+  coord_flip() +
+  scale_y_continuous(
+    labels = scales::comma,
+    expand = expansion(mult = c(0, 0.22))
+  ) +
+  labs(
+    title = "Top 15 families by species richness",
+    x = NULL, y = "Species"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+## EpIG species capture vs. Neotropical total
+
+How many of the epiphyte species reported for the Neotropics (Taylor et al. 2021, *Global Ecology and Biogeography*) are represented in EpIG 2.0, by family?
+
+```{r capture-vs-geb, fig.height=5, message=FALSE, warning=FALSE}
+#| fig-cap: "EpIG 2.0 species capture relative to total Neotropical epiphyte richness per family (Taylor et al. 2021). Only families present in both datasets are shown. Percentages indicate the proportion captured."
+
+library(readxl)
+
+geb_path <- here("data", "references", "Supplementary_GEB.xlsx")
+
+# Read seeds and ferns sheets, filter to Neotropic, count unique species per family
+geb_seeds <- read_excel(geb_path, sheet = "seeds") %>%
+  filter(kingdom_WWF == "Neotropic", !is.na(family), !is.na(species_full))
+
+geb_ferns <- read_excel(geb_path, sheet = "ferns") %>%
+  filter(kingdom_WWF == "Neotropic", !is.na(family), !is.na(species_full))
+
+geb_neotropic <- bind_rows(geb_seeds, geb_ferns) %>%
+  group_by(family) %>%
+  summarise(n_geb = n_distinct(species_full), .groups = "drop")
+
+# EpIG species per family
+epig_fam <- db %>%
+  filter(!is.na(family), !is.na(scientificName)) %>%
+  group_by(family) %>%
+  summarise(n_epig = n_distinct(scientificName), .groups = "drop")
+
+# Join and compute capture rate — keep families present in both
+capture <- inner_join(geb_neotropic, epig_fam, by = "family") %>%
+  mutate(pct_captured = round(100 * n_epig / n_geb, 1)) %>%
+  arrange(desc(n_geb)) %>%
+  head(15)
+
+# Plot
+capture_long <- capture %>%
+  pivot_longer(cols = c(n_geb, n_epig),
+               names_to = "source",
+               values_to = "n_species") %>%
+  mutate(source = recode(source,
+    n_geb  = "Neotropical total (Taylor et al. 2021)",
+    n_epig = "EpIG 2.0"))
+
+ggplot(capture_long,
+       aes(x = reorder(family, n_species * (source == "Neotropical total (Taylor et al. 2021)")),
+           y = n_species, fill = source)) +
+  geom_col(position = position_dodge(width = 0.7), width = 0.65) +
+  geom_text(
+    data = capture,
+    aes(x = family, y = n_epig + max(capture$n_geb) * 0.015,
+        label = paste0(pct_captured, "%")),
+    inherit.aes = FALSE,
+    size = 2.8, colour = "grey30", hjust = 0
+  ) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::comma,
+                     expand = expansion(mult = c(0, 0.18))) +
+  scale_fill_manual(values = c(
+    "Neotropical total (Taylor et al. 2021)" = "#b0c4de",
+    "EpIG 2.0"                             = "#5b8c5a")) +
+  labs(
+    title = "EpIG 2.0 species capture by family",
+    x = NULL, y = "Species", fill = NULL
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor    = element_blank(),
+        panel.grid.major.y  = element_blank(),
+        legend.position     = "bottom")
+```
+
+Families showing capture rates above 100% are expected and reflect at least three non-exclusive sources of discrepancy: (1) species described after 2021 that are present in EpIG-Backbone but postdate Taylor et al. (2021); (2) taxonomic backbone differences — names treated as accepted species in EpIG-Backbone (following WFO/POWO) that Taylor et al. (2021) considered synonyms or did not recognise; and (3) differences in life-form assignment, as Taylor et al. (2021) may have applied more conservative epiphyte criteria for some families than EpIG-Backbone. The diagnostic chunk in `docs/archive/` identifies the specific species driving each family's excess, making it possible to attribute the discrepancy to one or more of these causes.
+
+## Full family summary table
+
+```{r family-summary-table}
+family_full <- db %>%
+  filter(!is.na(family), !is.na(scientificName)) %>%
+  group_by(family) %>%
+  summarise(
+    n_genera  = n_distinct(genus, na.rm = TRUE),
+    n_species = n_distinct(scientificName),
+    n_records = n(),
+    .groups   = "drop"
+  ) %>%
+  arrange(desc(n_species))
+
+family_full %>%
+  kable(
+    caption   = "EpIG 2.0: all families with taxonomic and record counts",
+    col.names = c("Family", "Genera", "Species", "Records"),
+    big.mark  = ","
+  ) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover")) %>%
+  scroll_box(width = "100%", height = "500px")
+```
+
+## Top genera
+
+```{r genus-bar, fig.height=5}
+#| fig-cap: "Top 15 genera by species richness."
+
+genus_spp <- db %>%
+  filter(!is.na(genus), !is.na(scientificName)) %>%
+  group_by(genus) %>%
+  summarise(n_species = n_distinct(scientificName), .groups = "drop") %>%
+  arrange(desc(n_species)) %>%
+  head(15)
+
+ggplot(genus_spp, aes(x = reorder(genus, n_species), y = n_species)) +
+  geom_col(fill = "#7b5ea7", colour = "white", width = 0.7) +
+  geom_text(
+    aes(label = n_species), hjust = -0.1, size = 3.2, colour = "grey30"
+  ) +
+  coord_flip() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.2))) +
+  labs(
+    title = "Top 15 genera by species richness",
+    x = NULL, y = "Species"
+  ) +
+  theme_bw() +
+  theme(
+    panel.grid.minor   = element_blank(),
+    panel.grid.major.y = element_blank(),
+    axis.text.y        = element_text(face = "italic")
+  )
+```
+
+------------------------------------------------------------------------
+
+# Rarity structure
+
+Vascular epiphytes are disproportionately rare: Svahnström et al. (2025) found that approximately 45% of epiphyte species have an extent of occurrence below 20,000 km2 (the IUCN Vulnerable threshold). EpIG 2.0 reflects this pattern: the distribution of records per species is strongly right-skewed, with the majority of species known from only a handful of occurrences.
+
+```{r rarity-setup}
+sp_occ <- db_epig2 %>%
+  filter(!is.na(scientificName)) %>%
+  count(scientificName, name = "n_records")
+```
+
+```{r rarity-density, fig.height=5}
+#| fig-cap: "Number of species per record-count class (log scale). Vertical lines mark key thresholds: 1, 3, 5, 10 (ESM minimum for this study, red), 25 and 50 records."
+
+cuts <- c(1, 3, 5, 10, 25, 50)
+cut_labels <- c("1", "3", "5", "10
+(MIN_OCC)", "25", "50")
+cut_colours <- c("grey60", "grey60", "grey60", "firebrick", "grey50", "grey50")
+
+ggplot(sp_occ, aes(x = n_records)) +
+  geom_histogram(
+    fill   = "#4a7fb5",
+    colour = "white",
+    bins   = 40
+  ) +
+  geom_vline(
+    xintercept = cuts,
+    linetype   = "dashed",
+    colour     = cut_colours,
+    linewidth  = c(0.5, 0.5, 0.5, 0.9, 0.5, 0.5)
+  ) +
+  annotate(
+    "text",
+    x      = cuts,
+    y      = Inf,
+    label  = cut_labels,
+    vjust  = 1.3,
+    hjust  = 0.5,
+    size   = 3,
+    colour = cut_colours
+  ) +
+  scale_x_log10(
+    breaks = c(1, 3, 5, 10, 25, 50, 100, 250, 500, 1000, 5000),
+    labels = scales::comma
+  ) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title    = "Rarity structure of EpIG 2.0",
+    subtitle = paste0(
+      format(n_distinct(db_epig2$scientificName), big.mark = ","),
+      " species total  |  ",
+      format(sum(sp_occ$n_records < 10), big.mark = ","),
+      " with fewer than 10 records (",
+      round(100 * mean(sp_occ$n_records < 10), 1), "%)"
+    ),
+    x = "Records per species (log scale)",
+    y = "Number of species"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r rarity-threshold-table}
+#| tbl-cap: "Cumulative species counts at key record-count thresholds. Each row shows how many species have at least that many records in EpIG 2.0 (pre-thinning)."
+
+thresholds <- c(1, 3, 5, 10, 25, 50, 100, 250)
+
+tibble(
+  `Threshold (n ≥)` = thresholds,
+  `N species`       = sapply(thresholds, function(n) sum(sp_occ$n_records >= n)),
+  `% of all spp`    = round(100 * sapply(thresholds, function(n) mean(sp_occ$n_records >= n)), 1),
+  Note = c(
+    "Any record",
+    "Reference cut",
+    "Old ESM minimum (Breiner 2015 lower bound)",
+    "MIN_OCC: ESM threshold for this study",
+    "Reference cut",
+    "Moderate data: well-estimated niches",
+    "High data: standard SDM feasible",
+    "Very high: rare in endemic epiphytes"
+  )
+) %>%
+  kable(big.mark = ",") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover")) %>%
+  row_spec(4, bold = TRUE, background = "#e8f4f8")
+```
+
+```{r rarity-bins-bar, fig.height=3.5}
+#| fig-cap: "Species by record-count class. The ESM modellable pool starts at n ≥ 10."
+
+sp_occ_mod <- db_mod %>%
+  filter(!is.na(scientificName)) %>%
+  count(scientificName, name = "n_records")
+
+rarity_bins <- sp_occ_mod %>%
+  mutate(
+    bin = case_when(
+      n_records == 1  ~ "1",
+      n_records < 5   ~ "2–4",
+      n_records < 10  ~ "5–9",
+      n_records < 25  ~ "10–24",
+      n_records < 50  ~ "25–49",
+      n_records < 100 ~ "50–99",
+      TRUE            ~ "100+"
+    ),
+    bin = factor(bin, levels = c("1","2–4","5–9","10–24","25–49","50–99","100+"))
+  ) %>%
+  count(bin) %>%
+  mutate(
+    pct      = round(100 * n / sum(n), 1),
+    modclass = bin %in% c("10–24","25–49","50–99","100+")
+  )
+
+ggplot(rarity_bins, aes(x = bin, y = n,
+                        fill = modclass)) +
+  geom_col(colour = "white", width = 0.75) +
+  geom_text(aes(label = paste0(pct, "%")),
+            vjust = -0.4, size = 3.2, colour = "grey30") +
+  scale_fill_manual(
+    values = c("FALSE" = "grey70", "TRUE" = "#4a7fb5"),
+    labels = c("n < 10 (excluded)", "n ≥ 10 (modellable)"),
+    name   = NULL
+  ) +
+  scale_y_continuous(
+    labels = scales::comma,
+    expand = expansion(mult = c(0, 0.15))
+  ) +
+  labs(
+    title = "Species by record-count class (modelling dataset)",
+    x = "Records per species",
+    y = "N species"
+  ) +
+  theme_bw() +
+  theme(
+    legend.position  = "top",
+    panel.grid.minor = element_blank(),
+    panel.grid.major.x = element_blank()
+  )
+```
+
+------------------------------------------------------------------------
+
+# Temporal coverage
+
+```{r temporal, fig.height=4.5}
+#| fig-cap: "Collection effort over time (records per year, 1900–present). The 2000s peak reflects the digitisation era of Latin American herbaria."
+
+timeline <- db %>%
+  filter(!is.na(year)) %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(year >= 1900, year <= 2025) %>%
+  count(year)
+
+ggplot(timeline, aes(x = year, y = n)) +
+  geom_area(fill = "#4a7fb5", alpha = 0.55) +
+  geom_line(colour = "#2c5f8a", linewidth = 0.7) +
+  scale_x_continuous(breaks = seq(1900, 2025, 25)) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(
+    title    = "Collection effort over time (EpIG 2.0)",
+    subtitle = "Historical herbarium specimens + post-2000 online repositories",
+    x        = "Year",
+    y        = "Records per year"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r temporal-summary}
+db %>%
+  filter(!is.na(year)) %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(year >= 1900) %>%
+  mutate(
+    era = case_when(
+      year < 1950 ~ "Pre-1950 (historical)",
+      year < 1980 ~ "1950–1979",
+      year < 2000 ~ "1980–1999",
+      year < 2015 ~ "2000–2014 (digitisation era)",
+      TRUE        ~ "2015–present"
+    )
+  ) %>%
+  count(era, name = "n_records") %>%
+  mutate(pct = round(100 * n_records / sum(n_records), 1)) %>%
+  kable(
+    caption   = "Records by collection era",
+    col.names = c("Era", "Records", "%")
+  ) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+------------------------------------------------------------------------
+
+# Field completeness
+
+```{r field-completeness, fig.height=4}
+#| fig-cap: "Completeness of key fields in EpIG 2.0."
+
+key_fields <- c(
+  "decimalLatitude", "decimalLongitude", "year", "family",
+  "genus", "scientificName", "locality", "minimumElevationInMeters",
+  "coordinateUncertaintyInMeters", "countryCode"
+)
+
+field_labels <- c(
+  "decimalLatitude"              = "Latitude",
+  "decimalLongitude"             = "Longitude",
+  "year"                         = "Year",
+  "family"                       = "Family",
+  "genus"                        = "Genus",
+  "scientificName"               = "Scientific name",
+  "locality"                     = "Locality text",
+  "minimumElevationInMeters"     = "Elevation",
+  "coordinateUncertaintyInMeters" = "Coord. uncertainty",
+  "countryCode"                  = "Country code"
+)
+
+completeness_df <- tibble(
+  field = key_fields,
+  label = field_labels[key_fields],
+  n_present = sapply(key_fields, function(col) {
+    if (col %in% names(db)) sum(!is.na(db[[col]])) else 0L
+  }),
+  pct = round(100 * n_present / nrow(db), 1)
+) %>%
+  arrange(pct)
+
+ggplot(completeness_df, aes(x = reorder(label, pct), y = pct)) +
+  geom_col(fill = "#5b8c5a", colour = "white", width = 0.7) +
+  geom_text(
+    aes(label = paste0(pct, "%")),
+    hjust = -0.1, size = 3.2, colour = "grey30"
+  ) +
+  coord_flip() +
+  scale_y_continuous(
+    limits = c(0, 110),
+    breaks = c(0, 25, 50, 75, 100)
+  ) +
+  labs(
+    title = "Field completeness: EpIG 2.0",
+    x = NULL, y = "% records with value"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor   = element_blank(),
+        panel.grid.major.y = element_blank())
+```
+
+------------------------------------------------------------------------
+
+```{r session-info, include=FALSE}
+sessionInfo()
+```
+
+------------------------------------------------------------------------
+
+## References
+
+Morrone, J.J. 2022. Biogeographic regionalization of the Neotropical region revised. *Therya* 13(1):1–8. <https://doi.org/10.12933/therya-22-1930>
+
+Svahnström, V.J., Nic Lughadha, E., Forest, F. et al. 2025. Geographic range size and rarity of epiphytic flowering plants. *Nature Plants* 11:1380–1389. <https://doi.org/10.1038/s41477-025-02022-9>
+
+Taylor, A., Zotz, G., Weigelt, P., Cai, L., Karger, D.N., König, C., and Kreft, H. 2021. Vascular epiphytes contribute disproportionately to global centres of plant diversity. *Global Ecology and Biogeography* 31:62–74. <https://doi.org/10.1111/geb.13411>
+
+Zotz, G., P. Weigelt, M. Kessler, H. Kreft, and A. Taylor. 2021. EpiList 1.0: a global checklist of vascular epiphytes. *Ecology* 102(6):e03326. <https://doi.org/10.1002/ecy.3309>

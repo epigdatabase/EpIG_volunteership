@@ -1,0 +1,318 @@
+---
+title: "Data"
+author: "MJCH"
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+    code-tools: true
+    self-contained: true
+---
+
+# Data thinning
+
+```{r setup, message=FALSE, warning=FALSE}
+library(terra)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(forcats)
+library(scales)
+library(knitr)
+library(kableExtra)
+library(ConR)
+
+options(scipen = 999)
+```
+
+```{r thinning}
+# Define raster at modeling resolution
+r <- rast(
+  xmin = -120, xmax = -30,
+  ymin = -35,  ymax = 35,
+  resolution = 0.0833  # ~10 km
+)
+
+your_df <- readRDS("../data/db_modelling_strict.rds")
+
+# Thin: one record per species per cell
+set.seed(123)
+thinned <- your_df %>%
+  mutate(cell = cellFromXY(r, cbind(decimalLongitude, decimalLatitude))) %>%
+  filter(!is.na(cell)) %>%
+  group_by(scientificName, cell) %>%
+  slice_sample(n = 1) %>%
+  ungroup() %>%
+  select(-cell)
+
+# Check record loss
+original_n <- nrow(your_df)
+thinned_n  <- nrow(thinned)
+
+cat(
+  "Records removed:", original_n - thinned_n,
+  "(", round((1 - thinned_n / original_n) * 100, 1), "%)\n"
+)
+```
+
+# Record summary after thinning
+
+```{r record-summary}
+species_summary <- thinned %>%
+  count(scientificName, family, genus, name = "n_thinned") %>%
+  left_join(
+    your_df %>%
+      count(scientificName, name = "n_original"),
+    by = "scientificName"
+  ) %>%
+  mutate(
+    record_class = case_when(
+      n_thinned < 5 ~ "<5 records",
+      n_thinned < 10 ~ "5-9 records",
+      TRUE ~ ">=10 records"
+    ),
+    record_class = factor(record_class, levels = c("<5 records", "5-9 records", ">=10 records"))
+  )
+
+record_class_summary <- species_summary %>%
+  count(record_class, name = "n_species") %>%
+  mutate(percent_species = round(100 * n_species / sum(n_species), 2))
+
+record_class_summary %>%
+  kable(caption = "Species by thinned record-count class") %>%
+  kable_styling(full_width = FALSE)
+```
+
+```{r record-histogram, fig.width=9, fig.height=5}
+ggplot(species_summary, aes(x = n_thinned)) +
+  geom_histogram(binwidth = 1, boundary = 0, fill = "grey70", colour = "grey30") +
+  geom_vline(xintercept = c(5, 10), linetype = "dashed") +
+  scale_x_continuous(
+    name = "Number of thinned records per species",
+    breaks = pretty_breaks()
+  ) +
+  ylab("Number of species") +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank())
+```
+
+```{r record-class-bar, fig.width=7, fig.height=4}
+ggplot(record_class_summary, aes(x = record_class, y = n_species)) +
+  geom_col(fill = "grey70", colour = "grey30") +
+  geom_text(aes(label = paste0(n_species, " (", percent_species, "%)")), vjust = -0.3) +
+  xlab(NULL) +
+  ylab("Number of species") +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank())
+```
+
+# EOO
+
+```{r eoo-computing, eval=FALSE}
+XY <- thinned %>%
+  select(decimalLatitude, decimalLongitude, scientificName)
+
+# Batch EOO for all species at once
+eoo <- EOO.computing(
+  XY,
+  exclude.area = TRUE,
+  export_shp = FALSE,
+  method.range = "convex.hull",
+  method.less.than3 = "arbitrary", # gives a value to species with two unique occurrences
+  file.name = "EOO.results",
+  parallel = TRUE,
+  NbeCores = 4,
+  show_progress = TRUE
+)
+
+saveRDS(eoo, "../data/eoo_results.rds")
+write.csv(eoo, "../data/eoo_results.csv", row.names = FALSE)
+```
+
+```{r load-or-use-eoo}
+eoo <- readRDS("../data/eoo_results.rds")
+```
+
+# EOO joined with family and record counts
+
+```{r eoo-family-join}
+records_per_species <- thinned %>%
+  count(scientificName, name = "n_records")
+
+species_taxonomy <- thinned %>%
+  distinct(scientificName, genus, family)
+
+eoo_family_all <- eoo %>%
+  rename(
+    scientificName = tax,
+    EOO = eoo
+  ) %>%
+  left_join(species_taxonomy, by = "scientificName") %>%
+  left_join(records_per_species, by = "scientificName")
+
+# Main analysis filter requested: EOO > 5 and valid family.
+# This removes zero / near-zero arbitrary EOOs and species without family names.
+eoo_family <- eoo_family_all %>%
+  filter(!is.na(family), !is.na(EOO), EOO > 5)
+```
+
+# Density plot: total + Big 5 families
+
+```{r eoo-density-big5, fig.width=14, fig.height=8}
+# Big 5 families by number of species after EOO > 5 filtering
+big5_families <- eoo_family %>%
+  distinct(scientificName, family, EOO) %>%
+  count(family, name = "n_species", sort = TRUE) %>%
+  slice_head(n = 5) %>%
+  pull(family)
+
+plot_df <- eoo_family %>%
+  distinct(scientificName, family, EOO) %>%
+  mutate(panel = "All families") %>%
+  bind_rows(
+    eoo_family %>%
+      distinct(scientificName, family, EOO) %>%
+      filter(family %in% big5_families) %>%
+      mutate(panel = family)
+  ) %>%
+  mutate(
+    panel = factor(panel, levels = c("All families", big5_families)),
+    log10_EOO = log10(EOO)
+  )
+
+ggplot(plot_df, aes(x = log10_EOO)) +
+  geom_density(linewidth = 0.9, fill = "grey70", alpha = 0.45, na.rm = TRUE) +
+  facet_wrap(~ panel, scales = "free_y") +
+  scale_x_continuous(
+    name = expression(log[10]("EOO, km"^2)),
+    labels = label_number()
+  ) +
+  ylab("Density") +
+  theme_bw() +
+  theme(
+    strip.background = element_rect(fill = "grey90", colour = NA),
+    panel.grid.minor = element_blank()
+  )
+```
+
+# Family-level EOO summary
+
+```{r family-summary}
+family_summary <- eoo_family %>%
+  group_by(family) %>%
+  summarise(
+    n_genus   = n_distinct(genus, na.rm = TRUE),
+    n_species = n_distinct(scientificName),
+    n_records = sum(n_records, na.rm = TRUE),
+    n_eoo     = sum(!is.na(EOO) & EOO > 5),
+    mean_eoo  = mean(EOO, na.rm = TRUE),
+    median_eoo = median(EOO, na.rm = TRUE),
+    sd_eoo    = sd(EOO, na.rm = TRUE),
+    min_eoo   = min(EOO, na.rm = TRUE),
+    max_eoo   = max(EOO, na.rm = TRUE),
+    mean_log10_eoo   = mean(log10(EOO), na.rm = TRUE),
+    median_log10_eoo = median(log10(EOO), na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    range_class = case_when(
+      median_eoo < 50000 ~ "endemic-rich",
+      median_eoo < 500000 ~ "intermediate",
+      TRUE ~ "widespread-dominated"
+    )
+  ) %>%
+  arrange(desc(n_species))
+
+family_summary %>%
+  kable(caption = "Family-level EOO summary after EOO > 5 filtering", digits = 3) %>%
+  kable_styling(full_width = FALSE) %>%
+  scroll_box(width = "100%", height = "600px")
+```
+
+# Country occupancy and IUCN EOO threshold
+
+```{r country-eoo-flags}
+# Number of countries per species using thinned records.
+# Uses countryCode when available, otherwise country.
+countries_per_species <- thinned %>%
+  mutate(country_id = coalesce(countryCode, country)) %>%
+  filter(!is.na(country_id), country_id != "") %>%
+  group_by(scientificName) %>%
+  summarise(
+    n_countries = n_distinct(country_id),
+    countries = paste(sort(unique(country_id)), collapse = "; "),
+    .groups = "drop"
+  )
+
+species_flags <- eoo_family_all %>%
+  left_join(countries_per_species, by = "scientificName") %>%
+  mutate(
+    n_countries = replace_na(n_countries, 0L),
+    le_2_countries = n_countries <= 2,
+    eoo_lt_50000 = !is.na(EOO) & EOO > 5 & EOO < 50000,
+    both_criteria = le_2_countries & eoo_lt_50000
+  )
+
+criteria_summary <- tibble(
+  criterion = c(
+    "Species present in <=2 countries",
+    "Species with EOO < 50,000 km2 and EOO > 5",
+    "Species fulfilling both criteria"
+  ),
+  n_species = c(
+    species_flags %>% filter(le_2_countries) %>% summarise(n = n_distinct(scientificName)) %>% pull(n),
+    species_flags %>% filter(eoo_lt_50000) %>% summarise(n = n_distinct(scientificName)) %>% pull(n),
+    species_flags %>% filter(both_criteria) %>% summarise(n = n_distinct(scientificName)) %>% pull(n)
+  )
+)
+
+criteria_summary %>%
+  kable(caption = "Species meeting country occupancy and EOO range-restriction criteria") %>%
+  kable_styling(full_width = FALSE)
+```
+
+# Family summary for species fulfilling both criteria
+
+```{r both-criteria-family-summary}
+both_species <- species_flags %>%
+  filter(both_criteria, !is.na(family)) %>%
+  distinct(scientificName, family, genus, n_records, EOO, n_countries, countries)
+
+both_family_summary <- both_species %>%
+  group_by(family) %>%
+  summarise(
+    n_genus = n_distinct(genus, na.rm = TRUE),
+    n_species = n_distinct(scientificName),
+    n_records = sum(n_records, na.rm = TRUE),
+    min_records_per_species = min(n_records, na.rm = TRUE),
+    max_records_per_species = max(n_records, na.rm = TRUE),
+    mean_records_per_species = mean(n_records, na.rm = TRUE),
+    median_records_per_species = median(n_records, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(n_species))
+
+both_family_summary %>%
+  kable(
+    caption = "Family summary for species present in <=2 countries and with EOO < 50,000 km2",
+    digits = 2
+  ) %>%
+  kable_styling(full_width = FALSE) %>%
+  scroll_box(width = "100%", height = "500px")
+```
+
+# table of species fulfilling both criteria
+
+```{r both-criteria-species-table}
+both_species %>%
+  arrange(family, genus, scientificName) %>%
+  select(family, genus, scientificName, n_records, n_countries, countries, EOO) %>%
+  kable(
+    caption = "Species fulfilling both criteria",
+    digits = 2
+  ) %>%
+  kable_styling(full_width = FALSE) %>%
+  scroll_box(width = "100%", height = "600px")
+```

@@ -1,0 +1,1853 @@
+---
+title: "Data Summary"
+subtitle: "Occurrence data overview for SDM"
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 2
+    embed-resources: true
+    code-fold: true
+    code-summary: "Show code"
+    fig-width: 12
+    fig-height: 8
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(sf)
+library(ggplot2)
+library(knitr)
+library(scales)
+library(rnaturalearth)
+library(sf)
+library(sampbias)
+library(rnaturalearth)
+library(dplyr)
+library(sampbias)
+
+
+# Suppress warnings for cleaner output
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Load data
+db <- readRDS(here::here("data/db_modelling_strict.rds"))
+```
+
+# Dataset overview
+
+```{r overview-table}
+summary_stats <- tibble(
+  Metric = c(
+    "Total Records",
+    "Records with Valid Coordinates",
+    "Unique Species",
+    "Unique Genera",
+    "Unique Families",
+    "Countries Represented",
+    "Year Range",
+    "Median Collection Year",
+    "Data Source Groups"
+  ),
+  Value = c(
+    format(nrow(db), big.mark = ","),
+    format(sum(!is.na(db$decimalLatitude) & !is.na(db$decimalLongitude)), big.mark = ","),
+    n_distinct(db$scientificName, na.rm = TRUE),
+    n_distinct(db$genus, na.rm = TRUE),
+    n_distinct(db$family, na.rm = TRUE),
+    n_distinct(db$country, na.rm = TRUE),
+    paste0(min(db$year, na.rm = TRUE), " – ", max(db$year, na.rm = TRUE)),
+    round(median(as.numeric(db$year), na.rm = TRUE)),
+    n_distinct(db$source_group, na.rm = TRUE)
+  )
+)
+
+knitr::kable(summary_stats, caption = "Summary Statistics")
+```
+
+## Field completeness
+
+```{r completeness}
+key_fields <- c("decimalLatitude", "decimalLongitude", "year", "locality", 
+                "minimumElevationInMeters", "family", "genus", "scientificName")
+
+completeness <- tibble(
+  Field = key_fields,
+  Count = sapply(key_fields, function(col) sum(!is.na(db[[col]]))),
+  Completeness_Percent = sapply(key_fields, function(col) {
+    round(sum(!is.na(db[[col]])) / nrow(db) * 100, 1)
+  })
+) %>%
+  arrange(desc(Completeness_Percent))
+
+knitr::kable(completeness, caption = "Field Completeness")
+```
+
+## Rarity structure
+
+>"On average, epiphytes have larger ranges than closely related terrestrial species, supporting hypotheses that epiphytism promotes dispersal. However, small ranges are prevalent in epiphyte-rich families regardless of lifeform. Notably, about half of epiphyte species are rare, indicating greater vulnerability than terrestrials. Epiphyte rarity is attributable to evolutionary history and shared traits rather than epiphytism itself." Svahnström et al., 2025. https://doi.org/10.1038/s41477-025-02022-9
+
+>"Although epiphytism itself does not cause small ranges","the small ranges of epiphytes result from their concentration in a few species-rich lineages, where diversification and trait evolution have promoted
+small ranges." 
+And in conservation matters, "45% had EOO <20,000 km2, the threshold for
+categorization as ‘vulnerable’ following Red List criterion B1"
+
+SDM classic approach excluding rare species is not a good option for this group.
+
+```{r brom-rarity-table1}
+sp_occurrences <- db %>%
+  filter(!is.na(scientificName)) %>%
+  group_by(scientificName) %>%
+  summarise(n_occ = n(), .groups = "drop")
+
+rarity_bins <- sp_occurrences %>%
+  mutate(
+    bin = case_when(
+      n_occ < 10 ~ "<10",
+      n_occ >= 10 & n_occ < 50 ~ "10-50",
+      n_occ >= 50 & n_occ < 100 ~ "50-100",
+      n_occ >= 100 ~ ">100"
+    )
+  ) %>%
+  count(bin) %>%
+  mutate(bin = factor(bin, levels = c("<10", "10-50", "50-100", ">100"))) %>%
+  arrange(bin)
+
+# Extract values for inline text
+rarity_rare <- rarity_bins %>% filter(bin == "<10") %>% pull(n)
+rarity_common <- rarity_bins %>% filter(bin == ">100") %>% pull(n)
+rarity_total <- sum(rarity_bins$n)
+
+rarity_bins_table <- rarity_bins %>%
+  rename("Occurrences per species" = bin, "Number of species" = n)
+
+knitr::kable(rarity_bins_table, caption = "Distribution of species by occurrence count")
+```
+
+Among all species, rare species (fewer than 10 records) dominate numerically: `r rarity_rare` out of `r rarity_total` species. The tail of well-sampled species (\>100 records) contains only `r rarity_common` species, yet these represent a disproportionate fraction of the total records, illustrating the common-species-dominated sampling bias in occurrence data.
+
+```{r rarity-histogram}
+ggplot(sp_occurrences, aes(x = n_occ)) +
+  geom_histogram(bins = 50, fill = "steelblue", color = "white", alpha = 0.8) +
+  scale_x_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(10^.x))
+  ) +
+  labs(
+    title = "Distribution of occurrences per species (log scale)",
+    x = "Records per species",
+    y = "Number of species"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 12, margin = margin(b = 8))
+  )
+```
+
+### Species rarity: rare species (<10 and <20 records)
+
+```{r rarity-species-histograms}
+# Calculate occurrences per species
+sp_occurrences <- db %>%
+  filter(!is.na(scientificName)) %>%
+  group_by(scientificName) %>%
+  summarise(n_records = n(), .groups = "drop")
+
+# Species with < 10 records
+sp_less_10 <- sp_occurrences %>%
+  filter(n_records < 10)
+
+# Species with < 20 records
+sp_less_20 <- sp_occurrences %>%
+  filter(n_records < 20)
+
+# Histogram for species with < 10 records
+p1 <- ggplot(sp_less_10, aes(x = n_records)) +
+  geom_histogram(bins = 9, fill = "steelblue", color = "white", alpha = 0.8) +
+  labs(
+    title = "Distribution of Records for Species with < 10 Occurrences",
+    x = "Number of Records",
+    y = "Number of Species"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold", size = 12))
+
+# Histogram for species with < 20 records
+p2 <- ggplot(sp_less_20, aes(x = n_records)) +
+  geom_histogram(bins = 19, fill = "coral", color = "white", alpha = 0.8) +
+  labs(
+    title = "Distribution of Records for Species with < 20 Occurrences",
+    x = "Number of Records",
+    y = "Number of Species"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(plot.title = element_text(face = "bold", size = 12))
+
+# Display both plots
+p1
+p2
+```
+
+There are `r nrow(sp_less_10)` species with fewer than 10 records and `r nrow(sp_less_20)` species with fewer than 20 records in the dataset. This substantial pool of rare species is a key consideration for SDM development, as they require specialized approaches beyond standard modeling techniques.
+
+```{r rare-species-table}
+# Get detailed info for species with < 20 records
+rare_species_detail <- db %>%
+  filter(!is.na(scientificName), !is.na(family), !is.na(genus)) %>%
+  group_by(family, genus, scientificName) %>%
+  summarise(
+    n_records_total = n(),
+    n_r_occurrences = sum(dataset == "Occurrence data"),
+    n_r_communities = sum(dataset == "Community data"),
+    .groups = "drop"
+  ) %>%
+  filter(n_records_total < 20) %>%
+  arrange(desc(n_records_total))
+
+knitr::kable(rare_species_detail[c(1:10),], 
+             caption = "Species with < 20 records: Family, genus, species, and record counts by data type",
+             col.names = c("Family", "Genus", "Species", "Total Records",
+                           "Occurrences_source", "Communities_source"))
+
+dim(rare_species_detail)
+# Count species with at least one community record
+rare_species_detail %>%
+   filter(n_r_communities > 0) %>%
+   nrow()
+```
+
+```{r rare-species-table10}
+# Get detailed info for species with < 20 records
+rare_species_detail1 <- db %>%
+  filter(!is.na(scientificName), !is.na(family), !is.na(genus)) %>%
+  group_by(family, genus, scientificName) %>%
+  summarise(
+    n_records_total = n(),
+    n_r_occurrences = sum(dataset == "Occurrence data"),
+    n_r_communities = sum(dataset == "Community data"),
+    .groups = "drop"
+  ) %>%
+  filter(n_records_total < 10) %>%
+  arrange(desc(n_records_total))
+
+knitr::kable(rare_species_detail1[c(1:10),], 
+             caption = "Species with < 10 records: Family, genus, species, and record counts by data type",
+             col.names = c("Family", "Genus", "Species", "Total Records",
+                           "Occurrences_source", "Communities_source"))
+
+dim(rare_species_detail1)
+
+# Count species with at least one community record
+rare_species_detail1 %>%
+   filter(n_r_communities > 0) %>%
+   nrow()
+```
+
+## Geographic coverage
+
+### Occurrence point distribution
+
+```{r geographic-coverage}
+db_coords <- db %>%
+  filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)) %>%
+  filter(decimalLatitude >= -90 & decimalLatitude <= 90,
+         decimalLongitude >= -180 & decimalLongitude <= 180)
+
+# Sample for visualization
+set.seed(4821)
+db_sample <- db_coords %>% slice_sample(n = min(50000, nrow(db_coords)))
+
+ggplot(db_sample, aes(x = decimalLongitude, y = decimalLatitude, color = source_group)) +
+  geom_point(size = 1, alpha = 0.4) +
+  coord_fixed() +
+  scale_color_viridis_d(option = "turbo", name = "Source Group") +
+  theme_minimal() +
+  labs(title = "Geographic Distribution of Occurrence Points",
+       subtitle = sprintf("Sample of %d from %d total points with valid coordinates", 
+                          nrow(db_sample), nrow(db_coords)),
+       x = "Longitude", y = "Latitude") +
+  theme(legend.position = "bottom",
+        plot.title = element_text(face = "bold", size = 12))
+```
+
+```{r}
+# Aggregate records into 0.5° grid cells for fast rendering
+grid_counts <- db |>
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude)) |>
+  mutate(
+    lon_bin = round(decimalLongitude / 0.5) * 0.5,
+    lat_bin = round(decimalLatitude  / 0.5) * 0.5
+  ) |>
+  count(lon_bin, lat_bin)
+
+nt <- st_read("../layers/Neotropics_Morrone/Neotropic_dissolved.shp")
+nt_simple <- st_simplify(nt, dTolerance = 0.05)
+
+ggplot() +
+  geom_sf(data = nt_simple, fill = "grey93", colour = "grey65", linewidth = 0.2) +
+  geom_tile(
+    data = grid_counts,
+    aes(x = lon_bin, y = lat_bin, fill = n),
+    width = 0.5, height = 0.5
+  ) +
+  scale_fill_viridis_c(
+    option    = "magma",
+    direction = -1,
+    trans     = "log10",
+    labels    = scales::comma,
+    name      = "Records\n(log\u2081\u2080)"
+  ) +
+  coord_sf(xlim = c(-115, -30), ylim = c(-35, 25), expand = FALSE) +
+  labs(
+    title    = "EpIG 2.0 \u2014 occurrence density (0.5\u00b0 grid)",
+    subtitle = paste0(
+      format(sum(grid_counts$n), big.mark = ","),
+      " georeferenced records \u00b7 ",
+      format(nrow(grid_counts), big.mark = ","), " grid cells"
+    ),
+    x = NULL, y = NULL
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title        = element_text(face = "bold", margin = margin(b = 4)),
+    plot.subtitle     = element_text(colour = "grey40"),
+    legend.position   = "right",
+    legend.key.height = unit(1.2, "cm"),
+    plot.margin       = margin(8, 8, 8, 8)
+  )
+```
+
+### Species Richness Grid
+
+```{r richness-grid}
+richness_grid <- db_coords %>%
+  filter(!is.na(scientificName)) %>%
+  mutate(
+    lat_cell = floor(decimalLatitude),
+    lon_cell = floor(decimalLongitude)
+  ) %>%
+  group_by(lat_cell, lon_cell) %>%
+  summarise(
+    n_species = n_distinct(scientificName),
+    n_records = n(),
+    .groups = "drop"
+  ) %>%
+  filter(!is.na(lat_cell) & !is.na(lon_cell))
+
+ggplot(richness_grid, aes(x = lon_cell, y = lat_cell, fill = n_species)) +
+  geom_tile() +
+  coord_fixed() +
+  scale_fill_viridis_c(option = "viridis", direction = -1, name = "Unique Species") +
+  theme_minimal() +
+  labs(title = "Species Richness by 1° Grid Cell",
+       x = "Longitude", y = "Latitude") +
+  theme(plot.title = element_text(face = "bold", size = 12),
+        legend.position = "bottom")
+
+richness_summary <- richness_grid %>%
+  summarise(
+    Mean_Species_per_Cell = round(mean(n_species), 1),
+    Max_Species_in_Cell = max(n_species),
+    Median_Species_per_Cell = median(n_species),
+    Total_Grid_Cells = n()
+  )
+
+knitr::kable(richness_summary, caption = "Species Richness Summary Statistics")
+```
+
+## Sampling bias
+
+```{r sampbias-setup}
+# Prepare data for sampbias
+# Important: sampbias needs a species column, not only coordinates
+db_coords_sb <- db %>%
+  filter(
+    !is.na(decimalLatitude),
+    !is.na(decimalLongitude),
+    decimalLatitude >= -90,
+    decimalLatitude <= 90,
+    decimalLongitude >= -180,
+    decimalLongitude <= 180,
+    !is.na(scientificName),
+    scientificName != ""
+  ) %>%
+  transmute(
+    species = scientificName,
+    decimalLongitude = as.numeric(decimalLongitude),
+    decimalLatitude  = as.numeric(decimalLatitude)
+  )
+
+# Calculate sampling bias
+sampbias_result <- calculate_bias(
+  x = db_coords_sb,
+  res = 2,
+  terrestrial = TRUE
+)
+
+# See summary
+summary(sampbias_result)
+
+# Plot posterior estimates of bias weights
+plot(sampbias_result)
+
+# 4. Proyectar el sesgo al espacio
+sampbias_map <- project_bias(sampbias_result)
+
+# 5. Mapa del sesgo en escala log10
+map_bias(
+  sampbias_map,
+  type = "diff_to_max"
+)
+
+map_bias(
+  sampbias_map,
+  type = "sampling_rate"
+)
+```
+
+The sampling bias magnitude plot reveals geographic clustering of collection effort, with particular concentration in accessible regions and near research institutions. Regions with high bias (warmer colors) indicate non-random sampling intensity that must be accounted for in downstream SDM applications.
+
+## Taxonomic Composition
+
+## Family concentration
+
+```{r family-concentration}
+# Calculate species concentration across families
+family_species <- db %>%
+  filter(!is.na(family), !is.na(scientificName)) %>%
+  group_by(family) %>%
+  summarise(n_species = n_distinct(scientificName), .groups = "drop") %>%
+  arrange(desc(n_species))
+
+# Total families and total species
+total_families <- nrow(family_species)
+total_species_all <- sum(family_species$n_species)
+
+# Top 6 families
+top_10_families <- family_species %>%
+  head(10) %>%
+  mutate(pct_of_total = round(100 * n_species / total_species_all, 2))
+
+# Concentration in top 6
+concentration_top_10 <- round(100 * sum(top_10_families$n_species) / total_species_all, 1)
+
+# Create summary text with inline values
+species_top_10_table <- top_10_families %>%
+  rename(Family = family, Species = n_species, `% of Total` = pct_of_total) %>%
+  select(Family, Species, `% of Total`)
+
+knitr::kable(species_top_10_table, caption = "Top 10 Families by Species Count")
+```
+
+In this dataset, `r concentration_top_10`% of all epiphyte species are concentrated in just the top 10 families. There are `r total_families` families total, but species diversity is heavily skewed: the top family has `r family_species %>% slice(1) %>% pull(n_species)` species, while the top 10 families account for `r sum(top_10_families$n_species)` species combined.
+
+### Top Families
+
+```{r families}
+family_counts <- db %>%
+  filter(!is.na(family)) %>%
+  count(family) %>%
+  arrange(desc(n)) %>%
+  head(15) %>%
+  mutate(pct = round(100 * n / sum(n), 1))
+
+ggplot(family_counts, aes(x = reorder(family, n), y = n, fill = n)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_viridis_c(direction = -1, option = "viridis") +
+  theme_minimal() +
+  labs(title = "Top 15 Plant Families by Record Count",
+       x = "Family", y = "Number of Records", fill = "Records") +
+  theme(plot.title = element_text(face = "bold", size = 12),
+        legend.position = "bottom")
+```
+
+```{r family-species-table}
+family_richness <- db %>%
+  filter(!is.na(family), !is.na(genus), !is.na(scientificName)) %>%
+  group_by(family) %>%
+  summarise(
+    Records = n(),
+    Genus = n_distinct(genus),
+    Species = n_distinct(scientificName),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Records)) %>%
+  head(15)
+
+knitr::kable(family_richness, caption = "Top 15 Families: Records and Species Count")
+```
+
+### Top Genera
+
+```{r genera}
+genus_counts <- db %>%
+  filter(!is.na(genus)) %>%
+  count(genus) %>%
+  arrange(desc(n)) %>%
+  head(15)
+
+ggplot(genus_counts, aes(x = reorder(genus, n), y = n, fill = n)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_viridis_c(direction = -1, option = "viridis") +
+  theme_minimal() +
+  labs(title = "Top 15 Genera by Record Count",
+       x = "Genus", y = "Number of Records", fill = "Records") +
+  theme(plot.title = element_text(face = "bold", size = 12),
+        legend.position = "bottom")
+```
+
+```{r genera-species-richness}
+genus_richness <- db %>%
+  filter(!is.na(genus), !is.na(scientificName)) %>%
+  group_by(genus) %>%
+  summarise(n_species = n_distinct(scientificName), .groups = "drop") %>%
+  arrange(desc(n_species)) %>%
+  head(15)
+
+ggplot(genus_richness, aes(x = reorder(genus, n_species), y = n_species, fill = n_species)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_viridis_c(direction = -1, option = "plasma") +
+  theme_minimal() +
+  labs(title = "Top 15 Genera by Species Richness",
+       x = "Genus", y = "Number of Species", fill = "Species") +
+  theme(plot.title = element_text(face = "bold", size = 12),
+        legend.position = "bottom")
+```
+
+```{r genera-table}
+# Combine records and species counts for top genera
+genus_combined <- db %>%
+  filter(!is.na(genus), !is.na(scientificName)) %>%
+  group_by(genus) %>%
+  summarise(
+    Records = n(),
+    Species = n_distinct(scientificName),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Species)) %>%
+  head(15)
+
+knitr::kable(genus_combined, caption = "Top 15 Genera: Records and Species Count")
+```
+
+### Geographic distribution of top genera
+
+```{r top-genera-map}
+# Get top 6 genera by species richness
+top_6_genera <- db %>%
+  filter(!is.na(genus), !is.na(scientificName)) %>%
+  group_by(genus) %>%
+  summarise(n_species = n_distinct(scientificName), .groups = "drop") %>%
+  arrange(desc(n_species)) %>%
+  head(6) %>%
+  pull(genus)
+
+# Filter data for top 6 genera with valid coordinates
+map_top_genera <- db %>%
+  filter(genus %in% top_6_genera) %>%
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude)) %>%
+  filter(decimalLatitude >= -90 & decimalLatitude <= 90,
+         decimalLongitude >= -180 & decimalLongitude <= 180)
+
+# Sample for cleaner visualization if needed
+set.seed(8374)
+map_top_genera_plot <- map_top_genera %>%
+  slice_sample(n = min(25000, nrow(map_top_genera)))
+
+# Get world map
+world_map <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Create map with Tillandsia assigned the brightest color
+genus_colors <- c(
+  "Tillandsia" = "#FFD700",    # Bright gold/yellow (clearest)
+  "Lepanthes" = "#FF6B6B",   # Coral red
+  "Stelis" = "#A52A2A",      # Teal
+  "Anthurium" = "#95E1D3",       # Light mint
+  "Epidendrum" = "#6C5CE7",        # Purple
+  "Peperomia" = "#808000"     # Olive
+)
+
+ggplot() +
+  geom_sf(data = world_map, fill = "grey95", color = "grey70", linewidth = 0.3) +
+  geom_point(
+    data = map_top_genera_plot,
+    aes(x = decimalLongitude, y = decimalLatitude, color = genus),
+    size = 1.5, alpha = 0.6
+  ) +
+  facet_wrap(~genus) +
+  scale_color_manual(values = genus_colors, name = "Genus") +
+  coord_sf(xlim = c(-115, -30), ylim = c(-35, 25), expand = FALSE) +
+  labs(
+    title = "Geographic distribution of the top 6 genera (by species richness)",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 12, margin = margin(b = 8)),
+    legend.position = "right"
+  )
+```
+
+```{r}
+# Get lower 6 genera by species richness
+top_6_genera <- db %>%
+  filter(!is.na(genus), !is.na(scientificName)) %>%
+  group_by(genus) %>%
+  summarise(n_species = n_distinct(scientificName), .groups = "drop") %>%
+  arrange(desc(n_species)) %>%
+  head(6) %>%
+  pull(genus)
+```
+
+## Temporal distribution
+
+### Collection Effort Over Time
+
+current species ranges? though historical records are also valuable for understanding range dynamics
+
+```{r temporal}
+timeline <- db %>%
+  filter(!is.na(year)) %>%
+  mutate(year = as.numeric(year)) %>%
+  filter(year >= 1900 & year <= 2026) %>%
+  count(year) %>%
+  arrange(year)
+
+ggplot(timeline, aes(x = year, y = n)) +
+  geom_area(fill = "steelblue", alpha = 0.6) +
+  geom_line(color = "steelblue", size = 0.8) +
+  theme_minimal() +
+  labs(title = "Collection Effort Over Time (1900–2026)",
+       x = "Year", y = "Number of Records") +
+  theme(plot.title = element_text(face = "bold", size = 12)) +
+  scale_x_continuous(breaks = seq(1900, 2026, 25))
+
+# Summary statistics
+year_summary <- db %>%
+  filter(!is.na(year)) %>%
+  mutate(year = as.numeric(year)) %>%
+  summarise(
+    Records_Pre_1980 = sum(year < 1980),
+    Records_1980_2000 = sum(year >= 1980 & year < 2000),
+    Records_2000_2020 = sum(year >= 2000 & year < 2020),
+    Records_Post_2020 = sum(year >= 2020)
+  ) %>%
+  pivot_longer(everything(), names_to = "Period", values_to = "Records")
+
+knitr::kable(year_summary, caption = "Records by Decade")
+```
+
+# Pilot
+
+```{r}
+# Species rarity distribution
+species_rarity <- db %>%
+  group_by(scientificName) %>%
+  summarise(n_records = n(), .groups = 'drop') %>%
+  mutate(
+    record_class = case_when(
+      n_records == 1 ~ "1 record",
+      n_records < 5 ~ "2-4 records",
+      n_records < 10 ~ "5-9 records",
+      n_records < 20 ~ "10-19 records",
+      n_records < 30 ~ "20-29 records",
+      n_records < 50 ~ "30-49 records",
+      n_records < 100 ~ "50-99 records",
+      TRUE ~ "100+ records"
+    )
+  ) %>%
+  count(record_class) %>%
+  rename(`Record Class` = record_class, `Number of Species` = n) %>%
+  mutate(`Record Class` = factor(`Record Class`, 
+    levels = c("1 record", "2-4 records", "5-9 records", "10-19 records",
+               "20-29 records", "30-49 records", "50-99 records", "100+ records"))) %>%
+  arrange(`Record Class`)
+
+knitr::kable(species_rarity, caption = "Distribution of Species by Number of Records")
+
+# Genus rarity distribution
+genus_rarity <- db %>%
+  group_by(genus) %>%
+  summarise(n_records = n(), .groups = 'drop') %>%
+  mutate(
+    record_class = case_when(
+      n_records == 1 ~ "1 record",
+      n_records < 5 ~ "2-4 records",
+      n_records < 10 ~ "5-9 records",
+      n_records < 20 ~ "10-19 records",
+      n_records < 30 ~ "20-29 records",
+      n_records < 50 ~ "30-49 records",
+      n_records < 100 ~ "50-99 records",
+      TRUE ~ "100+ records"
+    )
+  ) %>%
+  count(record_class) %>%
+  rename(`Record Class` = record_class, `Number of Genera` = n) %>%
+  mutate(`Record Class` = factor(`Record Class`, 
+    levels = c("1 record", "2-4 records", "5-9 records", "10-19 records",
+               "20-29 records", "30-49 records", "50-99 records", "100+ records"))) %>%
+  arrange(`Record Class`)
+
+knitr::kable(genus_rarity, caption = "Distribution of Genera by Number of Records")
+
+# Filter species with >= 5 records
+species_5plus <- db %>%
+  group_by(scientificName) %>%
+  filter(n() >= 5) %>%
+  ungroup()
+
+# Count remaining species and families
+species_count_filtered <- species_5plus %>%
+  pull(scientificName) %>%
+  n_distinct()
+
+family_count_filtered <- species_5plus %>%
+  pull(family) %>%
+  n_distinct()
+
+records_filtered <- nrow(species_5plus)
+
+summary_after_filter <- tibble(
+  Metric = c("Number of Records", "Number of Species", "Number of Families"),
+  Count = c(records_filtered, species_count_filtered, family_count_filtered)
+)
+
+knitr::kable(summary_after_filter, caption = "Summary After Removing Species with < 5 Records")
+```
+
+
+## GENUS LEVEL APPROACH: pilot genus: Epidendrum and Andinia
+
+Andinia has 27 species
+Bulbophyllum 71
+Epidendrum 1063
+
+```{r}
+# Genus restricted to the Andes, widespread, widespread+diverse
+target <- c("Andinia", "Bulbophyllum", "Epidendrum")
+
+# Filter data for top 6 genera with valid coordinates
+map_target_genera <- db %>%
+  filter(genus %in% target) %>%
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude)) %>%
+  filter(decimalLatitude >= -90 & decimalLatitude <= 90,
+         decimalLongitude >= -180 & decimalLongitude <= 180)
+
+# Sample for cleaner visualization if needed
+set.seed(8374)
+map_target_genera <- map_target_genera %>%
+  slice_sample(n = min(25000, nrow(map_target_genera)))
+
+# Get world map
+world_map <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Create map with Tillandsia assigned the brightest color
+genus_colors <- c(
+  "Epidendrum" = "#FFD700",    # Bright gold/yellow (clearest)
+  "Bulbophyllum" = "#FF6B6B",   # Coral red
+  "Andinia" = "#6C5CE7"        # Purple
+)
+
+ggplot() +
+  geom_sf(data = world_map, fill = "grey95", color = "grey70", linewidth = 0.3) +
+  geom_point(
+    data = map_target_genera,
+    aes(x = decimalLongitude, y = decimalLatitude, color = genus),
+    size = 1.5, alpha = 0.6
+  ) +
+  facet_wrap(~genus) +
+  scale_color_manual(values = genus_colors, name = "Genus") +
+  coord_sf(xlim = c(-115, -30), ylim = c(-35, 25), expand = FALSE) +
+  labs(
+    title = "Geographic distribution of target genera",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 12, margin = margin(b = 8)),
+    legend.position = "right"
+  )
+
+
+db_genus_sf <- db %>%
+  filter(genus == target)
+
+genus_summary <- db_genus_sf %>%
+  group_by(genus) %>%
+  summarise(
+    Records = n(),
+    Species = n_distinct(scientificName),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Records))
+
+# Rarity structure
+species_occurrences_ <- db_genus_sf %>%
+  group_by(genus, scientificName) %>%
+  summarise(n_occ = n(), .groups = "drop")
+
+rarity_bins <- species_occurrences_ %>%
+  mutate(
+    bin = case_when(
+      n_occ < 10 ~ "<10",
+      n_occ >= 10 & n_occ < 50 ~ "10-50",
+      n_occ >= 50 & n_occ < 100 ~ "50-100",
+      n_occ >= 100 ~ ">100"
+    )
+  ) %>%
+  count(bin) %>%
+  mutate(bin = factor(bin, levels = c("<10", "10-50", "50-100", ">100"))) %>%
+  arrange(bin)
+
+# Extract values for inline text
+rarity_rare <- rarity_bins %>% filter(bin == "<10") %>% pull(n)
+rarity_common <- rarity_bins %>% filter(bin == ">100") %>% pull(n)
+rarity_total <- sum(rarity_bins$n)
+
+rarity_bins_table <- rarity_bins %>%
+  rename("Occurrences per species" = bin, "Number of species" = n)
+
+knitr::kable(rarity_bins_table, caption = "Distribution of species by occurrence count")
+```
+
+```{r}
+
+```
+
+## SPECIES LEVEL APPROACH: pilot family: Bromeliaceae
+
+```{r brom-setup, include=FALSE}
+library(tidyverse)
+
+# Subfamily assignments
+subfamily_map <- tribble(
+  ~genus, ~subfamily,
+  "Tillandsia", "Tillandsioideae",
+  "Connellia", "Tillandsioideae",
+  "Glomeraria", "Tillandsioideae",
+  "Racinaea", "Tillandsioideae",
+  "Alcantarea", "Tillandsioideae",
+  "Vriesea", "Bromelioideae",
+  "Nidularium", "Bromelioideae",
+  "Aechmea", "Bromelioideae",
+  "Billbergia", "Bromelioideae",
+  "Hohenbergia", "Bromelioideae",
+  "Wittrockia", "Bromelioideae",
+  "Dyckia", "Pitcairnioideae",
+  "Puya", "Pitcairnioideae",
+  "Deuterocohnia", "Pitcairnioideae",
+  "Abromeitiella", "Pitcairnioideae"
+)
+
+db_brom_sf <- db %>%
+  filter(family == "Bromeliaceae") %>%
+  left_join(subfamily_map, by = "genus") %>%
+  mutate(subfamily = ifelse(is.na(subfamily), "Unknown", subfamily))
+
+# Summary statistics
+brom_records <- nrow(db_brom_sf)
+brom_species <- n_distinct(db_brom_sf$scientificName)
+total_records <- nrow(db)
+total_species <- n_distinct(db$scientificName)
+
+# Subfamily summaries
+subfamily_summary <- db_brom_sf %>%
+  filter(!is.na(subfamily) & subfamily != "Unknown") %>%
+  group_by(subfamily) %>%
+  summarise(
+    Records = n(),
+    Species = n_distinct(scientificName),
+    Genera = n_distinct(genus),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Records))
+
+# Rarity structure
+species_occurrences <- db_brom_sf %>%
+  filter(!is.na(scientificName)) %>%
+  group_by(scientificName) %>%
+  summarise(n_occ = n(), .groups = "drop")
+
+rarity_bins <- species_occurrences %>%
+  mutate(
+    bin = case_when(
+      n_occ < 10 ~ "<10",
+      n_occ >= 10 & n_occ < 50 ~ "10-50",
+      n_occ >= 50 & n_occ < 100 ~ "50-100",
+      n_occ >= 100 ~ ">100"
+    )
+  ) %>%
+  count(bin) %>%
+  mutate(bin = factor(bin, levels = c("<10", "10-50", "50-100", ">100"))) %>%
+  arrange(bin)
+
+# Extract values for inline text
+rarity_rare <- rarity_bins %>% filter(bin == "<10") %>% pull(n)
+rarity_common <- rarity_bins %>% filter(bin == ">100") %>% pull(n)
+rarity_total <- sum(rarity_bins$n)
+```
+
+Bromeliaceae is the second-largest plant family in this vascular epiphyte dataset, representing `r format(brom_records, big.mark = ",")` records (`r round(100 * brom_records / total_records, 1)`%) and `r brom_species` species (`r round(100 * brom_species / total_species, 1)`% of all species). The family is near-exclusively distributed across the **Neotropics**, spanning the full geographic extent of the study region from Mexico to southern Brazil.
+
+Within the epiphyte-only context of this dataset, Bromeliaceae is structured around two main subfamilies with distinctly different ecological strategies. Tillandsioideae, the atmospheric epiphytes, account for `r subfamily_summary %>% filter(subfamily == "Tillandsioideae") %>% pull(Records) %>% format(big.mark = ",")` records across `r subfamily_summary %>% filter(subfamily == "Tillandsioideae") %>% pull(Species)` species and occupy the broadest altitudinal and climatic range. Bromelioideae, the tank epiphytes, comprise `r subfamily_summary %>% filter(subfamily == "Bromelioideae") %>% pull(Records) %>% format(big.mark = ",")` records and `r subfamily_summary %>% filter(subfamily == "Bromelioideae") %>% pull(Species)` species, with stronger preference for humid forest habitats.
+
+The family also exhibits the same rarity structure as the full dataset: a heavy-tailed distribution with a few dominant species and many rare ones. Among Bromeliaceae species, `r rarity_rare` have fewer than 10 occurrences, while only `r rarity_common` have over 100 records. The variation creates a natural test case for a bifurcated modeling approach: developing specialized methods for common species (where sufficient data exists for standard maximum entropy modeling) and rare species (where simpler or data-borrowing approaches may be needed).
+
+The strong phylogenetic structure within Bromeliaceae—two well-defined subfamilies with clear ecological associations—also allows us to test whether modeling coherence and prediction quality improve when conditioning on higher taxonomic levels.
+
+```{r brom-dataset-comparison}
+# Dataset comparison
+comparison <- tibble(
+  Group = c("Full Dataset", "Bromeliaceae"),
+  Records = c(total_records, brom_records),
+  Species = c(total_species, brom_species),
+  `Records (%)` = c(100, round(100 * brom_records / total_records, 1)),
+  `Species (%)` = c(100, round(100 * brom_species / total_species, 1))
+)
+
+knitr::kable(comparison, caption = "Bromeliaceae contribution to the full dataset")
+```
+
+### Subfamily composition
+
+```{r brom-subfamily}
+subfamily_summary <- db_brom_sf %>%
+  filter(!is.na(subfamily) & subfamily != "Unknown") %>%
+  group_by(subfamily) %>%
+  summarise(
+    Records = n(),
+    Species = n_distinct(scientificName),
+    Genera = n_distinct(genus),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(Records))
+
+knitr::kable(subfamily_summary, caption = "Records, species, and genera per Bromeliaceae subfamily")
+```
+
+### Rarity structure
+
+```{r brom-rarity-table}
+rarity_bins_table <- rarity_bins %>%
+  rename("Occurrences per species" = bin, "Number of species" = n)
+
+knitr::kable(rarity_bins_table, caption = "Distribution of species by occurrence count")
+```
+
+Among Bromeliaceae species, rare species (fewer than 10 records) dominate numerically: `r rarity_rare` out of `r rarity_total` species. The tail of well-sampled species (\>100 records) contains only `r rarity_common` species, yet these represent a disproportionate fraction of the total records, illustrating the common-species-dominated sampling bias in occurrence data.
+
+```{r brom-rarity-histogram}
+ggplot(species_occurrences, aes(x = n_occ)) +
+  geom_histogram(bins = 50, fill = "steelblue", color = "white", alpha = 0.8) +
+  scale_x_log10(
+    breaks = scales::trans_breaks("log10", function(x) 10^x),
+    labels = scales::trans_format("log10", scales::math_format(10^.x))
+  ) +
+  labs(
+    title = "Distribution of occurrences per Bromeliaceae species (log scale)",
+    x = "Records per species",
+    y = "Number of species"
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 12, margin = margin(b = 8))
+  )
+```
+
+### Top genera
+
+```{r brom-genera}
+top_genera <- db_brom_sf %>%
+  filter(!is.na(genus)) %>%
+  count(genus) %>%
+  arrange(desc(n)) %>%
+  head(10) %>%
+  rename(Genus = genus, Records = n)
+
+knitr::kable(top_genera, caption = "Top 10 genera in Bromeliaceae")
+```
+
+The distribution is predictably skewed toward *Tillandsia* (`r (top_genera %>% filter(Genus == "Tillandsia") %>% pull(Records)) %>% format(big.mark = ",")` records), but the next tier of genera—*Aechmea*, *Guzmania*, and *Vriesea*—provides sufficient sample sizes for independent model development and cross-validation.
+
+### Geographic distribution
+
+```{r brom-map}
+library(rnaturalearth)
+library(sf)
+
+map_data <- db_brom_sf %>%
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude), 
+         subfamily != "Unknown") %>%
+  filter(decimalLatitude >= -90 & decimalLatitude <= 90,
+         decimalLongitude >= -180 & decimalLongitude <= 180)
+
+set.seed(7423)
+map_data_plot <- map_data %>%
+  slice_sample(n = min(30000, nrow(map_data)))
+
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+ggplot() +
+  geom_sf(data = world, fill = "grey95", color = "grey70", linewidth = 0.3) +
+  geom_point(
+    data = map_data_plot,
+    aes(x = decimalLongitude, y = decimalLatitude, color = subfamily),
+    size = 1.5, alpha = 0.5
+  ) +
+  scale_color_manual(
+    values = c("Tillandsioideae" = "#440154", "Bromelioideae" = "#FDE725"),
+    name = "Subfamily"
+  ) +
+  coord_sf(xlim = c(-115, -30), ylim = c(-35, 25), expand = FALSE) +
+  labs(
+    title = "Bromeliaceae occurrence distribution by subfamily",
+    x = NULL, y = NULL
+  ) +
+  theme_minimal(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 12, margin = margin(b = 8)),
+    legend.position = "right"
+  )
+```
+
+The two subfamilies show clear geographic complementarity. Tillandsioideae (purple) dominates the northern and western regions, extending into Mexico and along the Andes, while Bromelioideae (yellow) is concentrated in the humid Atlantic forest regions of southeastern Brazil. This geographic structure, combined with their ecological differences, makes the subfamily distinction meaningful for modeling.
+
+# Hotspots within the Neotropics
+
+```{r}
+library(sf)
+library(dplyr)
+
+# Load hotspots shapefile
+hotspots <- st_read("../layers/hotspots_2016_1/hotspots_2016_1.shp", quiet = TRUE)
+hotspots <- hotspots %>% filter(Type == "hotspot area")
+
+# Load Neotropics boundary
+neotropics <- st_read("../layers/Neotropics_Morrone/Neotropic_dissolved.shp", quiet = TRUE)
+
+# Extract attributes without geometry (shapefile has topology issues)
+hotspots_attrs <- st_drop_geometry(hotspots) 
+
+# Identify hotspots in Neotropics by name pattern matching
+neotropical_hotspots_keywords <- c(
+  "Atlantic Forest",
+  "Caribbean Islands",
+  "Cerrado",
+  "Madrean Pine-Oak Woodlands",
+  # "Chilean Winter Rainfall and Valdivian Forests",
+  "Mesoamerica",
+  "Tropical Andes",
+  "Tumbes-Choco-Magdalena"
+)
+
+hotspots_neotropics <- hotspots_attrs %>%
+  filter(grepl(paste(neotropical_hotspots_keywords, collapse = "|"), NAME, ignore.case = TRUE))
+# hotspots_neotropics %>% unique(NAME)
+
+# Report results
+cat("Total hotspots loaded:", nrow(hotspots), "\n")
+cat("Hotspots within Neotropics:", nrow(hotspots_neotropics), "\n")
+
+# Display hotspots within Neotropics
+if (nrow(hotspots_neotropics) > 0) {
+  cat("\nBiodiversity Hotspots in the Neotropics:\n")
+  print(hotspots_neotropics)
+  
+  cat("\nSummary:\n")
+  hotspot_types <- hotspots_neotropics %>%
+    count(Type)
+  print(hotspot_types)
+  
+  cat("\nUnique hotspots (excluding outer limits):\n")
+  unique_hotspots <- hotspots_neotropics %>%
+    filter(Type == "hotspot area") %>%
+    pull(NAME)
+  print(unique_hotspots)
+} else {
+  cat("No hotspots found in Neotropics\n")
+}
+```
+
+# CHANGE versus previous version: 5 families
+
+```{r}
+library(tidyverse)
+library(sf)
+library(ggplot2)
+library(hexbin)
+
+glimpse(db)
+
+# Load the previous database version
+load("../data/database_final_2021.rda")
+db_prev <- occs_final
+db_prev <- db_prev %>% 
+  mutate(scientificName = species)
+db_prev_matched <- readRDS("../data/db_prev_matched.rds")
+
+table(db_prev_matched$match_code)
+
+
+# Create filtered db with target families only
+db_filtered <- db %>%
+  filter(family %in% c("Orchidaceae", "Bromeliaceae", "Araceae", "Piperaceae", "Polypodiaceae"))
+
+
+# Detailed family breakdown for previous data
+family_breakdown1 <- db_prev %>%
+  group_by(family) %>%
+  summarise(
+    n_records = n(),
+    n_species = n_distinct(scientificName),
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(n_records))
+
+cat("\nFamily breakdown for previous dataset:\n")
+print(family_breakdown1)
+
+# Detailed family breakdown for current data
+family_breakdown2 <- db_filtered %>%
+  group_by(family) %>%
+  summarise(
+    n_records = n(),
+    n_species = n_distinct(scientificName),
+    .groups = 'drop'
+  ) %>%
+  arrange(desc(n_records))
+
+cat("\nFamily breakdown for current dataset:\n")
+print(family_breakdown2)
+```
+
+♣ Prev dataset: EpIG-Backbone comparing
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# --- 1. Define match groups ---
+db_chk <- db_prev_matched %>%
+  mutate(
+    match_group = case_when(
+      match_code == 1 ~ "match_1_exact",
+      match_code == 2 ~ "match_2_fuzzy",
+      match_code == 3 ~ "match_3_loose",
+      is.na(match_code) | match_code == 0 ~ "no_match",
+      TRUE ~ "other"
+    ),
+    lost_flag = ifelse(match_code == 1, "kept", "lost")
+  )
+
+# --- 2. GLOBAL SUMMARY (records) ---
+summary_records <- db_chk %>%
+  count(match_group) %>%
+  mutate(prop = n / sum(n))
+
+# --- 3. SPECIES LOSS ---
+species_loss <- db_chk %>%
+  group_by(scientificName) %>%
+  summarise(
+    total_records = n(),
+    n_match1 = sum(match_code == 1, na.rm = TRUE),
+    n_lost = sum(match_code != 1 | is.na(match_code)),
+    prop_lost = n_lost / total_records,
+    .groups = "drop"
+  )
+
+species_completely_lost <- species_loss %>%
+  filter(n_match1 == 0)
+
+# --- 4. FAMILY LEVEL (records + species) ---
+loss_by_family <- db_chk %>%
+  group_by(family) %>%
+  summarise(
+    total_records = n(),
+    lost_records = sum(match_code != 1 | is.na(match_code)),
+    prop_records_lost = lost_records / total_records,
+    n_species_total = n_distinct(scientificName),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    db_chk %>%
+      group_by(family, scientificName) %>%
+      summarise(
+        has_match1 = any(match_code == 1, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      group_by(family) %>%
+      summarise(
+        n_species_lost = sum(!has_match1),
+        .groups = "drop"
+      ),
+    by = "family"
+  ) %>%
+  mutate(
+    prop_species_lost = n_species_lost / n_species_total
+  ) %>%
+  arrange(desc(lost_records))
+
+# --- 5. GENUS LEVEL (records + species) ---
+loss_by_genus <- db_chk %>%
+  group_by(genus) %>%
+  summarise(
+    total_records = n(),
+    lost_records = sum(match_code != 1 | is.na(match_code)),
+    prop_records_lost = lost_records / total_records,
+    n_species_total = n_distinct(scientificName),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    db_chk %>%
+      group_by(genus, scientificName) %>%
+      summarise(
+        has_match1 = any(match_code == 1, na.rm = TRUE),
+        .groups = "drop"
+      ) %>%
+      group_by(genus) %>%
+      summarise(
+        n_species_lost = sum(!has_match1),
+        .groups = "drop"
+      ),
+    by = "genus"
+  ) %>%
+  mutate(
+    prop_species_lost = n_species_lost / n_species_total
+  ) %>%
+  arrange(desc(lost_records))
+
+# --- 6. SPATIAL PATTERN ---
+map_data <- db_chk %>%
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude)) %>%
+  mutate(match_binary = ifelse(match_code == 1, "match_1", "non_match_1"))
+
+ggplot(map_data, aes(x = decimalLongitude, y = decimalLatitude)) +
+  geom_point(alpha = 0.4, size = 0.7) +
+  facet_wrap(~match_binary) +
+  theme_minimal()
+
+
+db_chk <- db_prev_matched %>%
+  mutate(
+    lost = is.na(match_code) | match_code != 1
+  )
+
+# Species-level status
+species_status <- db_chk %>%
+  group_by(family, genus, scientificName) %>%
+  summarise(
+    total_records = n(),
+    lost_records = sum(lost),
+    kept_records = sum(!lost),
+    completely_lost = all(lost),
+    .groups = "drop"
+  )
+
+# Family table with lost species names
+loss_by_family <- species_status %>%
+  group_by(family) %>%
+  summarise(
+    total_records = sum(total_records),
+    lost_records = sum(lost_records),
+    prop_records_lost = lost_records / total_records,
+    n_species_total = n_distinct(scientificName),
+    n_species_lost = sum(completely_lost),
+    prop_species_lost = n_species_lost / n_species_total,
+    species_lost = paste(scientificName[completely_lost], collapse = "; "),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(lost_records))
+
+# Genus table with lost species names
+loss_by_genus <- species_status %>%
+  group_by(family, genus) %>%
+  summarise(
+    total_records = sum(total_records),
+    lost_records = sum(lost_records),
+    prop_records_lost = lost_records / total_records,
+    n_species_total = n_distinct(scientificName),
+    n_species_lost = sum(completely_lost),
+    prop_species_lost = n_species_lost / n_species_total,
+    species_lost = paste(scientificName[completely_lost], collapse = "; "),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(lost_records))
+
+head(loss_by_family, 20)
+head(loss_by_genus, 20)
+
+# --- OUTPUTS ---
+summary_records
+head(species_completely_lost, 20)
+head(loss_by_family, 20)
+head(loss_by_genus, 20)
+```
+
+comparing with new dataset
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+# --- 1. Prepare datasets ---
+old <- db_prev_matched %>%
+  filter(match_code == 1) %>%
+  select(scientificName, family, genus, decimalLatitude, decimalLongitude)
+
+new <- db_filtered %>%
+  filter(matchCodeEpig == "1") %>%  # should already be all 1
+  select(scientificName, family, genus, decimalLatitude, decimalLongitude)
+
+# --- 2. BASIC SIZE ---
+summary_sizes <- tibble(
+  dataset = c("old", "new"),
+  n_records = c(nrow(old), nrow(new)),
+  n_species = c(n_distinct(old$scientificName),
+                n_distinct(new$scientificName))
+)
+
+# --- 3. SPECIES COMPARISON (THIS IS THE CORE) ---
+spp_old <- old %>% distinct(scientificName)
+spp_new <- new %>% distinct(scientificName)
+
+species_lost <- spp_old %>%
+  anti_join(spp_new, by = "scientificName")
+
+species_gained <- spp_new %>%
+  anti_join(spp_old, by = "scientificName")
+
+species_shared <- inner_join(spp_old, spp_new, by = "scientificName")
+
+species_summary <- tibble(
+  metric = c("old", "new", "shared", "lost", "gained"),
+  n = c(nrow(spp_old),
+        nrow(spp_new),
+        nrow(species_shared),
+        nrow(species_lost),
+        nrow(species_gained))
+)
+
+# --- 4. TAXONOMIC SIGNAL ---
+loss_by_family <- old %>%
+  semi_join(species_lost, by = "scientificName") %>%
+  group_by(family) %>%
+  summarise(
+    lost_records = n(),
+    lost_species = n_distinct(scientificName),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(lost_records))
+
+gain_by_family <- new %>%
+  semi_join(species_gained, by = "scientificName") %>%
+  group_by(family) %>%
+  summarise(
+    gained_records = n(),
+    gained_species = n_distinct(scientificName),
+    .groups = "drop"
+  ) %>%
+  arrange(desc(gained_records))
+
+# --- 5. SPATIAL COMPARISON ---
+map_data <- bind_rows(
+  old %>% mutate(dataset = "old"),
+  new %>% mutate(dataset = "new")
+) %>%
+  filter(!is.na(decimalLatitude), !is.na(decimalLongitude))
+
+ggplot(map_data, aes(decimalLongitude, decimalLatitude)) +
+  geom_point(alpha = 0.3, size = 0.6) +
+  facet_wrap(~dataset) +
+  theme_minimal()
+
+# --- OUTPUTS ---
+summary_sizes
+species_summary
+
+head(species_lost, 20)
+head(species_gained, 20)
+
+head(loss_by_family, 20)
+head(gain_by_family, 20)
+```
+
+# IUCN check to 08.05.2026
+
+```{r}
+install.packages("remotes")
+remotes::install_github("IUCN-UK/iucnredlist")
+library(iucnredlist)
+library(stringr)
+library(tibble)
+library(purrr)
+library(dplyr)
+
+# token IUCN
+api <- init_api("sDHQ3R1rXX5EkmVDNHoWRo43eE3jK8cmC9FU")
+
+# dpecies list
+species <- db_model %>%
+  pull(scientificName) %>%
+  str_trim() %>%
+  str_squish() %>%
+  word(1, 2) %>%
+  unique()
+
+check_iucn <- function(sp, api){
+
+  out <- tryCatch({
+
+    parts <- str_split(
+      sp,
+      "\\s+",
+      simplify = TRUE
+    )
+
+    genus <- parts[1]
+    species_epithet <- parts[2]
+
+    x <- assessments_by_name(
+      api = api,
+      genus = genus,
+      species = species_epithet
+    )
+
+    assessed <- nrow(x) > 0
+
+    category <- if (assessed) {
+      x$red_list_category_code[1]
+    } else {
+      NA_character_
+    }
+
+    latest_year <- if (assessed) {
+      x$year_published[1]
+    } else {
+      NA_character_
+    }
+
+    tibble(
+      species = sp,
+      assessed_by_iucn = assessed,
+      category = category,
+      latest_assessment = latest_year,
+      n_assessments = nrow(x)
+    )
+
+  }, error = function(e){
+
+    tibble(
+      species = sp,
+      assessed_by_iucn = FALSE,
+      category = NA_character_,
+      latest_assessment = NA_character_,
+      n_assessments = NA_integer_
+    )
+
+  })
+
+  Sys.sleep(0.2)
+
+  out
+}
+
+results <- map_dfr(
+  species,
+  check_iucn,
+  api = api
+)
+
+view(results)
+write.csv(results, "data/iucn_2026.csv")
+```
+
+
+# Plots to export 
+
+```{r}
+# library(tidyverse)
+# library(sf)
+# library(ggplot2)
+# library(plotly)
+# library(viridis)
+# library(gridExtra)
+# 
+# # Create figures directory
+# dir.create("figures", showWarnings = FALSE)
+# 
+# # ============================================================================
+# # SETUP: Prepare data summaries for fast visualization
+# # ============================================================================
+# 
+# # Basic checks
+# cat("Total records:", nrow(db), "\n")
+# cat("Records with valid coordinates:", sum(!is.na(db$decimalLatitude) & !is.na(db$decimalLongitude)), "\n")
+# cat("Unique families:", n_distinct(db$family), "\n")
+# cat("Unique genera:", n_distinct(db$genus), "\n")
+# cat("Year range:", min(db$year, na.rm = TRUE), "-", max(db$year, na.rm = TRUE), "\n")
+# 
+# # ============================================================================
+# # MAPS
+# # ============================================================================
+# 
+# cat("\n=== CREATING MAPS ===\n")
+# 
+# # Prepare coordinates with valid data
+# db_coords <- db %>%
+#   filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)) %>%
+#   filter(decimalLatitude >= -90 & decimalLatitude <= 90,
+#          decimalLongitude >= -180 & decimalLongitude <= 180)
+# 
+# cat("Valid coordinates:", nrow(db_coords), "\n")
+# 
+# # --- 1. DOT DENSITY MAP (sample 50K for performance)
+# cat("Creating dot density map...\n")
+# set.seed(4821)
+# db_sample <- db_coords %>% slice_sample(n = min(50000, nrow(db_coords)))
+# 
+# p_density <- ggplot(db_sample, aes(x = decimalLongitude, y = decimalLatitude, color = source_group)) +
+#   geom_point(size = 0.5, alpha = 0.3) +
+#   coord_fixed() +
+#   scale_color_viridis_d(option = "turbo") +
+#   theme_minimal() +
+#   labs(title = "Geographic Distribution of Occurrence Points",
+#        subtitle = sprintf("Sample of %d from %d total points with valid coordinates", 
+#                           nrow(db_sample), nrow(db_coords)),
+#        x = "Longitude", y = "Latitude", color = "Source Group") +
+#   theme(legend.position = "bottom",
+#         plot.title = element_text(face = "bold", size = 14),
+#         plot.subtitle = element_text(size = 11))
+# 
+# ggsave("figures/01_dot_density_map.png", p_density, width = 15, height = 10, dpi = 300)
+# cat("✓ Saved: 01_dot_density_map.png\n")
+# 
+# # --- 2. COUNTRY CHOROPLETH (record counts by country)
+# cat("Creating country choropleth...\n")
+# 
+# country_counts <- db %>%
+#   filter(!is.na(country)) %>%
+#   count(country) %>%
+#   arrange(desc(n)) %>%
+#   head(30)
+# 
+# p_country <- ggplot(country_counts, aes(x = reorder(country, n), y = n, fill = n)) +
+#   geom_col() +
+#   coord_flip() +
+#   scale_fill_viridis_c(direction = -1) +
+#   theme_minimal() +
+#   labs(title = "Record Count by Country (Top 30)",
+#        subtitle = "Brazil and Mexico dominate; clear Neotropical bias",
+#        x = "Country", y = "Number of Records", fill = "Records") +
+#   theme(plot.title = element_text(face = "bold", size = 14))
+# 
+# ggsave("figures/02_country_distribution.png", p_country, width = 12, height = 10, dpi = 300)
+# cat("✓ Saved: 02_country_distribution.png\n")
+# 
+# # --- 3. SPECIES RICHNESS GRID (1° cells)
+# cat("Creating species richness grid...\n")
+# 
+# richness_grid <- db_coords %>%
+#   filter(!is.na(scientificName)) %>%
+#   mutate(
+#     lat_cell = floor(decimalLatitude),
+#     lon_cell = floor(decimalLongitude)
+#   ) %>%
+#   group_by(lat_cell, lon_cell) %>%
+#   summarise(
+#     n_species = n_distinct(scientificName),
+#     n_records = n(),
+#     .groups = "drop"
+#   ) %>%
+#   filter(!is.na(lat_cell) & !is.na(lon_cell))
+# 
+# p_richness <- ggplot(richness_grid, aes(x = lon_cell, y = lat_cell, fill = n_species)) +
+#   geom_tile() +
+#   coord_fixed() +
+#   scale_fill_viridis_c(option = "viridis", direction = -1) +
+#   theme_minimal() +
+#   labs(title = "Species Richness by 1° Grid Cell",
+#        subtitle = "Ecologically meaningful diversity pattern",
+#        x = "Longitude", y = "Latitude", fill = "Unique Species") +
+#   theme(plot.title = element_text(face = "bold", size = 14))
+# 
+# ggsave("figures/03_species_richness_grid.png", p_richness, width = 15, height = 10, dpi = 300)
+# cat("✓ Saved: 03_species_richness_grid.png\n")
+# 
+# # ============================================================================
+# # TAXONOMIC VISUALIZATIONS
+# # ============================================================================
+# 
+# cat("\n=== CREATING TAXONOMIC VISUALIZATIONS ===\n")
+# 
+# # --- 4. TREEMAP (Families by record count)
+# cat("Creating treemap...\n")
+# 
+# family_counts <- db %>%
+#   filter(!is.na(family)) %>%
+#   count(family) %>%
+#   arrange(desc(n)) %>%
+#   mutate(pct = round(100 * n / sum(n), 1))
+# 
+# # Create treemap manually since treemapify may not be available
+# p_treemap <- ggplot(family_counts, aes(area = n, fill = n, label = paste0(family, "\n", n))) +
+#   geom_treemap() +
+#   geom_treemap_text(fontface = "italic", colour = "white", place = "centre") +
+#   scale_fill_viridis_c(direction = -1) +
+#   theme(plot.title = element_text(face = "bold", size = 14)) +
+#   labs(title = "Taxonomic Distribution: Plant Families",
+#        subtitle = "Orchidaceae and Bromeliaceae dominate",
+#        fill = "Record Count")
+# 
+# ggsave("figures/04_family_treemap.png", p_treemap, width = 14, height = 10, dpi = 300)
+# cat("✓ Saved: 04_family_treemap.png\n")
+# 
+# # --- 5. TOP 20 GENERA (horizontal bar chart with order coloring)
+# cat("Creating top 20 genera chart...\n")
+# 
+# genus_counts <- db %>%
+#   filter(!is.na(genus) & !is.na(order)) %>%
+#   count(genus, order) %>%
+#   arrange(desc(n)) %>%
+#   head(20)
+# 
+# p_genera <- ggplot(genus_counts, aes(x = reorder(genus, n), y = n, fill = order)) +
+#   geom_col() +
+#   coord_flip() +
+#   scale_fill_viridis_d(option = "turbo") +
+#   theme_minimal() +
+#   labs(title = "Top 20 Most Recorded Genera",
+#        x = "Genus", y = "Number of Records", fill = "Order") +
+#   theme(plot.title = element_text(face = "bold", size = 14))
+# 
+# ggsave("figures/05_top_genera.png", p_genera, width = 12, height = 10, dpi = 300)
+# cat("✓ Saved: 05_top_genera.png\n")
+# 
+# # --- 6. TOP 20 FAMILIES (horizontal bar chart)
+# cat("Creating top 20 families chart...\n")
+# 
+# top_families <- family_counts %>% head(20)
+# 
+# p_families <- ggplot(top_families, aes(x = reorder(family, n), y = n, fill = n)) +
+#   geom_col() +
+#   coord_flip() +
+#   scale_fill_viridis_c(direction = -1) +
+#   theme_minimal() +
+#   labs(title = "Top 20 Plant Families",
+#        x = "Family", y = "Number of Records", fill = "Records") +
+#   theme(plot.title = element_text(face = "bold", size = 14))
+# 
+# ggsave("figures/06_top_families.png", p_families, width = 12, height = 9, dpi = 300)
+# cat("✓ Saved: 06_top_families.png\n")
+# 
+# # ============================================================================
+# # TEMPORAL VISUALIZATIONS
+# # ============================================================================
+# 
+# cat("\n=== CREATING TEMPORAL VISUALIZATIONS ===\n")
+# 
+# # --- 7. COLLECTION EFFORT TIMELINE (records per year)
+# cat("Creating timeline...\n")
+# 
+# timeline <- db %>%
+#   filter(!is.na(year)) %>%
+#   mutate(year = as.numeric(year)) %>%
+#   filter(year >= 1692 & year <= 2026) %>%
+#   count(year) %>%
+#   arrange(year)
+# 
+# p_timeline <- ggplot(timeline, aes(x = year, y = n)) +
+#   geom_area(fill = "steelblue", alpha = 0.6) +
+#   geom_line(color = "steelblue", size = 1) +
+#   theme_minimal() +
+#   labs(title = "Collection Effort Over Time",
+#        subtitle = "Peak in 1980s–2000s; recent decline likely due to lag in data processing",
+#        x = "Year", y = "Number of Records") +
+#   theme(plot.title = element_text(face = "bold", size = 14)) +
+#   scale_x_continuous(breaks = seq(1700, 2026, 50))
+# 
+# ggsave("figures/07_timeline.png", p_timeline, width = 14, height = 7, dpi = 300)
+# cat("✓ Saved: 07_timeline.png\n")
+# 
+# # --- 8. RECORDS BY DECADE AND SOURCE
+# cat("Creating decade × source heatmap...\n")
+# 
+# decade_source <- db %>%
+#   filter(!is.na(year) & !is.na(source_group)) %>%
+#   mutate(year = as.numeric(year)) %>%
+#   filter(year >= 1692 & year <= 2026) %>%
+#   mutate(decade = floor(year / 10) * 10) %>%
+#   count(decade, source_group) %>%
+#   arrange(decade)
+# 
+# p_heatmap <- ggplot(decade_source, aes(x = decade, y = source_group, fill = n)) +
+#   geom_tile() +
+#   scale_fill_viridis_c(direction = -1) +
+#   theme_minimal() +
+#   labs(title = "Collection Effort: Decade × Source Group",
+#        x = "Decade", y = "Source Group", fill = "Records") +
+#   theme(plot.title = element_text(face = "bold", size = 14),
+#         axis.text.x = element_text(angle = 45, hjust = 1))
+# 
+# ggsave("figures/08_decade_source_heatmap.png", p_heatmap, width = 12, height = 7, dpi = 300)
+# cat("✓ Saved: 08_decade_source_heatmap.png\n")
+# 
+# # ============================================================================
+# # DATA QUALITY VISUALIZATIONS
+# # ============================================================================
+# 
+# cat("\n=== CREATING DATA QUALITY VISUALIZATIONS ===\n")
+# 
+# # --- 9. FIELD COMPLETENESS
+# cat("Creating field completeness chart...\n")
+# 
+# key_fields <- c("decimalLatitude", "decimalLongitude", "year", "locality", 
+#                 "minimumElevationInMeters", "family", "genus")
+# 
+# completeness <- tibble(
+#   Field = key_fields,
+#   Completeness = sapply(key_fields, function(col) {
+#     sum(!is.na(db[[col]])) / nrow(db) * 100
+#   })
+# ) %>%
+#   arrange(Completeness)
+# 
+# p_completeness <- ggplot(completeness, aes(x = reorder(Field, Completeness), y = Completeness, fill = Completeness)) +
+#   geom_col() +
+#   coord_flip() +
+#   scale_fill_viridis_c(direction = -1) +
+#   geom_text(aes(label = paste0(round(Completeness, 1), "%")), hjust = -0.1, size = 4) +
+#   theme_minimal() +
+#   ylim(0, 110) +
+#   labs(title = "Field Completeness Across Key Data Fields",
+#        subtitle = "Strong geographic core (coords, year), weaker periphery (elevation, genus)",
+#        x = "Field", y = "Completeness (%)", fill = "Completeness") +
+#   theme(plot.title = element_text(face = "bold", size = 14),
+#         legend.position = "bottom")
+# 
+# ggsave("figures/09_field_completeness.png", p_completeness, width = 11, height = 7, dpi = 300)
+# cat("✓ Saved: 09_field_completeness.png\n")
+# 
+# # --- 10. DATA QUALITY BY SOURCE GROUP
+# cat("Creating quality by source group...\n")
+# 
+# quality_by_source <- db %>%
+#   group_by(source_group) %>%
+#   summarise(
+#     coords = sum(!is.na(decimalLatitude) & !is.na(decimalLongitude)) / n() * 100,
+#     year = sum(!is.na(year)) / n() * 100,
+#     locality = sum(!is.na(locality)) / n() * 100,
+#     elevation = sum(!is.na(minimumElevationInMeters)) / n() * 100,
+#     .groups = "drop"
+#   ) %>%
+#   pivot_longer(-source_group, names_to = "field", values_to = "completeness")
+# 
+# p_quality_source <- ggplot(quality_by_source, aes(x = source_group, y = completeness, fill = field)) +
+#   geom_col(position = "dodge") +
+#   coord_flip() +
+#   scale_fill_viridis_d(option = "turbo") +
+#   theme_minimal() +
+#   labs(title = "Data Quality by Source Group",
+#        x = "Source Group", y = "Field Completeness (%)", fill = "Field") +
+#   theme(plot.title = element_text(face = "bold", size = 14))
+# 
+# ggsave("figures/10_quality_by_source.png", p_quality_source, width = 12, height = 8, dpi = 300)
+# cat("✓ Saved: 10_quality_by_source.png\n")
+# 
+# # ============================================================================
+# # SOURCE COMPOSITION
+# # ============================================================================
+# 
+# cat("\n=== CREATING SOURCE COMPOSITION VISUALIZATIONS ===\n")
+# 
+# # --- 11. SOURCE GROUP COMPOSITION (waffle-style or donut)
+# cat("Creating source composition chart...\n")
+# 
+# source_comp <- db %>%
+#   count(source_group) %>%
+#   arrange(desc(n)) %>%
+#   mutate(pct = round(100 * n / sum(n), 1))
+# 
+# p_source <- ggplot(source_comp, aes(x = "", y = n, fill = source_group)) +
+#   geom_col(width = 1) +
+#   coord_polar("y", start = 0) +
+#   geom_text(aes(label = paste0(source_group, "\n", pct, "%")), 
+#             position = position_stack(vjust = 0.5), size = 4) +
+#   scale_fill_viridis_d(option = "turbo") +
+#   theme_void() +
+#   labs(title = "Data Source Composition",
+#        subtitle = sprintf("Total: %d records across %d sources", nrow(db), nrow(source_comp))) +
+#   theme(plot.title = element_text(face = "bold", size = 14, hjust = 0.5),
+#         plot.subtitle = element_text(hjust = 0.5),
+#         legend.position = "none")
+# 
+# ggsave("figures/11_source_composition.png", p_source, width = 10, height = 8, dpi = 300)
+# cat("✓ Saved: 11_source_composition.png\n")
+# 
+# # --- 12. SOURCE GROUP BAR CHART
+# cat("Creating source group bar chart...\n")
+# 
+# p_source_bar <- ggplot(source_comp, aes(x = reorder(source_group, n), y = n, fill = n)) +
+#   geom_col() +
+#   coord_flip() +
+#   scale_fill_viridis_c(direction = -1) +
+#   geom_text(aes(label = paste0(n, " (", pct, "%)")), hjust = -0.1, size = 4) +
+#   theme_minimal() +
+#   ylim(0, max(source_comp$n) * 1.1) +
+#   labs(title = "Records by Source Group",
+#        x = "Source Group", y = "Number of Records", fill = "Records") +
+#   theme(plot.title = element_text(face = "bold", size = 14))
+# 
+# ggsave("figures/12_source_group_distribution.png", p_source_bar, width = 12, height = 8, dpi = 300)
+# cat("✓ Saved: 12_source_group_distribution.png\n")
+# 
+# # ============================================================================
+# # SUMMARY STATISTICS TABLE
+# # ============================================================================
+# 
+# cat("\n=== CREATING SUMMARY TABLE ===\n")
+# 
+# summary_stats <- tibble(
+#   Metric = c(
+#     "Total Records",
+#     "Records with Valid Coordinates",
+#     "Unique Families",
+#     "Unique Genera",
+#     "Unique Species",
+#     "Countries Represented",
+#     "Year Range",
+#     "Median Year",
+#     "Source Groups"
+#   ),
+#   Value = c(
+#     format(nrow(db), big.mark = ","),
+#     format(nrow(db_coords), big.mark = ","),
+#     n_distinct(db$family, na.rm = TRUE),
+#     n_distinct(db$genus, na.rm = TRUE),
+#     n_distinct(db$scientificName, na.rm = TRUE),
+#     n_distinct(db$country, na.rm = TRUE),
+#     paste0(min(db$year, na.rm = TRUE), " – ", max(db$year, na.rm = TRUE)),
+#     round(median(as.numeric(db$year), na.rm = TRUE)),
+#     n_distinct(db$source_group, na.rm = TRUE)
+#   )
+# )
+# 
+# write_csv(summary_stats, "figures/summary_statistics.csv")
+# cat("✓ Saved: summary_statistics.csv\n")
+# 
+# cat("\n" %+% paste(rep("=", 80), collapse = ""))
+# cat("\n✓ ALL VISUALIZATIONS CREATED SUCCESSFULLY")
+# cat("\nOutput folder: figures/\n")
+# cat("\nGenerated files:\n")
+# system("ls -1 figures/ | grep -E '\\.(png|csv)$'")
+
+```
+
+
+
+
