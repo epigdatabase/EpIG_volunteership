@@ -17,7 +17,7 @@ When you click the **Render** button a document will be generated that includes 
 
 ```{r}
 
-packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr","ggplot")
+packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr","ggplot" )
 
 # Install packages not yet installed [for the first time]
 installed_packages <- packages %in% rownames(installed.packages())
@@ -369,11 +369,127 @@ write.csv(voluntarios, file = "data/Georreferencing/georeferencing_audit_summary
 ```
 
 
-#Camilo´s DB
+#Database supervition AMAZ
 
 ```{r}
+#AMAZ2024
 
+AMAZ <- read.csv2("./data/Georreferencing/2.Processed/georef__AMAZ2024.csv",sep = ",")
+#view(AMAZ)
+unique(AMAZ$stateProvince)
+unique(AMAZ$country)
+
+# Diccionario de provincias -> departamentos
+province_to_dep <- c(
+  "Maynas" = "Loreto",
+  "Oxapampa" = "Pasco",
+  "Bagua" = "Amazonas",
+  "Loreto" = "Loreto",
+  "Requena" = "Loreto",
+  "Tarma" = "Junín",
+  "Alto Amazonas" = "Loreto",
+  "Mariscal Caceres" = "San Martin",
+  "Chanchamayo" = "Junin",
+  "Ramon Castilla" = "Loreto",
+  "Tambopata" = "Madre de Dios",
+  "Ucayali" = "Loreto",  # Provincia de Ucayali está en Loreto
+  "Coronel Portillo" = "Ucayali",
+  "Coronel portillo" = "Ucayali",
+  "Morona" = "Loreto",
+  "San Ignacio" = "Cajamarca",
+  "Tamshiyacu" = "Loreto",
+  "Luya" = "Amazonas",
+  "Leoncio Prado" = "Huanuco",
+  "Jenaro Herrera" = "Loreto",
+  "Rioja" = "San Martin"
+)
+
+# Aplicar la corrección directamente a stateProvince
+AMAZ$stateProvince <- province_to_dep[AMAZ$stateProvince]
+
+# Verificar el resultado
+unique(AMAZ$stateProvince)
+
+
+#AMAZ_199=Madre de Dios
+#AMAZ_200=Madre de Dios
+#AMAZ_208=Loreto
+#AMAZ_222=Ucayali
+#AMAZ_231= Country=Ecuador, countryCode=EC, stateProvince=Napo
+#AMAZ_369=Junin
+
+# Diccionario de occurrenceID -> ubicación
+location_mapping <- list(
+  "AMAZ_199" = list(
+    country = "Peru",
+    countryCode = "PE",
+    stateProvince = "Madre de Dios"
+  ),
+  "AMAZ_200" = list(
+    country = "Peru",
+    countryCode = "PE",
+    stateProvince = "Madre de Dios"
+  ),
+  "AMAZ_208" = list(
+    country = "Peru",
+    countryCode = "PE",
+    stateProvince = "Loreto"  # Iquitos está en Loreto
+  ),
+  "AMAZ_222" = list(
+    country = "Peru",
+    countryCode = "PE",
+    stateProvince = "Ucayali"
+  ),
+  "AMAZ_231" = list(
+    country = "Ecuador",
+    countryCode = "EC",
+    stateProvince = "Napo"
+  ),
+  "AMAZ_369" = list(
+    country = "Peru",
+    countryCode = "PE",
+    stateProvince = "Junín"
+  ),
+  "AMAZ_74" = list(
+    country = "Peru",
+    countryCode = "PE",
+    stateProvince = "San Martin"
+))
+
+# Aplicar las asignaciones
+for(id in names(location_mapping)) {
+  # Filtrar las filas que coinciden con el occurrenceID
+  rows <- which(AMAZ$occurrenceID == id)
+  
+  if(length(rows) > 0) {
+    # Asignar los valores
+    AMAZ$country[rows] <- location_mapping[[id]]$country
+    AMAZ$countryCode[rows] <- location_mapping[[id]]$countryCode
+    AMAZ$stateProvince[rows] <- location_mapping[[id]]$stateProvince
+  }
+}
+
+# Verificar los cambios
+AMAZ[AMAZ$occurrenceID %in% names(location_mapping), 
+     c("occurrenceID", "country", "countryCode", "stateProvince")]
+
+
+write.csv(AMAZ, file = "data/Georreferencing/2.Processed/georef__AMAZ2024.csv")
 
 
 ```
+
+
+```{r}
+SLINK <- read.csv2("./data/Georreferencing/2.Processed/georef__assis_i_2026_specieslink.csv",sep = ",")
+
+unique(SLINK$country)
+unique(SLINK$stateProvince)
+
+PECS <- read.csv2("./data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PECS.csv",sep = ",")
+
+unique(PECS$country)
+unique(PECS$stateProvince)
+```
+
 
