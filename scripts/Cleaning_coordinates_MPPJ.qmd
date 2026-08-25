@@ -487,9 +487,75 @@ unique(SLINK$country)
 unique(SLINK$stateProvince)
 
 PECS <- read.csv2("./data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PECS.csv",sep = ",")
-
+view(PECS)
 unique(PECS$country)
 unique(PECS$stateProvince)
+
+PERE <- read.csv2("./data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PERE.csv",sep = ",")
+
+unique(PERE$country)
+unique(PERE$stateProvince)
+view(PERE)
+
+PETE <- read.csv2("./data/Georreferencing/2.Processed/georef__bertelmann_h_2025_PETE.csv",sep = ",")
+unique(PETE$country)
+unique(PETE$stateProvince)
+view(PETE)
+
+CARAV <- read.csv2("./data/Georreferencing/2.Processed/georef__carranza_av_2023.csv",sep = ",")
+unique(CARAV$country)
+unique(CARAV$stateProvince)
+view(CARAV)
+
+CARAV1 <- read.csv2("./data/Georreferencing/2.Processed/georef__carranza_av_2004.csv",sep = ",")
+unique(CARAV1$country)
+unique(CARAV1$stateProvince)
+view(CARAV1)
+
+diagonal <- read.csv2("./data/Georreferencing/2.Processed/georef__assis_i_diagonal_2026.csv",sep = ";")
+
+unique(diagonal$country)
+unique(diagonal$stateProvince)
+view(diagonal)
+
+
+
+diagonal %>%
+  group_by(country, stateProvince) %>%
+  summarise(
+    n_registros = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(country) %>%
+  mutate(
+    porcentaje_del_pais = round(n_registros / sum(n_registros) * 100, 2)
+  ) %>%
+  arrange(country, desc(n_registros)) %>% 
+  print(n=40)
+
+
+diagonal <- diagonal %>%
+  mutate(
+    country = ifelse(stateProvince == "Corrientes", "Argentina", country),
+    countryCode = ifelse(stateProvince == "Corrientes", "AR", countryCode)
+  )
+
+diagonal %>%
+  filter(country == "Paraguay") %>%
+  distinct(stateProvince)
+
+write.csv(diagonal, file = "data/Georreferencing/2.Processed/georef__assis_i_diagonal_2026.csv")
+
+
+
+
+ros <- read.csv2("./data/Georreferencing/2.Processed/georef__rosero_j_2024.csv",sep = ",")
+
+unique(ros$country)
+unique(ros$stateProvince)
+
+view(ros)
+
 ```
 
 
