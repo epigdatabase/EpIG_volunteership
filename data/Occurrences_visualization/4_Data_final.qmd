@@ -1,0 +1,1059 @@
+---
+title: "Data Preparation — Final State"
+subtitle: "Occurrence data pipeline for SDM of Neotropical vascular epiphytes"
+author: "Maria Judith Carmona Higuita"
+date: today
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    embed-resources: true
+    code-fold: true
+    code-summary: "Show code"
+    fig-width: 10
+    fig-height: 6
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(here)
+library(terra)
+library(sf)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Load processed data
+db_strict      <- readRDS(here("data/occurrences/processed/db_modelling_strict.rds"))
+db_unc         <- readRDS(here("data/occurrences/processed/db_modelling_uncertainty.rds"))
+db_thinned     <- readRDS(here("data/occurrences/processed/db_thinned_025.rds"))
+species_summary <- readRDS(here("data/occurrences/processed/species_records_summary.rds"))
+eoo_all        <- readRDS(here("data/occurrences/processed/eoo_results_025.rds"))
+spp_flags      <- readRDS(here("data/occurrences/processed/spp_endemic_flags.rds"))
+spp_mod        <- readRDS(here("data/occurrences/processed/spp_endemics_modellable.rds"))
+spp_unmod      <- readRDS(here("data/occurrences/processed/spp_endemics_unmodellable.rds"))
+
+# Load evaluation summaries
+unc_summary    <- read_csv(here("outputs/evaluation/01_01_uncertainty_filter_summary.csv"),
+                           show_col_types = FALSE)
+record_class   <- read_csv(here("outputs/evaluation/01_02_record_class_summary.csv"),
+                           show_col_types = FALSE)
+criteria_summ  <- read_csv(here("outputs/evaluation/01_03_endemism_criteria_summary.csv"),
+                           show_col_types = FALSE)
+cr_family      <- read_csv(here("outputs/evaluation/01_03_CR_species_by_family.csv"),
+                           show_col_types = FALSE)
+cr_species     <- read_csv(here("outputs/evaluation/01_03_CR_species_list.csv"),
+                           show_col_types = FALSE)
+```
+
+# Overview
+
+This document summarises the complete occurrence data preparation pipeline
+for the analysis of endemism hotspots of Neotropical vascular epiphytes
+under climate and land-use change scenarios. All steps are fully reproducible
+via the scripts in `scripts/01_*.R`.
+
+```{r pipeline-summary}
+tibble(
+  Step = c(
+    "Raw database (EpIG-DB 2.0 + GBIF)",
+    "01_00 — Uncertainty filter (archived, not applied — see sensitivity & decisions log)",
+    "01_01 — Spatial thinning (0.25°)",
+    "01_02 — EOO + endemism classification"
+  ),
+  Records = c(
+    format(nrow(db_strict),  big.mark = ","),
+    format(nrow(db_unc),     big.mark = ","),
+    format(nrow(db_thinned), big.mark = ","),
+    "—"
+  ),
+  Species = c(
+    format(n_distinct(db_strict$scientificName),  big.mark = ","),
+    format(n_distinct(db_unc$scientificName),     big.mark = ","),
+    format(n_distinct(db_thinned$scientificName), big.mark = ","),
+    format(nrow(spp_flags), big.mark = ",")
+  ),
+  Notes = c(
+    "Post-cleaning: families + species excluded",
+    "Keep NA uncertainty OR <= 27,500 m",
+    "1 record per species per 0.25° cell; seed = 123",
+    "EOO calculated with ConR (convex hull, exclude.area = FALSE)"
+  )
+) %>%
+  kable(caption = "Data preparation pipeline summary") %>%
+  kable_styling(full_width = FALSE)
+```
+
+---
+
+# Step 01_00 — Coordinate Uncertainty Filter (archived, not applied)
+
+Records were retained where `coordinateUncertaintyInMeters` was `NA`
+(unknown precision, majority of historical herbarium specimens) or
+≤ 27,750 m (≈ one cell side at 0.25°: 0.25 × 111,320 m/° = 27,830 m).
+Records with uncertainty > 27,750 m were removed because the true location
+could fall in a different grid cell at the modelling resolution.
+
+**Decision rationale:** Excluding NA uncertainty records would introduce
+a temporal bias toward post-2000 collections and reduce taxonomic coverage
+of historically collected taxa. At 0.25° resolution, the cost of retaining
+imprecise records is lower than at finer scales.
+
+```{r uncertainty-summary}
+unc_summary %>%
+  arrange(desc(n_removed)) %>%
+  head(15) %>%
+  kable(
+    caption = "Top 15 families by records removed (coordinate uncertainty filter)",
+    digits  = 1
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+```{r uncertainty-totals}
+tibble(
+  Metric = c("Records before filter", "Records removed",
+             "Pct removed", "Records retained", "Species retained"),
+  Value  = c(
+    format(nrow(db_strict),                        big.mark = ","),
+    format(nrow(db_strict) - nrow(db_unc),         big.mark = ","),
+    paste0(round((nrow(db_strict) - nrow(db_unc)) /
+                   nrow(db_strict) * 100, 1), "%"),
+    format(nrow(db_unc),                           big.mark = ","),
+    format(n_distinct(db_unc$scientificName),      big.mark = ",")
+  )
+) %>%
+  kable(caption = "Uncertainty filter: overall summary") %>%
+  kable_styling(full_width = FALSE)
+```
+
+## Sensitivity: effect of the filter on the endemic species pool
+
+The uncertainty filter removes 2.2% of records overall, but the concern is whether
+this disproportionately affects rare endemic species with few records. Records
+with NA uncertainty are retained (historical specimens); only records with
+*reported* uncertainty > `COORD_UNCERT_MAX` (27,750 m) are removed.
+
+This analysis compares, for each species with EOO < 100,000 km², the number of
+pre-thinning records with vs. without the filter. Species that would cross the
+n = 10 threshold (i.e., modellable without filter, unmodellable with it) are
+flagged explicitly.
+
+Note: counts are pre-thinning. Post-thinning n will be lower for both scenarios,
+but the *difference* caused by the filter is the relevant quantity here.
+
+References: Moudrý & Šímová (2012) showed that strict uncertainty filters
+disproportionately reduce records for rare species. Breiner et al. (2015) —
+the ESM paper — does not apply an uncertainty filter. At coarse resolution
+(≥ 0.25°), retaining imprecise records is generally preferred for rare taxa.
+
+```{r unc-sensitivity-prep}
+THRESH      <- 27750   # COORD_UNCERT_MAX from 00_config.R
+MIN_OCC_MOD <- 10      # MIN_OCC from 00_config.R
+
+# Records per species before and after filter (pre-thinning)
+n_before_filter <- db_strict %>%
+  count(scientificName, name = "n_before")
+
+n_after_filter <- db_unc %>%
+  count(scientificName, name = "n_after")
+
+n_removed_by_filter <- db_strict %>%
+  filter(!is.na(coordinateUncertaintyInMeters),
+         coordinateUncertaintyInMeters > THRESH) %>%
+  count(scientificName, name = "n_removed_by_unc_filter")
+
+# Join with EOO flags — focus on endemic pool (EOO < 100,000 km²)
+unc_sensitivity <- spp_flags %>%
+  filter(endemic_100k) %>%
+  dplyr::select(scientificName, family, EOO_km2, endemic_B1) %>%
+  left_join(n_before_filter,     by = "scientificName") %>%
+  left_join(n_after_filter,      by = "scientificName") %>%
+  left_join(n_removed_by_filter, by = "scientificName") %>%
+  mutate(
+    n_before          = replace_na(n_before, 0L),
+    n_after           = replace_na(n_after,  0L),
+    n_removed         = replace_na(n_removed_by_unc_filter, 0L),
+    mod_with_filter    = n_after  >= MIN_OCC_MOD,
+    mod_without_filter = n_before >= MIN_OCC_MOD,
+    lost_modellability = mod_without_filter & !mod_with_filter
+  )
+```
+
+```{r unc-sensitivity-summary}
+sens_summary <- tibble(
+  Metric = c(
+    "Endemic species (EOO < 100k km²)",
+    "  — with >= 1 record removed by filter",
+    "  — that lose modellability (n_before >= 10, n_after < 10)",
+    "  — modellable with filter (n_after >= 10)",
+    "  — modellable without filter (n_before >= 10)",
+    "Mean n per endemic species — with filter",
+    "Mean n per endemic species — without filter",
+    "Median n per endemic species — with filter",
+    "Median n per endemic species — without filter"
+  ),
+  Value = c(
+    nrow(unc_sensitivity),
+    sum(unc_sensitivity$n_removed > 0),
+    sum(unc_sensitivity$lost_modellability),
+    sum(unc_sensitivity$mod_with_filter),
+    sum(unc_sensitivity$mod_without_filter),
+    round(mean(unc_sensitivity$n_after,  na.rm = TRUE), 1),
+    round(mean(unc_sensitivity$n_before, na.rm = TRUE), 1),
+    round(median(unc_sensitivity$n_after,  na.rm = TRUE), 1),
+    round(median(unc_sensitivity$n_before, na.rm = TRUE), 1)
+  )
+)
+
+sens_summary %>%
+  kable(caption = "Sensitivity: uncertainty filter vs. no filter on endemic species pool") %>%
+  kable_styling(full_width = FALSE)
+```
+
+```{r unc-sensitivity-losers}
+# Species that lose modellability because of the filter
+lost <- unc_sensitivity %>%
+  filter(lost_modellability) %>%
+  dplyr::select(scientificName, family, EOO_km2,
+                n_without_filter = n_before,
+                n_with_filter    = n_after,
+                n_removed) %>%
+  arrange(n_with_filter)
+
+if (nrow(lost) == 0) {
+  cat("No endemic species lose modellability due to the uncertainty filter.\n")
+} else {
+  lost %>%
+    kable(
+      caption = paste0(
+        "Endemic species that lose modellability (n drops below ",
+        MIN_OCC_MOD, ") because of the uncertainty filter"
+      ),
+      digits = 0
+    ) %>%
+    kable_styling(full_width = FALSE)
+}
+```
+
+```{r unc-sensitivity-distribution, fig.cap="Distribution of records removed by the uncertainty filter per endemic species (EOO < 100k km²). Most species lose 0 records; species losing 1+ records shown in detail."}
+unc_sensitivity %>%
+  filter(n_removed > 0) %>%
+  ggplot(aes(x = n_removed)) +
+  geom_histogram(binwidth = 1, fill = "#2c7bb6", color = "white") +
+  scale_x_continuous(breaks = scales::pretty_breaks()) +
+  labs(
+    x = "Records removed by uncertainty filter",
+    y = "Number of endemic species",
+    title = "Records lost per endemic species due to uncertainty filter",
+    subtitle = paste0("Only showing species with >= 1 record removed (EOO < 100,000 km²)")
+  ) +
+  theme_minimal()
+```
+
+---
+
+# Step 01_01 — Spatial Thinning
+
+Occurrences were thinned to one record per species per 0.25° grid cell
+(set.seed = 123). This removes spatial redundancy introduced by repeated
+sampling at the same or nearby locations, and ensures that each grid cell
+contributes at most one data point per species during model calibration.
+
+```{r thinning-summary}
+tibble(
+  Metric = c("Records before thinning", "Records removed",
+             "Pct removed", "Records retained", "Species retained"),
+  Value  = c(
+    format(nrow(db_unc),                           big.mark = ","),
+    format(nrow(db_unc) - nrow(db_thinned),        big.mark = ","),
+    paste0(round((nrow(db_unc) - nrow(db_thinned)) /
+                   nrow(db_unc) * 100, 1), "%"),
+    format(nrow(db_thinned),                       big.mark = ","),
+    format(n_distinct(db_thinned$scientificName),  big.mark = ",")
+  )
+) %>%
+  kable(caption = "Spatial thinning: overall summary") %>%
+  kable_styling(full_width = FALSE)
+```
+
+The high removal rate (58.6%) reflects the well-known sampling bias of
+epiphyte occurrence data toward accessible localities (roadsides, biological
+stations, botanical gardens), consistent with Svahnström et al. (2025).
+
+## Record classes post-thinning
+
+Species were classified by their number of thinned records to determine
+the appropriate modelling approach:
+
+```{r record-classes}
+record_class %>%
+  kable(
+    caption = paste0("Species by record class after thinning to 0.25°.",
+                     " MIN_OCC = 5, ESM_THRESHOLD = 25"),
+    digits  = 1
+  ) %>%
+  kable_styling(full_width = FALSE)
+```
+
+```{r record-class-bar, fig.height=4}
+species_summary %>%
+  ggplot(aes(x = n_records)) +
+  geom_histogram(bins = 60, fill = "steelblue", colour = "white",
+                 alpha = 0.8) +
+  geom_vline(xintercept = c(5, 25), linetype = "dashed",
+             colour = "firebrick", linewidth = 0.8) +
+  scale_x_log10(
+    breaks = c(1, 5, 10, 25, 50, 100, 500),
+    labels = c(1, 5, 10, 25, 50, 100, 500)
+  ) +
+  annotate("text", x = 3,  y = Inf, label = "exclude\n(<5)",
+           vjust = 1.5, size = 3.5, colour = "firebrick") +
+  annotate("text", x = 12, y = Inf, label = "ESM\n(5-24)",
+           vjust = 1.5, size = 3.5, colour = "firebrick") +
+  annotate("text", x = 80, y = Inf, label = "SDM\n(≥25)",
+           vjust = 1.5, size = 3.5, colour = "firebrick") +
+  labs(
+    title    = "Distribution of thinned records per species",
+    subtitle = "Dashed lines: modelling class thresholds (5 and 25 records)",
+    x        = "Thinned records per species (log scale)",
+    y        = "Number of species"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank())
+```
+
+Nearly half of all species (47.3%) have fewer than 5 thinned records and
+cannot be modelled with standard SDM approaches. This is consistent with
+the high prevalence of rarity in vascular epiphytes documented by
+Svahnström et al. (2025), who found that ~45% of epiphyte species have
+EOO < 20,000 km².
+
+---
+
+# Step 01_02 — EOO Calculation and Endemism Classification
+
+## EOO calculation
+
+Extent of Occurrence (EOO) was calculated using the minimum convex hull
+method (ConR v2.1; `EOO.computing()`), following IUCN Red List guidelines
+v4.0. `exclude.area = FALSE` was used per IUCN recommendation:
+
+> *"The EOO should not be adjusted to exclude obviously unsuitable areas"*
+> (IUCN 2022, Guidelines for Using the IUCN Red List Categories and Criteria)
+
+EOO was calculated at 0.25° resolution (consistent with modelling resolution)
+on `db_thinned_025`. Species with fewer than 3 unique coordinate pairs
+received EOO = NA.
+
+```{r eoo-distribution, fig.height=5}
+eoo_all %>%
+  filter(!is.na(EOO_km2), EOO_km2 > 0) %>%
+  ggplot(aes(x = EOO_km2)) +
+  geom_histogram(bins = 60, fill = "steelblue", colour = "white",
+                 alpha = 0.8) +
+  geom_vline(xintercept = c(100, 5000, 20000, 50000, 100000),
+             linetype = "dashed", colour = "firebrick",
+             linewidth = 0.6) +
+  scale_x_log10(
+    labels = label_comma(),
+    breaks = c(1, 100, 1000, 5000, 20000, 50000, 100000, 1e6, 1e7)
+  ) +
+  annotate("text", x = 100,    y = Inf, label = "CR",
+           vjust = 1.5, size = 3, colour = "firebrick") +
+  annotate("text", x = 5000,   y = Inf, label = "EN",
+           vjust = 1.5, size = 3, colour = "firebrick") +
+  annotate("text", x = 20000,  y = Inf, label = "VU",
+           vjust = 1.5, size = 3, colour = "firebrick") +
+  annotate("text", x = 50000,  y = Inf, label = "B1",
+           vjust = 1.5, size = 3, colour = "firebrick") +
+  labs(
+    title    = "EOO distribution across Neotropical vascular epiphytes",
+    subtitle = "Dashed lines: IUCN thresholds. Species with EOO = NA (< 3 records) excluded.",
+    x        = "EOO (km², log scale)",
+    y        = "Number of species"
+  ) +
+  theme_bw() +
+  theme(panel.grid.minor = element_blank())
+```
+
+## Endemism criteria comparison
+
+Five EOO-based endemism criteria were evaluated to select the most
+appropriate threshold for defining endemic species:
+
+```{r criteria-table}
+criteria_summ %>%
+  kable(
+    caption = "Species count under alternative endemism criteria",
+    digits  = 1
+  ) %>%
+  kable_styling(full_width = FALSE) %>%
+  row_spec(4, bold = TRUE, background = "#e8f4f8")  # highlight B1
+```
+
+**Selected criterion: EOO < 50,000 km² (IUCN B1)**
+
+This threshold was selected because:
+- It corresponds to the IUCN Vulnerable category threshold under criterion B1,
+  providing a biologically and conservation-relevant definition of restricted range
+- It yields 3,575 endemic species (24% of all species), consistent with
+  previous estimates for Neotropical epiphytes
+- It provides a defensible, widely-cited threshold comparable across studies
+
+**Sensitivity analysis: EOO < 100,000 km² (broad)**
+An alternative threshold will be evaluated in `06_05_hs_sensitivity.R` to
+assess whether hotspot patterns are robust to the choice of endemism criterion.
+
+## Modellable vs unmodellable endemics
+
+```{r modellable-summary}
+tibble(
+  Category = c(
+    "Endemic B1 — modellable (n >= 5)",
+    "Endemic B1 — unmodellable (n < 5)",
+    "Total endemic B1"
+  ),
+  `N species` = c(
+    nrow(spp_mod),
+    nrow(spp_unmod),
+    nrow(spp_mod) + nrow(spp_unmod)
+  ),
+  `% of endemic B1` = round(
+    c(nrow(spp_mod), nrow(spp_unmod),
+      nrow(spp_mod) + nrow(spp_unmod)) /
+      (nrow(spp_mod) + nrow(spp_unmod)) * 100, 1
+  ),
+  Role = c(
+    "Main analysis (SDM/ESM projections)",
+    "Sensitivity analysis (observed WE only)",
+    "—"
+  )
+) %>%
+  kable(caption = "Modellable vs unmodellable endemic species (B1 criterion)") %>%
+  kable_styling(full_width = FALSE)
+```
+
+Modellable endemics will be further classified as ESM (5–24 records) or
+standard SDM (≥ 25 records) in script `01_04_occ_classify_model.R`.
+
+## Critically Restricted species (EOO < 100 km²)
+
+```{r cr-species}
+tibble(
+  Metric = c(
+    "Total CR species",
+    "CR species modellable (n >= 5)",
+    "Dominant family",
+    "Second family",
+    "Third family"
+  ),
+  Value = c(
+    "120",
+    "0 (all have < 5 records)",
+    paste0("Orchidaceae (", cr_family$n[1], " spp, ",
+           round(cr_family$n[1]/120*100), "%)"),
+    paste0("Bromeliaceae (", cr_family$n[2], " spp, ",
+           round(cr_family$n[2]/120*100), "%)"),
+    paste0("Araceae (", cr_family$n[3], " spp, ",
+           round(cr_family$n[3]/120*100), "%)")
+  )
+) %>%
+  kable(caption = "Critically Restricted species summary (EOO < 100 km²)") %>%
+  kable_styling(full_width = FALSE)
+```
+
+```{r cr-family-bar, fig.height=4}
+cr_family %>%
+  ggplot(aes(x = reorder(family, n), y = n, fill = n)) +
+  geom_col() +
+  geom_text(aes(label = n), hjust = -0.2, size = 3.5) +
+  coord_flip() +
+  scale_fill_viridis_c(direction = -1, option = "magma") +
+  ylim(0, max(cr_family$n) * 1.15) +
+  labs(
+    title    = "Critically Restricted species by family (EOO < 100 km²)",
+    subtitle = "All 120 CR species have < 5 thinned records — none modellable",
+    x        = NULL,
+    y        = "Number of species"
+  ) +
+  theme_bw() +
+  theme(legend.position = "none",
+        panel.grid.minor = element_blank())
+```
+
+All 120 species with EOO < 100 km² have fewer than 5 thinned occurrence
+records and cannot be modelled. These ultra-rare species — concentrated in
+Orchidaceae (54%), Bromeliaceae (18%), and Araceae (16%) — will contribute
+to the sensitivity analysis via their observed occurrence cells only.
+This finding highlights a fundamental limitation of occurrence-based
+modelling for the most range-restricted Neotropical epiphytes.
+
+```{r cr-species-table}
+cr_species %>%
+  arrange(EOO_km2) %>%
+  head(20) %>%
+  kable(
+    caption = "20 most range-restricted CR species (EOO < 100 km²)",
+    digits  = 2
+  ) %>%
+  kable_styling(full_width = FALSE) %>%
+  scroll_box(width = "100%", height = "400px")
+```
+
+---
+
+# Final Species Counts for Pipeline
+
+```{r final-counts}
+tibble(
+  Dataset = c(
+    "db_modelling_strict.rds",
+    "db_modelling_uncertainty.rds",
+    "db_thinned_025.rds",
+    "spp_endemic_flags.rds",
+    "spp_endemics_modellable.rds  [MAIN INPUT]",
+    "spp_endemics_unmodellable.rds  [SENSITIVITY]"
+  ),
+  Records = c(
+    format(nrow(db_strict),  big.mark = ","),
+    format(nrow(db_unc),     big.mark = ","),
+    format(nrow(db_thinned), big.mark = ","),
+    "—", "—", "—"
+  ),
+  Species = c(
+    format(n_distinct(db_strict$scientificName),  big.mark = ","),
+    format(n_distinct(db_unc$scientificName),     big.mark = ","),
+    format(n_distinct(db_thinned$scientificName), big.mark = ","),
+    format(nrow(spp_flags), big.mark = ","),
+    format(nrow(spp_mod),   big.mark = ","),
+    format(nrow(spp_unmod), big.mark = ",")
+  )
+) %>%
+  kable(caption = "Final processed files and species counts") %>%
+  kable_styling(full_width = FALSE) %>%
+  row_spec(5, bold = TRUE, background = "#e8f4f8")
+```
+
+---
+
+# Methodological Decisions Log
+
+```{r decisions-log}
+tibble(
+  Date = rep("2026-05-11/12", 8),
+  Script = c(
+    "00_setup",
+    "01_01",
+    "01_01",
+    "01_02",
+    "01_03",
+    "01_03",
+    "01_03",
+    "01_03"
+  ),
+  Decision = c(
+    "Working resolution: 0.25° (constrained by LUH2 native resolution)",
+    "Retain records with coordinateUncertaintyInMeters = NA",
+    "Remove records with coordinateUncertaintyInMeters > 27,500 m",
+    "Thinning: 1 record per species per 0.25° cell (set.seed = 123)",
+    "EOO: exclude.area = FALSE per IUCN Red List guidelines v4.0",
+    "EOO calculated at 0.25° resolution (consistent with modelling)",
+    "Main endemism criterion: EOO < 50,000 km² (IUCN B1/Vulnerable)",
+    "Sensitivity criterion: EOO < 100,000 km² (broad)"
+  ),
+  Rationale = c(
+    "LUH2 future land use data only available at 0.25°",
+    "Excluding NA would bias toward post-2000 records; lose historical diversity",
+    "At 0.25° resolution, uncertainty > 27.5 km could misassign grid cell",
+    "Removes spatial redundancy; consistent with modelling grid",
+    "IUCN: EOO should not be adjusted to exclude unsuitable areas",
+    "Consistency between occurrence data resolution and model predictions",
+    "Standard IUCN threshold; widely cited; biologically meaningful",
+    "Evaluate robustness of hotspot patterns to endemism definition"
+  )
+) %>%
+  kable(caption = "Methodological decisions — data preparation") %>%
+  kable_styling(full_width = FALSE) %>%
+  scroll_box(width = "100%", height = "400px")
+```
+
+---
+
+# Session Info
+
+```{r session-info}
+sessionInfo()
+```
+
+---
+
+# Key Findings and Analytical Implications
+
+## ESM as the dominant modelling approach
+
+```{r esm-sdm-summary}
+read_csv(here("outputs/evaluation/01_03_model_class_summary.csv"),
+         show_col_types = FALSE) %>%
+  kable(caption = "Modellable endemic species by modelling approach") %>%
+  kable_styling(full_width = FALSE)
+```
+
+Of the 1,861 modellable endemic species, **99.4% (n = 1,850) required the
+Ensemble of Small Models (ESM) framework** (Lomba et al. 2010; Breiner et al.
+2015) due to having fewer than 25 thinned occurrence records. Only 11 species
+(0.6%) met the threshold for standard ensemble SDM.
+
+The 11 SDM species share a consistent profile: EOO between 20,000–45,000 km²,
+25–37 thinned records, and a concentration in well-sampled Central American
+localities (particularly Costa Rica). Araceae dominates this group (4 species:
+*Anthurium carnosum*, *A. ranchoanum*, *Philodendron thalassicum*,
+*P. brenesii*), followed by Dryopteridaceae (2 *Elaphoglossum* species).
+
+This near-complete dominance of ESM confirms that range restriction and
+data scarcity are inseparable in Neotropical vascular epiphytes, and
+validates the choice of ESM as the primary modelling framework for this
+analysis.
+
+## The unmodellable gap: Critically Restricted species
+
+All 120 species with EOO < 100 km² (Critically Restricted, CR) have
+fewer than 5 thinned occurrence records and **cannot be modelled with
+any occurrence-based SDM approach**. These species — concentrated in
+Orchidaceae (65 spp, 54%), Bromeliaceae (21 spp, 18%), and Araceae
+(19 spp, 16%) — represent the most range-restricted epiphytes in the
+Neotropics and are precisely the species of greatest conservation concern.
+
+This finding highlights a fundamental limitation of occurrence-based
+modelling for conservation: the species most in need of distribution
+models are the least amenable to being modelled. Their contribution to
+endemism hotspots will be captured through observed occurrence cells
+in the sensitivity analysis (`06_05_hs_sensitivity.R`).
+
+## Implications for hotspot analysis
+
+Given that 1,714 endemic B1 species are unmodellable (n < 5 records),
+the main analysis (modelled WE) captures only **52% of endemic B1
+species**. The sensitivity analysis comparing modelled vs observed
+weighted endemism will be essential to assess whether hotspot patterns
+are robust to this modelling gap.
+
+```{r implications-table}
+tibble(
+  Component = c(
+    "Main analysis (modelled WE)",
+    "Sensitivity analysis (observed WE)",
+    "Total endemic B1"
+  ),
+  Species = c(
+    nrow(spp_mod),
+    nrow(spp_unmod),
+    nrow(spp_mod) + nrow(spp_unmod)
+  ),
+  `% of B1` = round(
+    c(nrow(spp_mod), nrow(spp_unmod),
+      nrow(spp_mod) + nrow(spp_unmod)) /
+      (nrow(spp_mod) + nrow(spp_unmod)) * 100, 1
+  ),
+  Method = c(
+    "SDM/ESM projections → predicted distribution maps",
+    "Observed thinned records → occurrence cells only",
+    "—"
+  )
+) %>%
+  kable(caption = "Coverage of endemic B1 species in main vs sensitivity analysis") %>%
+  kable_styling(full_width = FALSE)
+```
+
+---
+
+# Environmental Layers
+
+## Climate variables — CHELSA v2.1
+
+Six bioclimatic variables were selected based on empirical support for
+vascular epiphytes (see Table S4 in supplementary): bio1 (mean annual
+temperature), bio4 (temperature seasonality), bio12 (annual
+precipitation), bio14 (precipitation of driest month), bio15
+(precipitation seasonality), and bio19 (precipitation of coldest
+quarter). All variables were obtained from CHELSA v2.1
+(Karger et al. 2017; 1981–2010 baseline) and resampled to 0.25°
+resolution using bilinear interpolation, then cropped and masked to
+the Neotropical region (Morrone 2022).
+
+For future projections, only bio1, bio4, bio12, and bio15 are available
+in CHELSA CMIP6. Variables bio14 and bio19 are not available for future
+scenarios and are therefore used only for present-day model calibration.
+Final variable selection per species is performed within the calibration
+area (area M) using `select07_cv()` (Zurell 2020; Dormann et al. 2013).
+
+```{r correlation-heatmap, fig.cap="Global Spearman correlation matrix for current environmental layers."}
+knitr::include_graphics(here("figures", "data_summary",
+                              "02_06_correlation_heatmap.png"))
+```
+
+High correlations (|r| > 0.7) identified at the Neotropical scale:
+bio14 ~ bio15 (r = −0.86), bio12 ~ bio19 (r = 0.78),
+bio12 ~ primf (r = 0.79), bio4 ~ bio12 (r = −0.72).
+Variable selection per species within area M will resolve these
+collinearities before modelling.
+
+**Note on topography:** Topographic variables were excluded because at
+0.25° resolution they are largely collinear with climate variables and
+do not provide independent predictive power for epiphyte distributions.
+
+## Land use variables — LUH2 v2
+
+Land use was represented using two continuous variables from the Land
+Use Harmonization 2 dataset (LUH2 v2; Hurtt et al. 2020): `primf`
+(primary forest fraction per cell) and `secdf` (secondary forest
+fraction per cell). These variables were selected over categorical land
+use datasets (e.g. Chen et al. 2022) because they provide continuous
+measures of forest availability — ecologically more relevant for
+epiphytes, which are obligate forest-dwellers, than binary
+presence/absence of forest.
+
+LUH2 is provided at 0.25° resolution (native), aligned to the CHELSA
+template. For the present, year 2015 was extracted from the historical
+states file (LUH2 v2h). For future projections, representative years
+were extracted for each 30-year period: **2055** for 2041–2070 and
+**2085** for 2071–2100, under SSP1-2.6, SSP3-7.0, and SSP5-8.5.
+
+### Exploration of land use change patterns
+
+```{r luh2-current, fig.cap="Primary (primf) and secondary (secdf) forest fraction in 2015."}
+primf <- terra::rast(here("layers", "current", "primf.tif"))
+secdf <- terra::rast(here("layers", "current", "secdf.tif"))
+
+par(mfrow = c(1, 2))
+plot(primf, main = "Primary forest fraction 2015",
+     col = viridis::viridis(100))
+plot(secdf, main = "Secondary forest fraction 2015",
+     col = viridis::viridis(100))
+```
+
+Primary forest is concentrated in the Amazon basin and remote Andean
+slopes. Secondary forest is highest in Mesoamerica, the Atlantic
+Forest, and Andean foothills — areas with historical disturbance and
+regeneration. This pattern is consistent with known epiphyte sampling
+bias toward accessible, disturbed areas.
+
+```{r luh2-delta, fig.cap="Change in primary forest fraction (Δprimf) under three SSPs, 2015 to 2085."}
+primf_126 <- terra::rast(here("layers","future",
+                               "gfdl-esm4_ssp126_2071-2100","primf.tif"))
+primf_370 <- terra::rast(here("layers","future",
+                               "gfdl-esm4_ssp370_2071-2100","primf.tif"))
+primf_585 <- terra::rast(here("layers","future",
+                               "gfdl-esm4_ssp585_2071-2100","primf.tif"))
+
+diff_126 <- primf_126 - primf
+diff_370 <- primf_370 - primf
+diff_585 <- primf_585 - primf
+
+pal <- colorRampPalette(c("red", "white", "darkgreen"))(100)
+par(mfrow = c(1, 3))
+plot(diff_126, main = "Δ primf SSP1-2.6", col = pal, range = c(-0.8, 0))
+plot(diff_370, main = "Δ primf SSP3-7.0", col = pal, range = c(-0.8, 0))
+plot(diff_585, main = "Δ primf SSP5-8.5", col = pal, range = c(-0.8, 0))
+```
+
+All scenarios project net loss of primary forest across the Neotropics.
+SSP3-7.0 shows the highest mean loss (−6.1% per cell), while SSP5-8.5
+has the most extreme local losses (up to −97.3%). Severe losses are
+geographically concentrated in the arc of deforestation
+(southern Brazil, Bolivia), rather than in the Andes where endemic
+epiphyte hotspots are expected. This has important implications: for
+Andean endemics, **climate change may be a stronger driver of range
+loss than land use change**, while for lowland species the reverse
+may be true.
+
+```{r luh2-stats}
+tibble(
+  SSP  = c("SSP1-2.6", "SSP3-7.0", "SSP5-8.5"),
+  mean_delta_primf = c(-0.041, -0.061, -0.055),
+  min_delta_primf  = c(-0.803, -0.911, -0.973)
+) %>%
+  kable(caption = "Mean and minimum change in primary forest fraction 2015–2085 by SSP (GFDL-ESM4)",
+        col.names = c("SSP", "Mean Δprimf", "Min Δprimf")) %>%
+  kable_styling(full_width = FALSE)
+```
+
+---
+
+# Pilot Species
+
+Six species were selected to test the modelling pipeline before
+full-scale implementation. Selection criteria: family diversity,
+range of EOO values, range of occurrence record counts, and geographic
+coverage of major Neotropical biomes.
+
+```{r pilot-species-table}
+tibble(
+  Species = c(
+    "Psychilis krugii",
+    "Anthurium dichrophyllum",
+    "Peperomia saintpauliella",
+    "Aechmea digitata",
+    "Epidendrum pumilum",
+    "Maxillaria embreei"
+  ),
+  Family = c("Orchidaceae", "Araceae", "Piperaceae",
+             "Bromeliaceae", "Orchidaceae", "Orchidaceae"),
+  n_records = c(5, 5, 6, 9, 12, 10),
+  EOO_km2   = c(209, 416, 2218, 16220, 12430, 49837),
+  Region    = c("Caribbean (island)", "Colombia/Panama",
+                "Colombia (Andes)", "Brazil (dry forest)",
+                "Mesoamerica", "Ecuador/Colombia (Andes)")
+) %>%
+  kable(caption = "Pilot species for modelling pipeline testing") %>%
+  kable_styling(full_width = FALSE)
+```
+
+```{r pilot-species-map, fig.cap="Thinned occurrence records for pilot species."}
+pilot_spp <- c(
+  "Psychilis krugii", "Anthurium dichrophyllum",
+  "Peperomia saintpauliella", "Aechmea digitata",
+  "Epidendrum pumilum", "Maxillaria embreei"
+)
+
+db_thinned <- readRDS(here("data", "occurrences", "processed",
+                            "db_thinned_025.rds"))
+pilot_occ  <- db_thinned %>%
+  filter(scientificName %in% pilot_spp) %>%
+  dplyr::select(scientificName, decimalLongitude,
+                decimalLatitude, family)
+
+neot_sf <- sf::st_read(here("data", "Neotropics_Morrone",
+                             "Neotropic_dissolved.shp"), quiet = TRUE)
+
+ggplot() +
+  geom_sf(data = neot_sf, fill = "grey95", color = "grey70") +
+  geom_point(data = pilot_occ,
+             aes(x = decimalLongitude, y = decimalLatitude,
+                 color = scientificName),
+             size = 3, alpha = 0.9) +
+  facet_wrap(~scientificName, ncol = 3) +
+  scale_color_brewer(palette = "Dark2", guide = "none") +
+  theme_minimal() +
+  labs(title = "Pilot species — thinned occurrences",
+       subtitle = "4 families | EOO: 209–49,837 km² | n: 5–12",
+       x = NULL, y = NULL)
+```
+
+---
+
+# Pending Decisions
+
+The following methodological decisions are documented here for
+discussion with the thesis committee:
+
+1. **Dispersal assumption:** Full dispersal vs. no dispersal vs.
+   buffer (~50–100 km per 30-year period) for future projections.
+   Literature review for epiphyte dispersal biology pending.
+
+2. **Endemism threshold for modelling:** Use broadest definition
+   (EOO < 100,000 km²) as modelling pool; WE continuous without
+   threshold as main hotspot metric; B1/VU/EN as secondary criteria
+   for interpretation and vulnerability assessment.
+
+3. **WE_modelled vs WE_observed:** Main analysis uses predicted
+   distributions (1,861 spp); complementary analysis uses observed
+   thinned records for all B1 endemics (3,575 spp). Comparison will
+   assess whether hotspot geography is robust to the modelling gap.
+
+4. **Area M definition:** Calibration using ecorregions containing
+   occurrences + buffer; projection using dispersal buffer per period
+   (TBD after literature review).
+
+
+
+## Area M: Calibration Area Definition {#sec-areaM}
+
+### Comparación de enfoques (especies piloto, mayo 2026)
+
+Se compararon visualmente dos aproximaciones usando las 6 especies piloto:
+
+**Opción A — M por ecorregiones:**
+Ecorregiones de Olson con ≥1 ocurrencia + todas las ecorregiones adyacentes
+que toca el buffer familiar. *Problema:* el corredor andino conecta Ecuador con
+Patagonia (~40°S) en 4/6 especies — biogeográficamente indefendible.
+
+**Opción B — Buffer 200 km:**
+Buffer circular simple. *Problema:* demasiado pequeño para especies con
+distribuciones disyuntas o muy restringidas.
+
+**Enfoque híbrido propuesto (pendiente de prueba):**
+Ecorregiones con ocurrencias + adyacentes de primer orden únicamente,
+intersectado con un cap máximo de 500–800 km. Evita la propagación por
+corredores manteniendo la lógica biogeográfica.
+
+### Escenarios de dispersal para proyecciones futuras
+
+| Escenario | Definición | Justificación |
+|---|---|---|
+| Sin dispersal | Especie retenida en M actual | Límite pesimista |
+| Dispersal limitado | 1 km/año × período (30 o 60 km) | Conservador, defendible para epífitas |
+| Dispersal completo | Todo el Neotrópico climáticamente apto | Límite optimista |
+
+Buffer de calibración por familia (SSC): Orchidaceae 10 km, Bromeliaceae 50 km,
+Araceae/Piperaceae 25 km.
+
+> **Pendiente:** revisión de literatura para confirmar tasa 1 km/año en epífitas;
+> prueba del M híbrido en especies piloto antes de escalar a 852 spp.
+
+
+## Area M — final decision {#sec-areaM-final}
+
+Three approaches were compared on 6 pilot species:
+
+1. **Ecoregion-only** — rejected: Andean corridor propagates M from Ecuador to Patagonia in 4/6 species.
+2. **Buffer 200 km** — rejected: too small for disjunct or restricted distributions.
+3. **Buffer-touched provinces (selected)** — Morrone (2022) provinces containing occurrences + provinces touched by family dispersal buffer (SSC Colombia 2022), with dispersal buffer applied over the province union, clipped to the Neotropics.
+
+M is intentionally broad. Sensitivity analysis planned by varying M definition before scaling to 852 species.
+
+```{r fig-areaM, echo=FALSE}
+#| fig-cap: "Area M for 6 pilot species. Blue = calibration area, Red = occurrences."
+knitr::include_graphics(here(path_figures, "data_summary", "03_01_pilot_M_areas_final.png"))
+```
+
+
+## ESM implementation notes {#sec-ESM-notes}
+
+Following Breiner et al. (2015), ESMs were calibrated using all bivariate combinations of the 6 predictor variables (15 pairs) with 4 algorithms (GLM, GAM, CTA, SRE) for local/pilot runs, and additionally GBM on HPC (75 models per species). FDA was excluded due to missing dependency (mda package). Models were weighted by Somers D (= 2 x AUC - 1); models with Somers D ≤ 0 were excluded from the ensemble (threshold = 0), following Breiner et al. (2015). The AUC threshold of 0.7 used in early pilots was replaced by Somers D threshold = 0 to avoid over-exclusion of bivariate models for species with small n.
+
+Model evaluation: 5-fold cross-validation with NbRunEval = 3, following pooling evaluation protocol of Collart & Guisan (2023). AUC, TSS, SomersD, and Boyce index reported per species.
+
+**All species use ESM** (no separate SDM pipeline). Methodological justification in `docs/05_decisions_log.qmd` > ESM-only vs. ESM + SDM.
+
+**Minimum sample size:** n ≥ 10 following Breiner et al. (2015). Species with n = 5–9 are **excluded** from modelling; they contribute to occurrence-based WE only (WE_3575 sensitivity analysis, MS2).
+
+
+
+## Endemic species pool summary {#sec-endemic-pool}
+
+*This section reads from `spp_endemics_modellable.rds` — outputs auto-update once `01_02_occ_endemics_define.R` is re-run with MIN_OCC = 10 and EOO_BROAD = 100,000 km².*
+
+```{r endemic-pool-load}
+# spp_mod already loaded in setup chunk
+# pool_available = TRUE if spp_endemics_modellable.rds loaded successfully
+pool_available <- exists("spp_mod") && is.data.frame(spp_mod)
+if (!pool_available) message("spp_mod not available — re-run 01_02_occ_endemics_define.R with MIN_OCC=10")
+```
+
+```{r endemic-pool-overview, eval=pool_available}
+#| tbl-cap: "Endemic species pool overview"
+
+tibble(
+  Pool = c(
+    "Extended modellable (EOO < 100,000 km², n ≥ 10)",
+    "B1 modellable (EOO < 50,000 km², n ≥ 10)",
+    "Excluded from modelling (n < 10, within EOO < 100,000 km²)"
+  ),
+  `N species` = c(
+    sum(spp_mod$endemic_100k & spp_mod$n_records >= 10),
+    sum(spp_mod$b1_pool),
+    sum(spp_mod$endemic_100k & spp_mod$n_records < 10)
+  )
+) %>%
+  kable() %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+```{r endemic-pool-by-family, eval=pool_available}
+#| tbl-cap: "Modellable species by family (EOO < 100,000 km², n ≥ 10). Families with ≥5 species shown."
+#| fig-cap: "Species richness of endemic pool by family"
+
+fam_summary <- spp_mod %>%
+  filter(endemic_100k, n_records >= 10) %>%
+  count(family, name = "n_modellable") %>%
+  left_join(
+    spp_mod %>%
+      filter(endemic_100k, n_records >= 10, b1_pool) %>%
+      count(family, name = "n_b1"),
+    by = "family"
+  ) %>%
+  arrange(desc(n_modellable))
+
+# M buffer assignment
+m_families <- c("Orchidaceae", "Bromeliaceae", "Araceae", "Piperaceae",
+                "Dryopteridaceae", "Polypodiaceae", "Gesneriaceae",
+                "Melastomataceae", "Clusiaceae", "Begoniaceae",
+                "Ericaceae", "Campanulaceae")
+
+fam_summary <- fam_summary %>%
+  mutate(m_buffer_km = ifelse(family %in% m_families,
+                              case_when(
+                                family == "Orchidaceae"  ~ 10,
+                                family %in% c("Bromeliaceae","Dryopteridaceae","Polypodiaceae") ~ 50,
+                                TRUE ~ 25
+                              ),
+                              25),   # default
+         m_buffer_source = ifelse(family %in% m_families,
+                                  "SSC Colombia 2022", "Default (25 km)"))
+
+fam_summary %>%
+  filter(n_modellable >= 5) %>%
+  kable(col.names = c("Family", "N modellable", "N B1 subset",
+                      "M buffer (km)", "Buffer source")) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+```{r endemic-pool-families-all, eval=pool_available}
+#| tbl-cap: "All families in the endemic pool and their M buffer assignment"
+
+fam_summary %>%
+  summarise(
+    n_families         = n(),
+    n_with_custom_buf  = sum(m_buffer_source == "SSC Colombia 2022"),
+    n_with_default_buf = sum(m_buffer_source == "Default (25 km)"),
+    pct_default        = round(100 * n_with_default_buf / n_families, 1)
+  ) %>%
+  kable(col.names = c("Total families", "Custom buffer (SSC)",
+                      "Default buffer (25 km)", "% using default")) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+```{r endemic-pool-n-dist, eval=pool_available}
+#| fig-cap: "Distribution of n records per species in the modellable pool"
+
+spp_mod %>%
+  filter(endemic_100k, n_records >= 10) %>%
+  ggplot(aes(x = n_records)) +
+  geom_histogram(binwidth = 5, fill = "steelblue", color = "white") +
+  geom_vline(xintercept = 10, linetype = "dashed", color = "red",
+             label = "MIN_OCC = 10") +
+  scale_x_continuous(limits = c(0, 200), breaks = seq(0, 200, 25)) +
+  labs(x = "n thinned records", y = "N species",
+       title = "Record count distribution — modellable pool (n ≥ 10)",
+       subtitle = paste0("N = ", sum(spp_mod$endemic_100k & spp_mod$n_records >= 10),
+                         " species")) +
+  theme_minimal()
+```
+
+```{r endemic-pool-eoo, eval=pool_available}
+#| fig-cap: "EOO distribution of the modellable pool"
+
+spp_mod %>%
+  filter(endemic_100k, n_records >= 10) %>%
+  ggplot(aes(x = eoo_km2 / 1000)) +
+  geom_histogram(binwidth = 5, fill = "darkgreen", color = "white", alpha = 0.8) +
+  geom_vline(xintercept = 50000 / 1000, linetype = "dashed", color = "orange",
+             linewidth = 0.8) +
+  geom_vline(xintercept = 100000 / 1000, linetype = "dashed", color = "red",
+             linewidth = 0.8) +
+  annotate("text", x = 52, y = Inf, vjust = 2, hjust = 0, size = 3,
+           label = "B1 (50k km²)", color = "orange") +
+  annotate("text", x = 102, y = Inf, vjust = 2, hjust = 0, size = 3,
+           label = "Broad pool (100k km²)", color = "red") +
+  labs(x = "EOO (1,000 km²)", y = "N species",
+       title = "EOO distribution — modellable pool",
+       subtitle = "Dashed lines = species pool thresholds") +
+  theme_minimal()
+```

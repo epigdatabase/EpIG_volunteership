@@ -9,3 +9,12 @@ data/Georreferencing/1.Raw/georef__INABIO2025.csv
 data/Georreferencing/1.Raw/georef__GBIF2026.csv
 data/Text/1_Raw/text__GBIF2026.csv
 data/Text/1_Raw/text__INABIO2025.csv
+data/db_EpIG2_clean_all.rds
+data/Occurrences_visualization/Neotropics_Morrone/AP_Neotropico.shx
+data/Occurrences_visualization/Neotropics_Morrone/AP_Neotropico.cpg
+data/Occurrences_visualization/Neotropics_Morrone/AP_Neotropico.dbf
+data/Occurrences_visualization/Neotropics_Morrone/AP_Neotropico.prj
+data/Occurrences_visualization/Neotropics_Morrone/AP_Neotropico.sbn
+data/Occurrences_visualization/Neotropics_Morrone/AP_Neotropico.sbx
+data/Occurrences_visualization/Neotropics_Morrone/AP_Neotropico.shp
+data/Occurrences_visualization/db_EpIG2_clean_all.rds

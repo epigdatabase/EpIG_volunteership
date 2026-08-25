@@ -1749,3 +1749,800 @@ conteo_associatedReferences <- text_diagonal %>%
   count(associatedReferences, sort = TRUE)
 
 ```
+
+#Eliminar tildes y simbolos raros
+
+```{r}
+
+quitar_tildes_simbolos <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜñÑçÇ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUUUnNcC",
+    texto
+  )
+  
+  texto
+}
+
+text_diagonal$associatedReferences <- sapply(text_diagonal$associatedReferences, quitar_tildes_simbolos)
+```
+
+#Especificar cambios y guardar
+
+```{r}
+#Especificar cambios en associatedReferences
+
+agregar_comentario4 <- function(discardReason, comentario_nuevo3) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo3)
+  } else {
+    return(paste(discardReason, comentario_nuevo3, sep = " / "))
+  }
+}
+
+filas_cambiadas4 <- !is.na(text_diagonal$associatedReferences) & 
+                    !is.na(text_diagonal$verbatimassociatedReferences) &
+                    text_diagonal$verbatimassociatedReferences != text_diagonal$associatedReferences
+
+text_diagonal$discardReason[filas_cambiadas4] <- mapply(
+  agregar_comentario4,
+  text_diagonal$discardReason[filas_cambiadas4],
+  "accents and specific symbols removed in associatedReferences"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_diagonal$discardReason <- sapply(text_diagonal$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_diagonal, file = "data/Text/2.Processed/text__assis_i_2026_diagonal.csv")
+```
+
+#4. text__assis_i_2026_af.csv
+
+```{r}
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_af <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__assis_i_2026_af.csv")
+
+view(text_af)
+```
+
+# Crear columna de comentarios
+
+```{r}
+
+if (!"discardReason" %in% names(text_af)) text_af$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_af$basisOfRecord)                       #No necesita cambios
+unique(text_af$typeStatus)                          #No necesita cambios 
+unique(text_af$associatedReferences)                #No necesita cambios
+unique(text_af$institutionCode)                     #No necesita cambios
+unique(text_af$taxonRank)                           #No necesita cambios
+unique(text_af$collectionCode)                      #No necesita cambios
+unique(text_af$recordedBy)                          #No necesita cambios
+unique(text_af$recordNumber)                        #No necesita cambios
+unique(text_af$identifiedBy)                        #No necesita cambios
+unique(text_af$lifeForm)                            #No necesita cambios
+unique(text_af$eventDate)                           #No necesita cambios
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+text_af$discardReason <- "no changes needed"
+
+write.csv(text_af, file = "data/Text/2.Processed/text__assis_i_2026_af.csv")
+
+```
+
+#5. text__AMAZ2024.csv
+
+```{r}
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_amaz24 <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__AMAZ2024.csv")
+
+view(text_amaz24)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_amaz24)) text_amaz24$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_amaz24$basisOfRecord)                       #No necesita cambios
+unique(text_amaz24$typeStatus)                          #No necesita cambios 
+unique(text_amaz24$associatedReferences)                #No necesita cambios
+unique(text_amaz24$institutionCode)                     #No necesita cambios
+unique(text_amaz24$taxonRank)                           #No necesita cambios
+unique(text_amaz24$collectionCode)                      #No necesita cambios
+unique(text_amaz24$recordedBy)                          #Necesita estandarización
+unique(text_amaz24$recordNumber)                        #Necesita estandairación
+unique(text_amaz24$identifiedBy)                        #Necesita estandairación
+unique(text_amaz24$lifeForm)                            #No necesita cambios
+unique(text_amaz24$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim para columnas
+
+```{r}
+#recordedBy
+
+text_amaz24 <- text_amaz24 %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+#recordNumber
+
+text_amaz24 <- text_amaz24 %>%
+  mutate(
+    verbatimrecordNumber = recordNumber
+  )
+
+#identifiedBy
+
+text_amaz24 <- text_amaz24 %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+```
+
+#-recordNumber: Detectar información dañada y corregir
+
+```{r}
+conteo_recordNumber <- text_amaz24 %>%
+  count(recordNumber, sort = TRUE)
+
+```
+
+#Eliminar simbolos y ajustar excepciones
+
+```{r}
+
+#Quitar tildes
+
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUU",
+    texto
+  )
+  
+  texto
+}
+
+text_amaz24$recordNumber <- sapply(text_amaz24$recordNumber, quitar_tildes)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en recordNumber
+
+agregar_comentario5 <- function(discardReason, comentario_nuevo4) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo4)
+  } else {
+    return(paste(discardReason, comentario_nuevo4, sep = " / "))
+  }
+}
+
+filas_cambiadas5 <- !is.na(text_amaz24$recordNumber) & 
+                    !is.na(text_amaz24$verbatimrecordNumber) &
+                    text_amaz24$verbatimrecordNumber != text_amaz24$recordNumber
+
+text_amaz24$discardReason[filas_cambiadas5] <- mapply(
+  agregar_comentario5,
+  text_amaz24$discardReason[filas_cambiadas5],
+  "accents and special characters corrected in recordNumber"
+)
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_amaz24 %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Eliminar simbolos y estandarizar
+
+```{r}
+
+#Quitar tildes y simbolos
+
+quitar_tildes2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_amaz24$recordedBy <- sapply(text_amaz24$recordedBy, quitar_tildes2)
+
+#Estandarizar autores
+
+estandarizar_iniciales_apellido_multi <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  patron_A <- "(?:[A-ZÁÉÍÓÚÑ]\\.){1,4}\\s*[A-Za-zÁÉÍÓÚÑáéíóúñ]+"
+  patron_B <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+,\\s*(?:[A-ZÁÉÍÓÚÑ]\\.)+"
+  
+  patron_combinado <- paste0("(", patron_B, ")|(", patron_A, ")")
+  
+  autores_encontrados <- str_extract_all(texto, patron_combinado)[[1]]
+  
+  if (length(autores_encontrados) == 0) return(texto)
+  
+  formatear <- function(autor) {
+    autor <- str_trim(autor)
+    if (str_detect(autor, "^[A-Za-zÁÉÍÓÚÑáéíóúñ]+,\\s*(?:[A-ZÁÉÍÓÚÑ]\\.)+$")) return(autor)
+    m <- str_match(autor, "^((?:[A-ZÁÉÍÓÚÑ]\\.){1,4})\\s*([A-Za-zÁÉÍÓÚÑáéíóúñ]+)$")
+    paste0(m[,3], ", ", m[,2])
+  }
+  
+  autores_formateados <- sapply(autores_encontrados, formatear)
+  
+  paste(autores_formateados, collapse = " | ")
+}
+
+text_amaz24$recordedBy <- sapply(text_amaz24$recordedBy, estandarizar_iniciales_apellido_multi)
+
+#Ajustar casos especificos
+
+text_amaz24$recordedBy <- gsub("Nallarett Davila", "Davila, N.", text_amaz24$recordedBy)
+text_amaz24$recordedBy <- gsub("Manuel Rimachi", "Rimachi, M.", text_amaz24$recordedBy)
+text_amaz24$recordedBy <- gsub("Jose Campos", "Campos, J.", text_amaz24$recordedBy)
+text_amaz24$recordedBy <- gsub("Juan Revilla", "Revilla, J.", text_amaz24$recordedBy)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en recordedBy
+
+agregar_comentario6 <- function(discardReason, comentario_nuevo5) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo5)
+  } else {
+    return(paste(discardReason, comentario_nuevo5, sep = " / "))
+  }
+}
+
+filas_cambiadas6 <- !is.na(text_amaz24$recordedBy) & 
+                    !is.na(text_amaz24$verbatimrecordedBy) &
+                    text_amaz24$verbatimrecordedBy != text_amaz24$recordedBy
+
+text_amaz24$discardReason[filas_cambiadas6] <- mapply(
+  agregar_comentario6,
+  text_amaz24$discardReason[filas_cambiadas6],
+  "standardized author names and accents corrected in recordedBy"
+)
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_amaz24 %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarización por autor
+
+```{r}
+
+#Autor: Thomas B Croat
+diccionario_croat <- c(
+  "T. Croat"              = "Croat, T.B.",
+  "Thomas B. Croat (Mo)"  = "Croat, T.B.",
+  "Thomas B. Croat (MO)"  = "Croat, T.B.",
+  "Thomas B. Croat (MO)," = "Croat, T.B.",
+  "Thomas B. Croat"       = "Croat, T.B.",
+  "T.B. Croat"            = "Croat, T.B.",
+  "T.Croat"               = "Croat, T.B.",
+  "Thomas B. Croat."      = "Croat, T.B.",
+  "T.B. Croat (MO)"       = "Croat, T.B.",
+  "Thomas Croat"          = "Croat, T.B.",
+  "Tomas B. Croat"        = "Croat, T.B.",
+  "T. B. Croat"           = "Croat, T.B.",
+  "T. B. Croat (MO)"      = "Croat, T.B.",
+  "Tom Croat"             = "Croat, T.B."
+)
+
+corregir_croat <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_croat)) {
+    original <- str_squish(names(diccionario_croat)[i])
+    if (texto_comparar == original) {
+      return(diccionario_croat[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_amaz24$identifiedBy <- sapply(text_amaz24$identifiedBy, corregir_croat)
+
+#Autor: J. Lingan
+
+diccionario_lingan <- c(
+  "J. Lingan"  = "Lingan-Ch, J.",
+  "J. Lingán"  = "Lingan-Ch, J.",
+  "J. Lingán Ch."  = "Lingan-Ch, J."
+)
+
+corregir_lingan <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar2 <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_lingan)) {
+    original <- str_squish(names(diccionario_lingan)[i])
+    if (texto_comparar2 == original) {
+      return(diccionario_lingan[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_amaz24$identifiedBy <- sapply(text_amaz24$identifiedBy, corregir_lingan)
+
+```
+
+#Eliminar tildes y estandarizar autores
+
+```{r}
+#Quitar tildes y simbolos
+
+quitar_tildes3 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_amaz24$identifiedBy <- sapply(text_amaz24$identifiedBy, quitar_tildes3)
+
+#Estandarizar autores
+
+estandarizar_iniciales_apellido_multi2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  SURNAME <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)*"
+  
+  patron_A <- paste0("(?:[A-ZÁÉÍÓÚÑ]\\.){1,4}\\s*", SURNAME)
+  patron_B <- paste0(SURNAME, ",\\s*(?:[A-ZÁÉÍÓÚÑ]\\.)+")
+  
+  patron_combinado2 <- paste0("(", patron_B, ")|(", patron_A, ")")
+  
+  autores_encontrados2 <- str_extract_all(texto, patron_combinado2)[[1]]
+  
+  if (length(autores_encontrados2) == 0) return(texto)
+  
+  formatear2 <- function(autor) {
+    autor <- str_trim(autor)
+    if (str_detect(autor, paste0("^", SURNAME, ",\\s*(?:[A-ZÁÉÍÓÚÑ]\\.)+$"))) return(autor)
+    m <- str_match(autor, paste0("^((?:[A-ZÁÉÍÓÚÑ]\\.){1,4})\\s*(", SURNAME, ")$"))
+    paste0(m[,3], ", ", m[,2])
+  }
+  
+  autores_formateados2 <- sapply(autores_encontrados2, formatear2)
+  
+  paste(autores_formateados2, collapse = " | ")
+}
+
+text_amaz24$identifiedBy <- sapply(text_amaz24$identifiedBy, estandarizar_iniciales_apellido_multi2)
+
+#Ajustar casos especificos
+
+text_amaz24$identifiedBy <- gsub("Brako & Zarucchi", "Brako, L. | Zarucchi, J.L.", text_amaz24$identifiedBy)
+text_amaz24$identifiedBy <- gsub("Croat & Lingan", "Croat, T.B. | Lingan-Ch, J.", text_amaz24$identifiedBy)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario7 <- function(discardReason, comentario_nuevo6) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo6)
+  } else {
+    return(paste(discardReason, comentario_nuevo6, sep = " / "))
+  }
+}
+
+filas_cambiadas7 <- !is.na(text_amaz24$identifiedBy) & 
+                    !is.na(text_amaz24$verbatimidentifiedBy) &
+                    text_amaz24$verbatimidentifiedBy != text_amaz24$identifiedBy
+
+text_amaz24$discardReason[filas_cambiadas7] <- mapply(
+  agregar_comentario7,
+  text_amaz24$discardReason[filas_cambiadas7],
+  "standardized author names and accents corrected in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_amaz24$discardReason <- sapply(text_amaz24$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_amaz24, file = "data/Text/2.Processed/text__AMAZ2024.csv")
+
+```
+
+#6. text__ATRIUM2017.csv
+
+```{r}
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_atrium <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__ATRIUM2017.csv")
+
+view(text_atrium)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_atrium)) text_atrium$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_atrium$basisOfRecord)                       #No necesita cambios
+unique(text_atrium$typeStatus)                          #No necesita cambios 
+unique(text_atrium$associatedReferences)                #No necesita cambios
+unique(text_atrium$institutionCode)                     #No necesita cambios
+unique(text_atrium$taxonRank)                           #No necesita cambios
+unique(text_atrium$collectionCode)                      #No necesita cambios
+unique(text_atrium$recordedBy)                          #Necesita estandarización
+unique(text_atrium$recordNumber)                        #No necesita cambios
+unique(text_atrium$identifiedBy)                        #Necesita estandairación
+unique(text_atrium$lifeForm)                            #Necesita estandairación
+unique(text_atrium$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim para columnas
+
+```{r}
+#recordedBy
+
+text_atrium <- text_atrium %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+#identifiedBy
+
+text_atrium <- text_atrium %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#lifeForm
+
+text_atrium <- text_atrium %>%
+  mutate(
+    verbatimlifeForm = lifeForm
+  )
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_atrium %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Quitar tildes y simbolos raros
+
+```{r}
+
+quitar_tildes4 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, quitar_tildes4)
+```
+
+#Unir apellidos compuestos
+
+```{r}
+unir_apellidos_compuestos <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    "((?:[A-ZÁÉÍÓÚÑ]\\.){1,4}\\s*[A-Za-zÁÉÍÓÚÑáéíóúñ]+)\\s+([A-Za-zÁÉÍÓÚÑáéíóúñ]+)(?=\\s*(\\||,|$))",
+    "\\1-\\2"
+  )
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, unir_apellidos_compuestos)
+```
+
+#Estandarizar autores
+
+```{r}
+
+#Organizar por apellido, iniciales
+
+estandarizar_iniciales_apellido_multi3 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  INITIALS <- "(?:[A-ZÁÉÍÓÚÑ]\\.\\s*){1,4}"
+  SURNAME <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)*"
+  
+  patron_A <- paste0(INITIALS, SURNAME)                    
+  patron_B <- paste0(SURNAME, ",\\s*", INITIALS)            
+  
+  patron_combinado <- paste0("(", patron_B, ")|(", patron_A, ")")
+  
+  autores_encontrados <- str_extract_all(texto, patron_combinado)[[1]]
+  
+  if (length(autores_encontrados) == 0) return(texto)
+  
+  formatear <- function(autor) {
+    autor <- str_trim(autor)
+    if (str_detect(autor, paste0("^", SURNAME, ",\\s*", INITIALS, "$"))) {
+      return(str_squish(autor))  # ya estaba bien, solo normaliza espacios
+    }
+    m <- str_match(autor, paste0("^(", INITIALS, ")(", SURNAME, ")$"))
+    iniciales <- str_trim(m[,2])
+    apellido  <- m[,3]
+    paste0(apellido, ", ", iniciales)
+  }
+  
+  autores_formateados <- sapply(autores_encontrados, formatear)
+  
+  paste(autores_formateados, collapse = " | ")
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, estandarizar_iniciales_apellido_multi3)
+
+#Pegar las iniciales
+
+pegar_iniciales_tras_coma <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, pegar_iniciales_tras_coma)
+
+#Corregir iniciales
+
+corregir_iniciales_invertidas <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    "\\b([A-ZÁÉÍÓÚÑ])\\.?,\\s*((?:[A-ZÁÉÍÓÚÑ]\\.?\\s*){1,6})(?=\\s*(\\||,|$))",
+    function(m) {
+      sapply(m, function(x) {
+        partes <- str_match(x, "^([A-ZÁÉÍÓÚÑ])\\.?,\\s*(.+)$")
+        letra_suelta <- partes[2]
+        resto <- partes[3]
+        letras_resto <- str_extract_all(resto, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(paste0(letras_resto, ".", collapse = ""), letra_suelta, ".")
+      })
+    }
+  )
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_iniciales_invertidas)
+
+
+#Agregar punto a iniciales
+
+pegar_puntos_iniciales_sueltas <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  if (str_detect(texto, "^[A-ZÁÉÍÓÚÑ]{2,6}$")) {
+    letras <- str_extract_all(texto, "[A-ZÁÉÍÓÚÑ]")[[1]]
+    return(paste0(letras, ".", collapse = ""))
+  }
+  
+  return(texto)
+}
+
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, pegar_puntos_iniciales_sueltas)
+
+```
+
+#Casos especificos
+
+```{r}
+#Nombres completos
+
+patron_nombre_completo <- "\\b[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}\\b"
+
+nombres_para_revisar <- text_atrium %>%
+  filter(str_detect(recordedBy, patron_nombre_completo)) %>%
+  count(recordedBy, sort = TRUE)
+
+View(nombres_para_revisar)
+
+#Estandarizar nombres completos
+
+nombres_completos <- c(
+  "Herbario Forestal MOL" = "Herbario Forestal (MOL)",
+  "M.O.L." = "Herbario Forestal (MOL)",
+  "Dantas" = "Proyecto Dantas",
+  "Norma Salinas" = "Salinas, N.",
+  "Bruce Benz" = "Benz, B.",
+  "Hugo Gunckel" = "Gunckel, H.",
+  "Willy Palomino" = "Palomino, W.",
+  "Wily Palomino" = "Palomino, W.",
+  "Timothy Plowman" = "Plowman, T.",
+  "Crispin Sottec Rogue" = "Sottec-Rogue, C.",
+  "Enrique Espinosa S." = "Espinoza, E.S.",
+  "Enrique Espinoza S." = "Espinoza, E.S.",
+  "Espinosa, J." = "Espinoza, J.",
+  "Espinosa, S." = "Espinoza, S.",
+  "Lilian Valderrama E." = "Valderrama, L.E.",
+  "Luis Fortunato Morales A ranibar" = "Morales-Aranibar, L.F.",
+  "Luzgarda Salas" = "Salas, L.",
+  "Lvd Hoogte" = "Hoogte, L.V.D.",
+  "Hoogte" = "Hoogte, L.V.D.",
+  "Hoogte, L." = "Hoogte, L.V.D.",
+  "Norma Jara Moscoso" = "Jara-Moscoso, N.",
+  "CDC-Peru" = "National Center for Epidemiology, Prevention and Disease Control – CDC Peru",
+  "CDC - Peru" = "National Center for Epidemiology, Prevention and Disease Control – CDC Peru",
+  "Tressens Schinini" = "Tressens-Schinini"
+)
+
+corregir_nombres <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar3 <- str_squish(texto)
+  
+  for (i in seq_along(nombres_completos)) {
+    original <- str_squish(names(nombres_completos)[i])
+    if (texto_comparar3 == original) {
+      return(nombres_completos[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_nombres)
+
+#Corregir casos de appellidos compuesto que empiezan con "de, del, da"
+
+corregir_particulas_apellido <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    regex("\\b(de|da|del)-", ignore_case = TRUE),
+    function(m) {
+      sapply(m, function(x) {
+        particula <- str_extract(x, "[A-Za-z]+")
+        paste0(str_to_lower(particula), " ")
+      })
+    }
+  )
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_particulas_apellido)
+```
+
