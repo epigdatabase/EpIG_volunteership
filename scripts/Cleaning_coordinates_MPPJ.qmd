@@ -200,8 +200,16 @@ idx <- which(voluntarios$dataset == "rosero_j_2024")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Simon"
     voluntarios$startingDate[idx] <- "14/08/26"
-    #voluntarios$finishingDate[idx] <- "12/08/26"
+    voluntarios$finishingDate[idx] <- "24/08/26"
 }
+
+idx <- which(voluntarios$dataset == "peperomia_net2025")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Simon"
+    voluntarios$startingDate[idx] <- "25/08/26"
+    #voluntarios$finishingDate[idx] <- "23/08/26"
+}
+
 
 
 
@@ -213,6 +221,8 @@ if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Luis"
     voluntarios$startingDate[idx] <- "16/06/26"
 }
+
+
 
 #JUANA
 idx <- which(voluntarios$dataset == "assis_i_2026_specieslink")
@@ -249,9 +259,17 @@ idx <- which(voluntarios$dataset == "AMAZ2024")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "20/08/26"
-    #voluntarios$finishingDateDC[idx] <- "20/08/26"
+    voluntarios$finishingDateDC[idx] <- "24/08/26"
 }
 
+
+
+idx <- which(voluntarios$dataset == "ATRIUM2017.rds")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "24/08/26"
+    #voluntarios$finishingDateDC[idx] <- "24/08/26"
+}
 
 
 
@@ -262,6 +280,9 @@ if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Camilo"
     voluntarios$startingDate[idx] <- "15/06/26"
 }
+
+
+
 
 #KELLY
 idx <- which(voluntarios$dataset == "CR2024")
