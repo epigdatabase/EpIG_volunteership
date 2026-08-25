@@ -17,7 +17,7 @@ When you click the **Render** button a document will be generated that includes 
 
 ```{r}
 
-packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr","ggplot" )
+packages <- c("tidyverse", "readxl", "readr", "data.table", "dplyr", "stringr", "ggplot2", "sf", "fs", "rnaturalearth", "rnaturalearthdata", "rio", "countrycode","maps", "stringi","rnaturalearthdata","devtools", "pack", "cli", "remotes", "countrycode","progress", "tidygeocoder", "dplyr", "readr", "purrr","ggplot","qs2" )
 
 # Install packages not yet installed [for the first time]
 installed_packages <- packages %in% rownames(installed.packages())
@@ -555,6 +555,149 @@ unique(ros$country)
 unique(ros$stateProvince)
 
 view(ros)
+
+CR <- readRDS("./data/Georreferencing/2.Processed/georef__CR2024.rds")
+unique(CR$country)
+unique(CR$stateProvince)
+
+
+
+
+CR %>%
+  group_by(country, stateProvince) %>%
+  summarise(
+    n_registros = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(country) %>%
+  mutate(
+    porcentaje_del_pais = round(n_registros / sum(n_registros) * 100, 2)
+  ) %>%
+  arrange(country, desc(n_registros)) %>%
+  print(n = Inf)
+
+
+
+state_corrections <- c(
+  # Argentina
+  "Misiones-IguazÃº" = "Misiones",
+  "Jujuy" = "Jujuy",
+  
+  # Costa Rica
+  "San JosÃ© And Heredia" = "San Jose and Heredia",
+  "San JosÃ©-Cartago" = "San Jose-Cartago",
+  "S Of Alajuela" = "Alajuela",
+  "Heredia And The Border Of San JosÃ© And Heredia Provinces" = "Heredia and San Jose",
+  "S De San JosÃ© And Heredia" = "San Jose and Heredia",
+  "S De Alajuela" = "Alajuela",
+  "San Jose-Cartago" = "San Jose-Cartago",
+  "Alajuela" = "Alajuela",
+  "Rio San Juan" = "Rio San Juan",
+  
+  # El Salvador
+  "MorazÃ¡n" = "Morazan",
+  "Santa Ana" = "Santa Ana",
+  
+  # Guatemala
+  "Huehuetenango" = "Huehuetenango",
+  "Izabal" = "Izabal",
+  "Baja Verapaz" = "Baja Verapaz",
+  "Quetzaltenango" = "Quetzaltenango",
+  
+  # Honduras
+  "Francisco Miorazan" = "Francisco Morazan",
+  "Francisco Morazan" = "Francisco Morazan",
+  "Francisco MorazÃ¡n" = "Francisco Morazan",
+  "El ParaÃ­so" = "El Paraiso",
+  "El Paraiso" = "El Paraiso",
+  "Ocotepeque" = "Ocotepeque",
+  "Lempira" = "Lempira",
+  "Olancho" = "Olancho",
+  "Blancho" = NA_character_,
+  "De" = NA_character_,
+  
+  # Nicaragua
+  "Esteli" = "Esteli",
+  "Zelaya" = "Zelaya",
+  "Jinotega" = "Jinotega",
+  "Granada" = "Granada",
+  "Madriz" = "Madriz",
+  "Boaco" = "Boaco",
+  "Rivas" = "Rivas",
+  "Masaya" = "Masaya",
+  "Bluefields" = "Bluefields",
+  "Chontales" = "Chontales",
+  "Nueva Segovia" = "Nueva Segovia",
+  "Chinandega" = "Chinandega",
+  "Matagalpa" = "Matagalpa",
+  "Leon" = "Leon",
+  "M De Jinotega" = "Jinotega",
+  "Rio San Juan" = "Rio San Juan",
+  
+  # Panama
+  "PanamÃ¡" = "Panama",
+  "ChiriquÃ­" = "Chiriqui",
+  "ChiriquÃ­ Region" = "Chiriqui",
+  "ChirirquÃ­" = "Chiriqui",
+  "Chiriqui" = "Chiriqui",
+  "CoclÃ©" = "Cocle",
+  "Cocle" = "Cocle",
+  "ColÃ³n" = "Colon",
+  "Bocas Del Toro" = "Bocas del Toro",
+  "ChirripÃ³" = "Chirripo",
+  "Darien" = "Darien",
+  "Herrera" = "Herrera",
+  "Los Santos" = "Los Santos",
+  "Panama" = "Panama",
+  "Panama El Llano Carti Rd" = "Panama",
+  "San Blas" = "Guna Yala",
+  "Veraguas" = "Veraguas",
+  
+  # Peru
+  "Cuzco" = "Cusco"
+)
+
+# 2. Aplicar correcciones SOLO a stateProvince
+CR$stateProvince <- ifelse(
+  CR$stateProvince %in% names(state_corrections),
+  state_corrections[CR$stateProvince],
+  CR$stateProvince
+)
+
+# 3. Convertir valores vacíos a NA
+CR$stateProvince <- ifelse(CR$stateProvince == "", NA_character_, CR$stateProvince)
+
+# 4. Corregir países incorrectos (sin tildes)
+CR$country <- case_when(
+  # Rio San Juan es Nicaragua, no Costa Rica
+  CR$country == "Costa Rica" & CR$stateProvince == "Rio San Juan" ~ "Nicaragua",
+  # Bluefields es Nicaragua
+  CR$country == "Belize" & CR$stateProvince == "Bluefields" ~ "Nicaragua",
+  # San Blas es Panama
+  CR$country == "Panama" & CR$stateProvince == "San Blas" ~ "Panama",
+  # Por defecto mantener el país original
+  TRUE ~ CR$country
+)
+
+# 5. Verificar resultado
+resultado_final <- CR %>%
+  filter(!is.na(stateProvince)) %>%
+  group_by(country, stateProvince) %>%
+  summarise(
+    n_registros = n(),
+    .groups = "drop"
+  ) %>%
+  group_by(country) %>%
+  mutate(
+    porcentaje_del_pais = round(n_registros / sum(n_registros) * 100, 2)
+  ) %>%
+  arrange(country, desc(n_registros))
+
+# Ver todo el resultado
+print(resultado_final, n = Inf)
+
+
+saveRDS(CR, file = "../EpIG_volunteership/data/Georreferencing/2.Processed/georef__CR2024.rds")
 
 ```
 
