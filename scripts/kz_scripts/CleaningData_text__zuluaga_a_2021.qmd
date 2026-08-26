@@ -182,265 +182,6 @@ sum(is.na(spp_link$associatedReferences))
 
 sum(spp_link$associatedReferences == "")
 
-library(stringr)
-
-spp_link$referenceYear <- str_extract(
-  spp_link$associatedReferences,
-  "(19|20)[0-9]{2}"
-)
-
-spp_link$associatedReferences <- str_trim(
-  str_remove(
-    spp_link$associatedReferences,
-    "(19|20)[0-9]{2}[a-z]?$"
-  )
-)
-
-
-grep("Ã|Â|ƒ|\\n|\\r", spp_link$associatedReferences)
-
-grep("^\\s|\\s$", spp_link$associatedReferences)
-
-grep("  +", spp_link$associatedReferences)
-
-grep(",,", spp_link$associatedReferences)
-
-grep("\\n|\\r", spp_link$associatedReferences)
-
-grep("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$associatedReferences)
-
-unique(spp_link$associatedReferences[
-  grepl("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$associatedReferences)
-])
-
-#extract year of associatedReferences column
-
-text_literature2021$referenceYear <- str_extract(
-  text_literature2021$associatedReferences,
-  "(19|20)\\d{2}"
-)
-
-text_literature2021$associatedReferenceAuthors <- str_trim(
-  str_remove(
-    text_literature2021$associatedReferences,
-    "\\s*(19|20)\\d{2}[a-z]?$"
-  )
-)
-
-#detect corrupted characters
-text_literature2021$associatedReferences <- gsub(
-  "CardelAºs", "Cárdenas",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "KrA¶mer", "Krömer",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "LA³pez-Villalobos", "López-Villalobos",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "MondragA³n", "Mondragón",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "NA¶ske", "Nöske",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "MagalhA£es", "Magalhaes",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "CasaA+/-as", "Casañas",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "JA!uregui", "Jáuregui",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "ProenA§a", "Proenca",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-text_literature2021$associatedReferences <- gsub(
-  "GonA§alves", "Goncalves",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-#change & by and 
-spp_link$associatedReferences <- gsub(
-  " y ",
-  " & ",
-  spp_link$associatedReferences
-)
-
-spp_link$associatedReferences <- gsub(
-  "KrÃ¶mer",
-  "Kromer",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "LÃ³pez",
-  "Lopez",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "MondragÃ³n",
-  "Mondragon",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "deMiranda",
-  "de Miranda",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "ProenÃ§a",
-  "Proenca",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "GonÃ§alves",
-  "Goncalves",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-library(stringr)
-
-# 1. Unir el apellido con et-al
-spp_link$associatedReferences <- str_replace_all(
-  spp_link$associatedReferences,
-  "\\s+et-al",
-  "-et-al"
-)
-
-# 2. Eliminar puntos dobles
-spp_link$associatedReferences <- str_replace_all(
-  spp_link$associatedReferences,
-  "et-al\\.\\.+",
-  "et-al."
-)
-
-
-text_literature2021$associatedReferences <- gsub(
-  "De la Rosa", "De-la-Rosa",
-  text_literature2021$associatedReferences,
-  fixed = TRUE
-)
-
-
-View(spp_link)
-# =============================================================================
-# referenceYear/"evendate"
-# =============================================================================
-
-
-#created referenceYear
-
-
-# Extraer el año
-text_literature2021$referenceYear <- sub(
-  ".*((19|20)[0-9]{2}).*",
-  "\\1",
-  text_literature2021$associatedReferences
-)
-
-# Si no encontró un año, dejar NA
-
-text_literature2021$referenceYear[
-  !grepl("(19|20)[0-9]{2}", text_literature2021$associatedReferences)
-] <- NA
-
-# Eliminar el año de associatedReferences
-text_literature2021$associatedReferences <- trimws(
-  gsub("\\s*(19|20)[0-9]{2}[a-z]?$", "",
-       text_literature2021$associatedReferences)
-)
-
-spp_link$associatedReferences <- gsub(
-  "ArA\\(C\\)valo & Betancur",
-  "Arevalo & Betancur",
-  spp_link$associatedReferences
-)
-
-spp_link$associatedReferences <- gsub(
-  "MagalhÃ£es & Lopes",
-  "Magallanes & Lopes",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "ObermÃ¼ller-et-al\\.",
-  "Obermüller-et-al.",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "ObermÃ¼ller-et-al.",
-  "Obermüller-et-al.",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "ArÃ©valo",
-  "Arevalo.",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-spp_link$associatedReferences <- gsub(
-  "CasaÃ±as & JÃ¡uregui",
-  "Casanas & Jáuregui",
-  spp_link$associatedReferences,
-  fixed = TRUE
-)
-
-#
-
-grep("ArA", spp_link$associatedReferences, value = TRUE)
-
-grep("daSilva", spp_link$associatedReferences, value = TRUE)
-
-#review
-
-View(data.frame(
-  associatedReferences = sort(unique(spp_link$associatedReferences))
-))
 
 ```
 
@@ -461,88 +202,318 @@ sum(is.na(spp_link$identifiedBy))
 
 sum(spp_link$identifiedBy == "")
 
-grep("Ã|Â|ƒ|\\n|\\r", spp_link$identifiedBy)
 
-grep("^\\s|\\s$", spp_link$identifiedBy)
+```
 
-grep("  +", spp_link$identifiedBy)
 
-grep(",,", spp_link$identifiedBy)
+```{r}
+# =============================================================================
+# recordedBy 
+# =============================================================================
 
-grep("\\n|\\r", spp_link$identifiedBy)
+# Inspection
 
-grep("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$identifiedBy)
+str(spp_link$recordedBy)
 
-unique(
-  spp_link$identifiedBy[
-    grepl("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$identifiedBy)
-  ]
+summary(spp_link$recordedBy)
+
+length(unique(spp_link$recordedBy))
+
+sum(is.na(spp_link$recordedBy))
+
+sum(spp_link$recordedBy == "")
+
+grep("Ã|Â|ƒ|\\n|\\r", spp_link$recordedBy)
+
+grep("^\\s|\\s$", spp_link$recordedBy)
+
+grep("  +", spp_link$recordedBy)
+
+grep(",,", spp_link$recordedBy)
+
+grep("\\n|\\r", spp_link$recordedBy)
+
+grep("[ÁÉÍÓÚáéíóúÑñÜü]", spp_link$recordedBy)
+
+unique(spp_link$recordedBy[spp_link$recordedBy])
+
+sort(unique(spp_link$recordedBy))
+
+sort(table(spp_link$recordedBy), decreasing = TRUE)
+
+library(stringi)
+
+spp_link$recordedBy <- stri_trans_general(
+  spp_link$recordedBy,
+  "Latin-ASCII"
+)
+
+spp_link$recordedBy <- gsub(
+  ", \\*$",
+  "",
+  spp_link$recordedBy
 )
 
 
-# Remove accent marks
-
-
-spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
-
-
-# Standardize compound surnames
-
-spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
-
-
-# Review unique values
-
-unique_identifiedBy <- data.frame(
-  identifiedBy = sort(unique(spp_link$identifiedBy))
+spp_link$recordedBy <- gsub(
+  "StAhl, Bertil",
+  "Stahl, Bertil",
+  spp_link$recordedBy,
+  fixed = TRUE
 )
 
-View(unique_identifiedBy)
+spp_link$recordedBy <- gsub(
+  "GrE†ger, Andreas",
+  "Grager, Andreas",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
 
-spp_link$recordedBy   <- delete_accents(spp_link$recordedBy)
-spp_link$recordedBy   <- hyphenate_surname(spp_link$recordedBy)
+spp_link$recordedBy <- gsub(
+  "LA¯jtnant, Bernt",
+  "Lojtnant, Bernt",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
 
-spp_link$identifiedBy <- delete_accents(spp_link$identifiedBy)
-spp_link$identifiedBy <- hyphenate_surname(spp_link$identifiedBy)
+spp_link$recordedBy <- gsub(
+  "Pittier, Henri FranAois",
+  "Pittier, Henri Francois",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
 
-#add space between letters
-spp_link$identifiedBy <- gsub("\\s*&\\s*", " & ", spp_link$identifiedBy)
-spp_link$identifiedBy <- gsub("\\s*-\\s*", " - ", spp_link$identifiedBy)
-spp_link$identifiedBy <- gsub("\\(RYS\\)", "(R Y S)", spp_link$identifiedBy)
-spp_link$identifiedBy <- gsub("\\(CyC\\)", "(C y C)", spp_link$identifiedBy)
-sort(unique(grep("Grupo de", spp_link$identifiedBy, value = TRUE)))
-unique(spp_link$identifiedBy[grep("Grupo de", spp_link$identifiedBy)])
+spp_link$recordedBy <- gsub(
+  "MerxmA¸ller, Hermann",
+  "Merxmueller, Hermann",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "JA¯rgensen, Peter MA¯ller",
+  "Jorgensen, Peter Muller",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
+
+sum(spp_link$recordedBy == ",", na.rm = TRUE)
+spp_link$recordedBy[spp_link$recordedBy == ","] <- NA_character_
+unique(spp_link$recordedBy[spp_link$recordedBy == ","])
+
+# Normalizar apellidos escritos completamente en mayúsculas
+spp_link$recordedBy <- gsub(
+  "^BITTNER(,|$)", "Bittner\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^BILLIET(,|$)", "Billiet\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^BONIFAZ(,|$)", "Bonifaz\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^CHOCCE(,|$)", "Chocce\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^GRANT(,|$)", "Grant\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^RESTREPO(,|$)", "Restrepo\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^MACEDO(,|$)", "Macedo\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^MACIEL(,|$)", "Maciel\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^MILLIKEN(,|$)", "Milliken\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^MORICAND(,|$)", "Moricand\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^PELEGRIN-R(,|$)", "Pelegrin-R\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^SARASTEGUL(,|$)", "Sarastegul\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^SALIK(,|$)", "Salik\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^TEXIXEIRA(,|$)", "Texixeira\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^TIPAZ(,|$)", "Tipaz\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^WEBER(,|$)", "Weber\\1",
+  spp_link$recordedBy
+)
+
+
+spp_link$recordedBy <- gsub(
+  "^DANIEL(,|$)", "Daniel\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^FERRERIA(,|$)", "Ferreira\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^LUCKE(,|$)", "Lucke\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^MCDOWELL(,|$)", "MCDowell\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^FERREIRA(,|$)", "Ferreira\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^JIMPIKIT(,|$)", "Jimpikit\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^MUNICH(,|$)", "Munich\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^MAIA(,|$)", "Maia\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^RUDAS(,|$)", "Rudas\\1",
+  spp_link$recordedBy
+)
+
+
+spp_link$recordedBy <- gsub(
+  "^CERON(,|$)", "Ceron\\1",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "FE†rther, H.",
+  "Forther, H.",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
+grep("Forther|FE†rther", spp_link$recordedBy, value = TRUE)
+
+
+
+spp_link$recordedBy <- gsub(
+  "GonAalves, Eduardo G.",
+  "Goncalves, Eduardo G.",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "Glaziou, Auguste FranAois Marie",
+  "Glaziou, Auguste Francois Marie",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
+
+grep(
+  "Goncalves|Glaziou",
+  spp_link$recordedBy,
+  value = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "LA:;CRUCES, \\*",
+  "Las-Cruces",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "^KOSTER$",
+  "Koster",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "KrE†mer, Thorsten",
+  "Kromer, Thorsten",
+  spp_link$recordedBy,
+  fixed = TRUE
+)
+
+spp_link$recordedBy <- gsub(
+  "^RUDAS$",
+  "Rudas",
+  spp_link$recordedBy
+)
+
+spp_link$recordedBy <- gsub(
+  "^SAGASTEGUL$",
+  "Sagastegul",
+  spp_link$recordedBy
+  
+
+)
+
+
+spp_link$recordedBy <- gsub("^SPEARS$", "Spears", spp_link$recordedBy)
+spp_link$recordedBy <- gsub("^STEWARD$", "Steward", spp_link$recordedBy)
+spp_link$recordedBy <- gsub("^STORR$", "Storr", spp_link$recordedBy)
+spp_link$recordedBy <- gsub("^SUAREZ$", "Suarez", spp_link$recordedBy)
+spp_link$recordedBy <- gsub("^TEMPONI$", "Temponi", spp_link$recordedBy)
+spp_link$recordedBy <- gsub("^XAVIER$", "Xavier", spp_link$recordedBy)
+
+spp_link$recordedBy[spp_link$recordedBy == "LA:;CRUCES"] <- "Las-Cruces"
 
 View(data.frame(
-  identifiedBy = sort(unique(spp_link$identifiedBy))
+  recordedBy = sort(unique(spp_link$recordedBy))
 ))
-
-
-
-#delete commons
-spp_link$identifiedBy[grepl(",", spp_link$identifieddBy)] <- ""
-
-# Keep a backup of the curated column
-
-identifiedBy_curated <- spp_link$identifiedBy
-
-#delete "()"
-
-spp_link$identifiedBy <- gsub("[()]", "", spp_link$identifiedBy)
-
-idx <- grepl("^\\s*,\\s*$", spp_link$identifiedBy)
-
-spp_link$recordedBy[idx] <- ""
-
-idx <- trimws(spp_link$identifiedBy) == ","
-
-spp_link$identifiedBy[idx] <- NA_character_
-
-dput(unique(spp_link$identifiedBy[grepl(",", spp_link$identifiedBy, fixed = TRUE)]))
-
-unique(spp_link$identifiedBy)
-#all data are curated for now
 ```
+
+
 
 ```{r}
 
@@ -556,4 +527,5 @@ readr::write_csv(
   "data/text/2.Processed/text__literature2021.csv",
   na = ""
 )
+
 ```
