@@ -38,21 +38,21 @@ dplyr::glimpse(spp_link)
 
 #Dataset Structure
 
-str(spp_link$taxonRank) #[1:10766] "SPECIES"
-str(spp_link$lifeForm) #[1:10766] "NA"
-str(spp_link$institutionCode) #[1:10766] "NA" 
-str(spp_link$eventDate) #[1:10766] "NA" 
-str(spp_link$ocurrenceID) #[1:10766] "NULL" 
-str(spp_link$basisOfRecord) ##[1:10766] "MaterialCitation" 
-str(spp_link$typeStatus) # #[1:10766] "NULL"  "Text"
-str(spp_link$associatedReferences) #[1:10766]  - Needs review
-str(spp_link$collectionCode) #[1:10766]
-str(spp_link$recordedBy) ##[1:10766] Authors "NA"
-str(spp_link$identifiedBy) ##[1:10766] "NA"
-str(spp_link$datasetID) #[1:10766] "literature2021"
-str(spp_link$matchCodeEpig) ##[1:10766]] Numbers ok
-str(spp_link$matchedNameEpig) #[1:71897] Species ok
-str(spp_link$typeStatus) ##[1:10766] "Text"
+str(spp_link$taxonRank) #[1:4486] "SPECIES"
+str(spp_link$lifeForm) #[1:4486] "SPECIES"
+str(spp_link$institutionCode) #[1:4486] "MO; CAS; US; A; P; AMAZ" 
+str(spp_link$eventDate) #[1:4886] "NA" 
+str(spp_link$ocurrenceID) #[1:4886] "NULL" 
+str(spp_link$basisOfRecord) #[1:4486] "PreservedSpecimen" 
+str(spp_link$typeStatus) # [1:4486] "NA"
+str(spp_link$associatedReferences) #[1:4486] NA
+str(spp_link$collectionCode) #[1:4486] NA
+str(spp_link$recordedBy) #[1:4486] Authors Needs review
+str(spp_link$identifiedBy) #[1:4486] "NA"
+str(spp_link$datasetID) #[1:4486] "zuluaga_a_2021"
+str(spp_link$matchCodeEpig) #[1:4486] Numbers ok
+str(spp_link$matchedNameEpig) #[1:4486] Species ok
+str(spp_link$typeStatus) ##[1:4486] "NA"
 ```
 
 ```{r}
@@ -72,17 +72,17 @@ sort(unique(spp_link$taxonRank))#ok "FAMILY"  "GENUS"   "HYBRID"  "SPECIES"
 
 sort(unique(spp_link$collectionCode)) #ok
 
-sort(unique(spp_link$recordedBy)) #ok NA
+sort(unique(spp_link$recordedBy)) #Needs curation
 
-sort(unique(spp_link$recordNumber)) #ok NA
+sort(unique(spp_link$recordNumber)) #ok 
 
-sort(unique(spp_link$identifiedBy)) #needs curation
+sort(unique(spp_link$identifiedBy)) #ok
 
-sort(unique(spp_link$lifeForm)) #ok NA
+sort(unique(spp_link$lifeForm)) #ok 
 
 sort(unique(spp_link$datasetID)) #ok
 
-sort(unique(spp_link$matchCodeEpig)) #ok  "0, 1, 2 or 3"
+sort(unique(spp_link$matchCodeEpig)) #ok  
 
 sort(unique(spp_link$matchedNameEpig)) #0, 1, 2 or 3
 
@@ -94,7 +94,7 @@ sort(unique(spp_link$eventDate)) #all dates are ok. Year column doesn't need
 
 sort(unique(spp_link$changes)) #ok
 
-#only curation in associatedReference
+#only curation in recordedBy
 
 colnames(spp_link)
 ```
