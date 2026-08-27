@@ -1687,7 +1687,7 @@ text_literature$discardReason <- sapply(text_literature$discardReason, function(
 write.csv(text_literature, file = "data/Text/2.Processed/text__assis_i_2026_literature.csv")
 ```
 
-#3. text__assis_i_2026_diagonal.csv
+#4. text__assis_i_2026_diagonal.csv
 
 ```{r}
 # Cargar librerias y revisar información
@@ -1804,7 +1804,7 @@ text_diagonal$discardReason <- sapply(text_diagonal$discardReason, function(x) {
 write.csv(text_diagonal, file = "data/Text/2.Processed/text__assis_i_2026_diagonal.csv")
 ```
 
-#4. text__assis_i_2026_af.csv
+#5. text__assis_i_2026_af.csv
 
 ```{r}
 # Cargar librerias y revisar información
@@ -1858,7 +1858,7 @@ write.csv(text_af, file = "data/Text/2.Processed/text__assis_i_2026_af.csv")
 
 ```
 
-#5. text__AMAZ2024.csv
+#6. text__AMAZ2024.csv
 
 ```{r}
 # Cargar librerias y revisar información
@@ -2247,7 +2247,7 @@ write.csv(text_amaz24, file = "data/Text/2.Processed/text__AMAZ2024.csv")
 
 ```
 
-#6. text__ATRIUM2017.csv
+#7. text__ATRIUM2017.csv
 
 ```{r}
 # Cargar librerias y revisar información
@@ -2492,10 +2492,6 @@ nombres_completos <- c(
   "Wily Palomino" = "Palomino, W.",
   "Timothy Plowman" = "Plowman, T.",
   "Crispin Sottec Rogue" = "Sottec-Rogue, C.",
-  "Enrique Espinosa S." = "Espinoza, E.S.",
-  "Enrique Espinoza S." = "Espinoza, E.S.",
-  "Espinosa, J." = "Espinoza, J.",
-  "Espinosa, S." = "Espinoza, S.",
   "Lilian Valderrama E." = "Valderrama, L.E.",
   "Luis Fortunato Morales A ranibar" = "Morales-Aranibar, L.F.",
   "Luzgarda Salas" = "Salas, L.",
@@ -2503,8 +2499,6 @@ nombres_completos <- c(
   "Hoogte" = "Hoogte, L.V.D.",
   "Hoogte, L." = "Hoogte, L.V.D.",
   "Norma Jara Moscoso" = "Jara-Moscoso, N.",
-  "CDC-Peru" = "National Center for Epidemiology, Prevention and Disease Control – CDC Peru",
-  "CDC - Peru" = "National Center for Epidemiology, Prevention and Disease Control – CDC Peru",
   "Tressens Schinini" = "Tressens-Schinini"
 )
 
@@ -2544,5 +2538,216 @@ corregir_particulas_apellido <- function(texto) {
 }
 
 text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_particulas_apellido)
+
+#Casos unicos
+text_atrium$recordedBy <- gsub("van, H.", "van der Werff, H.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("van-Eyde, K.", "van Eynde, K.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Van-Eynde, K.", "van Eynde, K.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("La-Torre, M.", "la Torre, M.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("De, F.", "de la Torre, F.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("De, A.", "de la Torre, A.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Enrique Espinoza S.", "Espinoza, E.S.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Enrique Espinosa S.", "Espinoza, E.S.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Espinosa, J.", "Espinoza, J.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Espinosa, S.", "Espinoza, S.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Kroll, B.", "Kroll-Saldana, B.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("AR, P.", "P.A.R.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Aguilar, M.", "Aguilar, R.M.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Leg. Beck St. G.", "Beck, St. G.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Llacsahuanga, D.", "Llacsahuanca, D.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Molleapaza, E.", "Molleapasa, J.E.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("NO Info on specimen", "No info on specimen", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Si colector", "Sin colector", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Steinbach, F.", "Steinbach, R.F.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("Zv, G.", "G.Z.V.", text_atrium$recordedBy)
+text_atrium$recordedBy <- gsub("do-Amaral, I.L.", "do Amaral, I.L.", text_atrium$recordedBy)
+
+#Otras correciones unicas
+
+corregir_1 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "Nauray") {
+    return("Nauray, W.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1)
+
+corregir_2 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar <- str_squish(texto)
+  
+  if (texto_comparar %in% c("Balee, L.", "Balee, W.", "Balee, W.L.")) {
+    return("Balee, W.L.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_2)
+
+corregir_1.1 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "de, M.") {
+    return("la Torre-Cuadros, M. de los A.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.1)
+
+corregir_1.2 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "Bansal, H.") {
+    return("Bansal, H.C.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.2)
+
+corregir_2.1 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar <- str_squish(texto)
+  
+  if (texto_comparar %in% c("Luteyn, L.", "Luteyn, J.", "Luteyn, J.L.")) {
+    return("Luteyn, J.L.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_2.1)
+
+corregir_1.3 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "Macbride, J.") {
+    return("Macbride, J.F.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.3)
+
+corregir_1.4 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "de, A.V.") {
+    return("de la Sota, A.V.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.4)
+
+corregir_2.2 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar <- str_squish(texto)
+  
+  if (texto_comparar %in% c("CDC-Peru", "CDC - Peru")) {
+    return("National Center for Epidemiology, Prevention and Disease Control – CDC Peru")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_2.2)
+
+corregir_1.5 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "Bell, C.") {
+    return("Bell, C.R.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.5)
+
+corregir_1.6 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "Gonzales, F.") {
+    return("Gonzalez, F.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.6)
+
+corregir_1.7 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "Melo, J.") {
+    return("Melo, J.V.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.7)
+
+corregir_1.8 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  if (str_squish(texto) == "Stergios, B.") {
+    return("Stergios, B.G.")
+  }
+  
+  return(texto)
+}
+
+text_atrium$recordedBy <- sapply(text_atrium$recordedBy, corregir_1.8)
+
+
 ```
 
+#Especificar cambios 
+
+```{r}
+
+#Especificar cambios en recordedBy
+
+agregar_comentario8 <- function(discardReason, comentario_nuevo7) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo7)
+  } else {
+    return(paste(discardReason, comentario_nuevo7, sep = " / "))
+  }
+}
+
+filas_cambiadas8 <- !is.na(text_atrium$recordedBy) & 
+                    !is.na(text_atrium$verbatimrecordedBy) &
+                    text_atrium$verbatimrecordedBy != text_atrium$recordedBy
+
+text_atrium$discardReason[filas_cambiadas8] <- mapply(
+  agregar_comentario8,
+  text_atrium$discardReason[filas_cambiadas8],
+  "standardized author names and accents corrected in recordedBy"
+)
+
+
+```
+
+#-lifeForm: Detectar información dañada y corregir
+
+```{r}
+conteo_lifeForm <- text_atrium %>%
+  count(lifeForm, sort = TRUE)
+
+```
