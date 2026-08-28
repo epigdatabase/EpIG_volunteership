@@ -2741,7 +2741,6 @@ text_atrium$discardReason[filas_cambiadas8] <- mapply(
   "standardized author names and accents corrected in recordedBy"
 )
 
-
 ```
 
 #-lifeForm: Detectar información dañada y corregir
@@ -2751,3 +2750,513 @@ conteo_lifeForm <- text_atrium %>%
   count(lifeForm, sort = TRUE)
 
 ```
+
+#Eliminar ; y ajustar
+
+```{r}
+corregir_lifeform <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  # Reemplaza ";" (con o sin espacios alrededor) por ", "
+  texto <- str_replace_all(texto, "\\s*;\\s*", ", ")
+  
+  str_trim(texto)
+}
+
+text_atrium$lifeForm <- sapply(text_atrium$lifeForm, corregir_lifeform)
+
+
+#Casos especificos
+
+text_atrium$lifeForm <- gsub("rupicolous", "Rupicolous", text_atrium$lifeForm)
+text_atrium$lifeForm <- gsub("Tree Fern", "Tree, Fern", text_atrium$lifeForm)
+text_atrium$lifeForm <- gsub("Herb, Aquatic, submerged", "Herb, Aquatic, Submerged", text_atrium$lifeForm)
+text_atrium$lifeForm <- gsub("Herb, parasitic", "Herb, Parasitic", text_atrium$lifeForm)
+text_atrium$lifeForm <- gsub("Herb: Aquatic, submerged", "Herb, Aquatic, Submerged", text_atrium$lifeForm)
+
+```
+
+#Especificar cambios 
+
+```{r}
+
+#Especificar cambios en lifeForm
+
+agregar_comentario9 <- function(discardReason, comentario_nuevo8) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo8)
+  } else {
+    return(paste(discardReason, comentario_nuevo8, sep = " / "))
+  }
+}
+
+filas_cambiadas9 <- !is.na(text_atrium$lifeForm) & 
+                    !is.na(text_atrium$verbatimlifeForm) &
+                    text_atrium$verbatimlifeForm != text_atrium$lifeForm
+
+text_atrium$discardReason[filas_cambiadas9] <- mapply(
+  agregar_comentario9,
+  text_atrium$discardReason[filas_cambiadas9],
+  "standardize values in lifeForm and correct punctuation marks"
+)
+
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_atrium %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Quitar tildes y simbolos raros
+
+```{r}
+
+quitar_tildes5 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, quitar_tildes5)
+
+```
+
+#Estandarizar autores
+
+```{r}
+
+#Organizar por apellido, iniciales
+
+estandarizar_iniciales_apellido_multi4 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  INITIALS <- "(?:[A-ZÁÉÍÓÚÑ]\\.\\s*){1,4}"
+  SURNAME <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)*"
+  
+  patron_A <- paste0(INITIALS, SURNAME)                    
+  patron_B <- paste0(SURNAME, ",\\s*", INITIALS)            
+  
+  patron_combinado <- paste0("(", patron_B, ")|(", patron_A, ")")
+  
+  autores_encontrados <- str_extract_all(texto, patron_combinado)[[1]]
+  
+  if (length(autores_encontrados) == 0) return(texto)
+  
+  formatear <- function(autor) {
+    autor <- str_trim(autor)
+    if (str_detect(autor, paste0("^", SURNAME, ",\\s*", INITIALS, "$"))) {
+      return(str_squish(autor))  # ya estaba bien, solo normaliza espacios
+    }
+    m <- str_match(autor, paste0("^(", INITIALS, ")(", SURNAME, ")$"))
+    iniciales <- str_trim(m[,2])
+    apellido  <- m[,3]
+    paste0(apellido, ", ", iniciales)
+  }
+  
+  autores_formateados <- sapply(autores_encontrados, formatear)
+  
+  paste(autores_formateados, collapse = " | ")
+}
+
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, estandarizar_iniciales_apellido_multi4)
+
+#Pegar las iniciales
+
+pegar_iniciales_tras_coma2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, pegar_iniciales_tras_coma2)
+
+#Agregar punto a iniciales
+
+pegar_puntos_iniciales_sueltas2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  if (str_detect(texto, "^[A-ZÁÉÍÓÚÑ]{2,6}$")) {
+    letras <- str_extract_all(texto, "[A-ZÁÉÍÓÚÑ]")[[1]]
+    return(paste0(letras, ".", collapse = ""))
+  }
+  
+  return(texto)
+}
+
+
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, pegar_puntos_iniciales_sueltas2)
+
+```
+
+#Casos especificos
+
+```{r}
+#Nombres completos
+
+patron_nombre_completo2 <- "\\b[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}\\b"
+
+nombres_para_revisar2 <- text_atrium %>%
+  filter(str_detect(identifiedBy, patron_nombre_completo2)) %>%
+  count(identifiedBy, sort = TRUE)
+
+View(nombres_para_revisar2)
+
+#Estandarizar nombres completos
+
+nombres_completos2 <- c(
+  "Franco Mellado" = "Mellado, F.",
+  "Isau Huamantupa" = "Huamantupa, I.",
+  "Jose Marcelo" = "Marcelo, J.",
+  "Susy Castillo y Miguel Chocce   " = "Castillo, S. | Chocce, M.",
+  "Miguel Chocce y Susy Castillo" = "Chocce, M. | Castillo, S.",
+  "Jorge Perez Zabala" = "Perez-Zabala, J.",
+  "Hector Aponte" = "Aponte, H.",
+  "Jorge Lingan" = "Lingan, J.",
+  "Marcela Celis (Col)" = "Celis, M.",
+  "Maria Isabel La Torre" = "la Torre, M.I.",
+  "Eve Lucas" = "Lucas, E.",
+  "Rebecca Repasky Luke" = "Repasky-Luke, R.",
+  "Hamilton BeltrA¡n" = "Beltran, H."
+)
+
+corregir_nombres2 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar4 <- str_squish(texto)
+  
+  for (i in seq_along(nombres_completos2)) {
+    original <- str_squish(names(nombres_completos2)[i])
+    if (texto_comparar4 == original) {
+      return(nombres_completos2[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_nombres2)
+
+```
+
+#Corregir otros casos
+
+```{r}
+
+#Neotropica
+
+correcciones_neotropica <- c(
+  "Fl. Neotrop. 79:92.2000" = "Flora Neotropica. 79:92.2000",
+  "Fl. Neotropica 79:103.2000" = "Flora Neotropica. 79:103.2000",
+  "Fl. Neotropica 79:118.2000" = "Flora Neotropica. 79:118.2000"
+)
+
+corregir_por_diccionario <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_neotropica)) {
+    original <- names(correcciones_neotropica)[i]
+    nuevo <- correcciones_neotropica[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto) 
+}
+  
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_por_diccionario)
+
+#Instituto
+
+traducir_ifea <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace(
+    texto,
+    regex("Travaux de I'Institut Francais d'Etudes Andines", ignore_case = FALSE),
+    "Publications of the French Institute of Andean Studies."
+  )
+}
+
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, traducir_ifea)
+
+text_atrium <- text_atrium %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "1025927",
+                              "Publications of the French Institute of Andean Studies. 59:139.1994.", identifiedBy),
+  )
+
+text_atrium <- text_atrium %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "1025926",
+                              "Publications of the French Institute of Andean Studies. 59:139.1994.", identifiedBy),
+  )
+text_atrium <- text_atrium %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "1027928",
+                              "Publications of the French Institute of Andean Studies. 59:144.1994.", identifiedBy),
+  )
+text_atrium <- text_atrium %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "1025882",
+                              "Publications of the French Institute of Andean Studies. 59:138.1994.", identifiedBy),
+  )
+text_atrium <- text_atrium %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "1025861",
+                              "Publications of the French Institute of Andean Studies. 59: 138.1994.", identifiedBy),
+  )
+
+#Det
+
+correcciones_det <- c(
+  "Det.CJBG" = "C.J.B.G.",
+  "Det.Ginebra" = "Ginebra."
+)
+
+corregir_por_diccionario2 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_det)) {
+    original <- names(correcciones_det)[i]
+    nuevo <- correcciones_det[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto) 
+}
+  
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_por_diccionario2)
+
+
+#Mayusculas
+
+correcciones_mayusculas <- c(
+  "unknown" = "Unknown",
+  "monteagudo, A." = "Monteagudo, A.",
+  "angulo, D." = "Angulo, D.",
+  "honorio, E." = "Honorio, E.",
+  "spichiger, R." = "Spichiger, R.",
+  "f. Khan" = "Khan, F.",
+  "m. Chota" = "Chota, M."
+)
+
+corregir_por_diccionario3 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_mayusculas)) {
+    original <- names(correcciones_mayusculas)[i]
+    nuevo <- correcciones_mayusculas[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto) 
+}
+  
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_por_diccionario3)
+
+#Otros
+
+correcciones_otros <- c(
+  "?" = " ",
+  "Cuatrecasas (WASH.)" = "Cuatrecasas.",
+  "Murca (Brasil)" = "Murca.",
+  "J Best" = "Best, J.",
+  "Kallunki" = "Kallunki.",
+  "L Clavijo" = "Clavijo, L."
+)
+
+corregir_por_diccionario4 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_otros)) {
+    original <- names(correcciones_otros)[i]
+    nuevo <- correcciones_otros[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto) 
+}
+  
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_por_diccionario4)
+
+```
+
+#Nombres raros
+
+```{r}
+
+#Maas
+
+correcciones_maas <- c(
+  "Maas, P. | van, A." = "Maas, P. | van Setten, A.",
+  "Maas, P.J.M. | van, J.A.C." = "Maas, P.J.M. | van Dam, J.A.C.",
+  "Maas, P.J.M. | Th, L.Y." = "Maas, P.J.M. | Westra, L.Y.Th."
+)
+
+corregir_por_diccionario5 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_maas)) {
+    original <- names(correcciones_maas)[i]
+    nuevo <- correcciones_maas[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto) 
+}
+  
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_por_diccionario5)
+
+#Diferentes
+
+correcciones_diferentes <- c(
+  "van, H." = "van der Werff, H.",
+  "van der Werff" = "van der Werff, H.",
+  "de, W." = "de Jong, W.",
+  "del, R. | Ortiz, C." = "Ortiz, R. del C."
+)
+
+corregir_por_diccionario6 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_diferentes)) {
+    original <- names(correcciones_diferentes)[i]
+    nuevo <- correcciones_diferentes[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto) 
+}
+  
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_por_diccionario6)
+
+#Raros
+
+correcciones_raros <- c(
+  "V, R." = "Vazquez, R.",
+  "J, E." = "Judziewicz, E.J.",
+  "D, M." = "Diaz, M.",
+  "J, P.M." = "Jorgensen, P.M.",
+  "Le, B." = "Leon, B.",
+  "Z, R." = "Zarate, R.",
+  "M, J." = "Meroz, J.",
+  "S, A." = "Sanchez, A.",
+  "D, N." = "Davila, N.",
+  "NA, P." = "Nunez, P.",
+  "Van Heurck &amp; M&uuml;ll. Arg." = "van Heurck | Muller-Argoviensis, J."
+)
+
+corregir_por_diccionario7 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  for (i in seq_along(correcciones_raros)) {
+    original <- names(correcciones_raros)[i]
+    nuevo <- correcciones_raros[i]
+    if (texto == original) {
+      return(nuevo)
+    }
+  }
+  
+  return(texto) 
+}
+  
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, corregir_por_diccionario7)
+
+#Punto final a la ultima letra
+agregar_punto_final <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  if (!str_detect(texto, "\\.$")) {
+    texto <- paste0(texto, ".")
+  }
+  
+  texto
+}
+
+text_atrium$identifiedBy <- sapply(text_atrium$identifiedBy, agregar_punto_final)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario10 <- function(discardReason, comentario_nuevo9) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo9)
+  } else {
+    return(paste(discardReason, comentario_nuevo9, sep = " / "))
+  }
+}
+
+filas_cambiadas10 <- !is.na(text_atrium$identifiedBy) & 
+                    !is.na(text_atrium$verbatimidentifiedBy) &
+                    text_atrium$verbatimidentifiedBy != text_atrium$identifiedBy
+
+text_atrium$discardReason[filas_cambiadas10] <- mapply(
+  agregar_comentario10,
+ text_atrium$discardReason[filas_cambiadas10],
+  "standardized author names and accents corrected in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_atrium$discardReason <- sapply(text_atrium$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_atrium, file = "data/Text/2.Processed/text__ATRIUM2017.csv")
+
+```
+
+#8. text__BA2025.csv
+
+```{r}
+
+```
+
