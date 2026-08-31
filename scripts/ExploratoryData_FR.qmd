@@ -1,0 +1,348 @@
+---
+title: "Data Exploration – EpIG-DB Occurrences"
+author: "Francisco Riaño"
+date: "today"
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    theme: "cosmo"
+execute:
+  warning: false
+  message: false
+---
+
+## Data Summary
+
+The present section summarizes the main statistical attributes of the **EpIG-DB** v2.0 occurrences latest version.
+
+```{r setup, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(sf)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(here)
+library(rnaturalearth)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Load EpIG 2.0 complete database (1,372,136 records — full product)
+dbPath <- "C:/EpIG_v2.0_/EpIG_volunteership/data/Occurrences_visualization/db_EpIG2_clean_all.rds"
+db <- readRDS(here(dbPath))
+
+```
+
+### 1. Dataset Overview
+
+```{r}
+#| label: tbl-summary-stats
+#| tbl-cap: Summary Statistics of Occurrence Records
+total_records <- nrow(db)
+valid_coords <- sum(!is.na(db$decimalLatitude) & !is.na(db$decimalLongitude))
+pct_valid <- round(valid_coords / total_records * 100, 1)
+
+summary_stats <- tibble(
+  Metric = c(
+    "Total Records",
+    "Records with Valid Coordinates (%)",
+    "Unique Species",
+    "Unique Genera",
+    "Unique Families",
+    "Countries Represented",
+    "Year Range",
+    "Median Collection Year", 
+    "Unique Institutions", 
+    "Unique Collectors", 
+    "Records with Elevation"
+  ),
+  Value = c(
+    format(nrow(db), big.mark = ","),
+    paste0(pct_valid, "%"),
+    n_distinct(db$scientificName, na.rm = TRUE),
+    n_distinct(db$genus, na.rm = TRUE),
+    n_distinct(db$family, na.rm = TRUE),
+    n_distinct(db$country, na.rm = TRUE),
+    paste0(min(db$year, na.rm = TRUE), " – ", max(db$year, na.rm = TRUE)),
+    round(median(as.numeric(db$year), na.rm = TRUE)), 
+    n_distinct(db$institutionCode, na.rm = TRUE), 
+    n_distinct(db$recordedBy, na.rm = TRUE), 
+    paste0(
+    format(sum(!is.na(db$minimumElevationInMeters)), big.mark = ","),
+    " (", 
+    round(sum(!is.na(db$minimumElevationInMeters)) / nrow(db) * 100, 1),
+    "%)"
+    )
+  )
+)
+
+# Same table with kableExtra enhancements
+summary_stats %>%
+  kable(
+    #caption = "Table 1. Summary statistics of occurrence records",
+    align = c("l", "r"),  # Left-align metric names, right-align values
+    col.names = c("Metric", "Value")  # Explicit column names
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "left"
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#f0f0f0") %>%  # Bold header with gray background
+  row_spec(7, italic = TRUE) %>%  # Italicize year range for visual distinction
+  column_spec(2, bold = FALSE, width = "15em")  # Set width for value column
+```
+
+### 2. Data Completeness
+
+```{r}
+#| label: tbl-field-completeness
+#| tbl-cap: Field Completeness of Occurrence
+key_fields <- c("decimalLatitude", "decimalLongitude", "year", "locality", 
+                "minimumElevationInMeters", "family", "genus", "scientificName")
+
+# Add human-readable labels
+field_labels <- c(
+  "decimalLatitude" = "Latitude",
+  "decimalLongitude" = "Longitude",
+  "year" = "Year",
+  "locality" = "Locality",
+  "minimumElevationInMeters" = "Elevation",
+  "family" = "Family",
+  "genus" = "Genus",
+  "scientificName" = "Scientific Name"
+)
+
+completeness <- tibble(
+  Field = key_fields,
+  Count = sapply(key_fields, function(col) sum(!is.na(db[[col]]))),
+  Completeness_Percent = sapply(key_fields, function(col) {
+    round(sum(!is.na(db[[col]])) / nrow(db) * 100, 1)
+  })
+) %>%
+  mutate(Field_Label = field_labels[Field]) %>%
+  arrange(desc(Completeness_Percent)) %>%
+  select(Field_Label, Count, Completeness_Percent)
+
+completeness %>%
+  kable(
+    #caption = "Table 2. Field completeness of occurrence records",
+    align = c("l", "r", "r"),
+    col.names = c("Field", "Records Present", "Completeness (%)")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "left"
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#f0f0f0") %>%
+  # Color-code percentages
+  column_spec(3, 
+    color = case_when(
+      completeness$Completeness_Percent >= 90 ~ "#2e7d32",  # Green
+      completeness$Completeness_Percent >= 70 ~ "#ed6c02",  # Orange
+      completeness$Completeness_Percent >= 50 ~ "#ed6c02",  # Orange
+      TRUE ~ "#d32f2f"  # Red
+    ),
+    bold = TRUE
+  ) %>%
+  # Add footer note
+  footnote(
+    general = "Fields are ordered from most to least complete.",
+    general_title = "Note: ",
+    footnote_as_chunk = TRUE
+  )
+```
+### 3. Data Quality Indicators
+```{r}
+### Data quality indicators
+#| label: tbl-quality-flags
+#| tbl-cap: Data Quality Flags
+quality_flags <- tibble(
+  Issue = c(
+    "Records with missing coordinates",
+    "Records with missing year",
+    "Records with missing country",
+    "Records with missing scientific name"
+  ),
+  Count = c(
+    sum(is.na(db$decimalLatitude) | is.na(db$decimalLongitude)),
+    sum(is.na(db$year)),
+    sum(is.na(db$country)),
+    sum(is.na(db$scientificName))
+  ),
+  Percentage = round(Count / nrow(db) * 100, 2)
+)
+
+quality_flags %>%
+  kable(
+    caption = "Table 3. Data quality flags",
+    align = c("l", "r", "r"),
+    col.names = c("Data Quality Issue", "Records Affected", "Percentage (%)")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "left"
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#f0f0f0") %>%
+  column_spec(3,
+    color = case_when(
+      quality_flags$Percentage <= 5 ~ "#2e7d32",
+      quality_flags$Percentage <= 20 ~ "#ed6c02",
+      TRUE ~ "#d32f2f"
+    ),
+    bold = TRUE
+  )
+```
+#### 3.1. Data Source
+
+This table reveals which data-sets contribute the most to the data-base and their characteristics
+```{r}
+### Data-set contribution
+#| label: tbl-data-source
+#| tbl-cap: Contribution by Dataset 
+#| 
+dataset_summary <- db %>% 
+  group_by(datasetID) %>% 
+  summarise( 
+    Records = n(), 
+    Species = n_distinct(scientificName, na.rm = TRUE), 
+    Valid_Coords = sum(!is.na(decimalLatitude) & !is.na(decimalLongitude)), 
+    Completeness = round(Valid_Coords/Records*100, 1)) %>% 
+  arrange(desc(Records)) %>%  
+  mutate( 
+    Records = format(Records, big.mark = ","), 
+    Valid_Coords = format(Valid_Coords, big.mark = ","))
+
+dataset_summary %>%
+  kable(
+    caption = "Table 4. Contribution by dataset",
+    align = c("l", "r", "r", "r", "r"),
+    col.names = c("Dataset ID", "Records", "Species", "Valid Coordinates", "Completeness (%)")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "left"
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#f0f0f0")
+
+
+```
+#### 3.2 Taxonomic Coverage
+
+This table shows what groups are well-represented. 
+
+```{r}
+family_summary <- db %>% 
+  filter(!is.na(family)) %>% 
+  group_by(family) %>% 
+  summarise( 
+    Records = n(), 
+    Genera = n_distinct(genus, na.rm = TRUE), 
+    Species = n_distinct(scientificName, na.rm = TRUE)
+    ) %>% 
+  arrange(desc(Records)) %>%  
+  head(10) %>%  
+  mutate(Records = format(Records, mig.mark = ","))
+
+family_summary %>%
+  kable(
+    caption = "Table 5. Top 10 families by record count",
+    align = c("l", "r", "r", "r"),
+    col.names = c("Family", "Records", "Genera", "Species")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "left"
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#f0f0f0")
+```
+### 4. Temporal Distribution
+
+This table summarizes the data collection efforts over time.
+```{r}
+### Temporal distribution summary
+# Decade aggregation
+### Temporal distribution summary
+
+# Extract year from eventDate
+year_data <- db %>%
+  mutate(
+    year_extracted = as.numeric(substr(as.character(eventDate), 1, 4))
+  ) %>%
+  filter(!is.na(year_extracted))
+
+year_summary <- tibble(
+  Metric = c(
+    "Year Range",
+    "Total Years with Records",
+    "Number of Records with Year",
+    "Records with Missing Year"
+  ),
+  Value = c(
+    paste0(min(year_data$year_extracted, na.rm = TRUE), " – ", 
+           max(year_data$year_extracted, na.rm = TRUE)),
+    n_distinct(year_data$year_extracted, na.rm = TRUE),
+    format(nrow(year_data), big.mark = ","),
+    format(nrow(db) - nrow(year_data), big.mark = ",")
+  )
+)
+
+year_summary %>%
+  kable(
+    caption = "Table 6. Temporal distribution summary",
+    align = c("l", "r"),
+    col.names = c("Metric", "Value")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "left"
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#f0f0f0")
+```
+#### 4.1 Records Collected by Decade
+
+```{r}
+### Temporal distribution summary
+
+# Extract year from eventDate and create decade groupings
+temporal_summary <- db %>%
+  mutate(
+    # Extract year from eventDate (first 4 characters)
+    year_extracted = as.numeric(substr(as.character(eventDate), 1, 4)),
+    # Create decade from extracted year
+    Decade = floor(year_extracted / 10) * 10,
+    # Create decade label as range
+    Decade_Label = paste0(Decade, " - ", Decade + 10)
+  ) %>%
+  # Filter out records with missing or invalid years
+  filter(!is.na(Decade) & !is.na(year_extracted)) %>%
+  group_by(Decade_Label, Decade) %>%
+  summarise(
+    Records = n(),
+    Species = n_distinct(scientificName, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  arrange(Decade) %>%
+  mutate(Records = format(Records, big.mark = ",")) %>%
+  select(-Decade)  # Remove helper column after sorting
+
+# Display the table
+temporal_summary %>%
+  kable(
+    caption = "Table 6. Records by decade",
+    align = c("l", "r", "r"),
+    col.names = c("Decade", "Records", "Unique Species")
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"),
+    full_width = FALSE,
+    position = "left"
+  ) %>%
+  row_spec(0, bold = TRUE, background = "#f0f0f0")
+```
