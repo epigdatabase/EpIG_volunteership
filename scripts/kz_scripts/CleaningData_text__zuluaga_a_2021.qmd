@@ -524,7 +524,7 @@ View(spp_link)
 
 readr::write_csv(
   spp_link,
-  "data/text/2.Processed/text__literature2021.csv",
+  "data/text/2.Processed/text__zuluaga_a_2021.csv",
   na = ""
 )
 
