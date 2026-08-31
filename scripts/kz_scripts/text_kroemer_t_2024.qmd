@@ -18,11 +18,12 @@ library(tidyverse)
 library(stringr)
 library(readr)
 library(sf)
-library(rWCVP)
+#library(rWCVP)
 library(CoordinateCleaner)
 library(ggplot2) 
 
-spp_link <- read.csv("data/Text/1_Raw/text__kroemer_t_2024.csv")
+
+spp_link <- read.csv("../../data/Text/1_Raw/text__kroemer_t_2024.csv")
 
 head(spp_link)
 View(spp_link)
@@ -38,21 +39,21 @@ dplyr::glimpse(spp_link)
 
 #Dataset Structure
 
-str(spp_link$taxonRank) #[1:4486] "SPECIES"
-str(spp_link$lifeForm) #[1:4486] "SPECIES"
-str(spp_link$institutionCode) #[1:4486] "MO; CAS; US; A; P; AMAZ" 
-str(spp_link$eventDate) #[1:4886] "NA" 
-str(spp_link$ocurrenceID) #[1:4886] "NULL" 
-str(spp_link$basisOfRecord) #[1:4486] "PreservedSpecimen" 
-str(spp_link$typeStatus) # [1:4486] "NA"
-str(spp_link$associatedReferences) #[1:4486] NA
-str(spp_link$collectionCode) #[1:4486] NA
-str(spp_link$recordedBy) #[1:4486] Authors Needs review
-str(spp_link$identifiedBy) #[1:4486] "NA"
-str(spp_link$datasetID) #[1:4486] "zuluaga_a_2021"
-str(spp_link$matchCodeEpig) #[1:4486] Numbers ok
-str(spp_link$matchedNameEpig) #[1:4486] Species ok
-str(spp_link$typeStatus) ##[1:4486] "NA"
+str(spp_link$taxonRank) #[1:270] "SPECIES"
+str(spp_link$lifeForm) #[1:270] "E, NV..."
+str(spp_link$institutionCode) #[1:270] "E" 
+str(spp_link$eventDate) #[1:270] ok 
+str(spp_link$ocurrenceID) #[1:270] "ok" 
+str(spp_link$basisOfRecord) #[1:270] "PreservedSpecimen" ok
+str(spp_link$typeStatus) # [1:270] "NA" ok
+str(spp_link$associatedReferences) #[1:270] NA ok
+str(spp_link$collectionCode) #[1:270] NA ok
+str(spp_link$recordedBy) #[1:270] NA ok
+str(spp_link$identifiedBy) #[1:270] "NA"
+str(spp_link$datasetID) #[1:270] "kroemer_t_2024"
+str(spp_link$matchCodeEpig) #[1:270] Numbers ok
+str(spp_link$matchedNameEpig) #[1:270] Species ok
+str(spp_link$typeStatus) ##[1:270] "NA"
 ```
 
 ```{r}
@@ -64,7 +65,7 @@ sort(unique(spp_link$basisOfRecord)) #ok
 
 sort(unique(spp_link$typeStatus)) #ok
 
-sort(unique(spp_link$associatedReferences)) #needs review
+sort(unique(spp_link$associatedReferences)) #ok
 
 sort(unique(spp_link$institutionCode)) #ok
 
@@ -165,8 +166,6 @@ sum(spp_link$taxonRank == "", na.rm = TRUE)
 grep("Ã|Â|ƒ|\\n|\\r", spp_link$taxonRank)
 
 
-#taxonRank complies with Darwin Core requirements. At the word level, it's correct. However, Darwin Core spells it “subspecies” in lowercase.
-
 
 #==============================================================================
 
@@ -241,273 +240,6 @@ sort(unique(spp_link$recordedBy))
 
 sort(table(spp_link$recordedBy), decreasing = TRUE)
 
-library(stringi)
-
-spp_link$recordedBy <- stri_trans_general(
-  spp_link$recordedBy,
-  "Latin-ASCII"
-)
-
-spp_link$recordedBy <- gsub(
-  ", \\*$",
-  "",
-  spp_link$recordedBy
-)
-
-
-spp_link$recordedBy <- gsub(
-  "StAhl, Bertil",
-  "Stahl, Bertil",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "GrE†ger, Andreas",
-  "Grager, Andreas",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "LA¯jtnant, Bernt",
-  "Lojtnant, Bernt",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "Pittier, Henri FranAois",
-  "Pittier, Henri Francois",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "MerxmA¸ller, Hermann",
-  "Merxmueller, Hermann",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "JA¯rgensen, Peter MA¯ller",
-  "Jorgensen, Peter Muller",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-sum(spp_link$recordedBy == ",", na.rm = TRUE)
-spp_link$recordedBy[spp_link$recordedBy == ","] <- NA_character_
-unique(spp_link$recordedBy[spp_link$recordedBy == ","])
-
-# Normalizar apellidos escritos completamente en mayúsculas
-spp_link$recordedBy <- gsub(
-  "^BITTNER(,|$)", "Bittner\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^BILLIET(,|$)", "Billiet\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^BONIFAZ(,|$)", "Bonifaz\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^CHOCCE(,|$)", "Chocce\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^GRANT(,|$)", "Grant\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^RESTREPO(,|$)", "Restrepo\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^MACEDO(,|$)", "Macedo\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^MACIEL(,|$)", "Maciel\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^MILLIKEN(,|$)", "Milliken\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^MORICAND(,|$)", "Moricand\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^PELEGRIN-R(,|$)", "Pelegrin-R\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^SARASTEGUL(,|$)", "Sarastegul\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^SALIK(,|$)", "Salik\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^TEXIXEIRA(,|$)", "Texixeira\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^TIPAZ(,|$)", "Tipaz\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^WEBER(,|$)", "Weber\\1",
-  spp_link$recordedBy
-)
-
-
-spp_link$recordedBy <- gsub(
-  "^DANIEL(,|$)", "Daniel\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^FERRERIA(,|$)", "Ferreira\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^LUCKE(,|$)", "Lucke\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^MCDOWELL(,|$)", "MCDowell\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^FERREIRA(,|$)", "Ferreira\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^JIMPIKIT(,|$)", "Jimpikit\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^MUNICH(,|$)", "Munich\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^MAIA(,|$)", "Maia\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^RUDAS(,|$)", "Rudas\\1",
-  spp_link$recordedBy
-)
-
-
-spp_link$recordedBy <- gsub(
-  "^CERON(,|$)", "Ceron\\1",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "FE†rther, H.",
-  "Forther, H.",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-grep("Forther|FE†rther", spp_link$recordedBy, value = TRUE)
-
-
-
-spp_link$recordedBy <- gsub(
-  "GonAalves, Eduardo G.",
-  "Goncalves, Eduardo G.",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "Glaziou, Auguste FranAois Marie",
-  "Glaziou, Auguste Francois Marie",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-grep(
-  "Goncalves|Glaziou",
-  spp_link$recordedBy,
-  value = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "LA:;CRUCES, \\*",
-  "Las-Cruces",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "^KOSTER$",
-  "Koster",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "KrE†mer, Thorsten",
-  "Kromer, Thorsten",
-  spp_link$recordedBy,
-  fixed = TRUE
-)
-
-spp_link$recordedBy <- gsub(
-  "^RUDAS$",
-  "Rudas",
-  spp_link$recordedBy
-)
-
-spp_link$recordedBy <- gsub(
-  "^SAGASTEGUL$",
-  "Sagastegul",
-  spp_link$recordedBy
-  
-
-)
-
-
-spp_link$recordedBy <- gsub("^SPEARS$", "Spears", spp_link$recordedBy)
-spp_link$recordedBy <- gsub("^STEWARD$", "Steward", spp_link$recordedBy)
-spp_link$recordedBy <- gsub("^STORR$", "Storr", spp_link$recordedBy)
-spp_link$recordedBy <- gsub("^SUAREZ$", "Suarez", spp_link$recordedBy)
-spp_link$recordedBy <- gsub("^TEMPONI$", "Temponi", spp_link$recordedBy)
-spp_link$recordedBy <- gsub("^XAVIER$", "Xavier", spp_link$recordedBy)
-
-spp_link$recordedBy[spp_link$recordedBy == "LA:;CRUCES"] <- "Las-Cruces"
-
 View(data.frame(
   recordedBy = sort(unique(spp_link$recordedBy))
 ))
@@ -517,6 +249,8 @@ View(data.frame(
 
 ```{r}
 
+#All dataset are correct. It doesn't need more curations
+
 #Preview dataset
 View(spp_link) 
 
@@ -524,7 +258,7 @@ View(spp_link)
 
 readr::write_csv(
   spp_link,
-  "data/text/2.Processed/text__zuluaga_a_2021.csv",
+  "data/text/2.Processed/text__kroemer_t_2024.csv",
   na = ""
 )
 
