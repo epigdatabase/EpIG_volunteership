@@ -268,9 +268,15 @@ idx <- which(voluntarios$dataset == "ATRIUM2017.rds")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "24/08/26"
-    #voluntarios$finishingDateDC[idx] <- "24/08/26"
+    voluntarios$finishingDateDC[idx] <- "27/08/26"
 }
 
+idx <- which(voluntarios$dataset == "BA2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "27/08/26"
+    #voluntarios$finishingDateDC[idx] <- "27/08/26"
+}
 
 
 
