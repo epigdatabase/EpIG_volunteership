@@ -2800,7 +2800,6 @@ text_atrium$discardReason[filas_cambiadas9] <- mapply(
   "standardize values in lifeForm and correct punctuation marks"
 )
 
-
 ```
 
 #-identifiedBy: Detectar información dañada y corregir
@@ -3257,6 +3256,296 @@ write.csv(text_atrium, file = "data/Text/2.Processed/text__ATRIUM2017.csv")
 #8. text__BA2025.csv
 
 ```{r}
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_ba <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__BA2025.csv")
+
+view(text_ba)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_ba)) text_ba$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_ba$basisOfRecord)                       #No necesita cambios
+unique(text_ba$typeStatus)                          #No necesita cambios 
+unique(text_ba$associatedReferences)                #No necesita cambios
+unique(text_ba$institutionCode)                     #No necesita cambios
+unique(text_ba$taxonRank)                           #No necesita cambios
+unique(text_ba$collectionCode)                      #No necesita cambios
+unique(text_ba$recordedBy)                          #Necesita estandarización
+unique(text_ba$recordNumber)                        #No necesita cambios
+unique(text_ba$identifiedBy)                        #Necesita estandairación
+unique(text_ba$lifeForm)                            #No necesita cambios
+unique(text_ba$eventDate)                           #No necesita cambios
 
 ```
 
+#Crear columna de verbatim para columnas
+
+```{r}
+#recordedBy
+
+text_ba <- text_ba %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+#identifiedBy
+
+text_ba <- text_ba %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_ba %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Quitar tildes y simbolos raros
+
+```{r}
+
+quitar_tildes5 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_ba$recordedBy <- sapply(text_ba$recordedBy, quitar_tildes5)
+
+```
+
+#Modificar simbolos
+
+```{r}
+
+#Cambiar el simbolo separador
+
+text_ba <- text_ba %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, "&", " | ")
+  )
+
+#Agregar coma a los nombres
+
+agregar_coma_apellido_iniciales <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    "([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+(?:-[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)?)\\s+((?:[A-ZÁÉÍÓÚÑ]\\.\\s*){1,6})(?=\\s*(\\||,|$))",
+    "\\1, \\2"
+  )
+}
+
+text_ba$recordedBy <- sapply(text_ba$recordedBy, agregar_coma_apellido_iniciales)
+
+```
+
+#Organizar nombres y apellidos
+
+```{r}
+
+diccionario_autores_ba <- c(
+  "Steinbach, Jose"        = "Steinbach, J.",
+  "Osten, Cornelius"       = "Osten, C.",
+  "Cabrera, Angel, L."     = "Cabrera, A.L.",
+  "Lillo, Miguel"          = "Miguel, L.",
+  "Perrone, Vicente, R."   = "Perrone, V.R.",
+  "Eyerdam, Walter, J."    = "Eyerdam, W.J.",
+  "Hauman, Lucien"         = "Hauman, L.",
+  "Johnston, Ivan, M."     = "Johnston, I.M.",
+  "Arenas, Pastor"         = "Arenas, P.",
+  "Bodenbender, Wilhelm"   = "Bodenbender, W.",
+  "Castellanos, Alberto"   = "Castellanos, A.",
+  "Legrand, C. Diego"      = "Legrand, C.D.",
+  "Vitek, Ernst"           = "Vitek, E."
+)
+
+corregir_autores_ba <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_autores_ba)) {
+    original <- str_squish(names(diccionario_autores_ba)[i])
+    if (texto_comparar == original) {
+      return(diccionario_autores_ba[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_ba$recordedBy <- sapply(text_ba$recordedBy, corregir_autores_ba)
+
+```
+
+#Otras correciones
+
+```{r}
+
+#Nombres completos
+
+text_ba$recordedBy <- gsub("Perez Moreau", "Perez-Moreau, R.", text_ba$recordedBy)
+text_ba$recordedBy <- gsub("Mello Barreto", "Barreto, M.", text_ba$recordedBy)
+text_ba$recordedBy <- gsub("Fernandez Velasco", "Velasco, F.", text_ba$recordedBy)
+
+#Corregir et al
+
+diccionario_otros <- c(
+  "Yanez et al" = 
+    "Yanez, A. et al.",
+  
+  "Arriaga, M.O. | et al." = 
+    "Arriaga, M.O. et al."
+)
+
+corregir_et_al <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar2 <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_otros)) {
+    original <- str_squish(names(diccionario_otros)[i])
+    if (texto_comparar2 == original) {
+      return(diccionario_otros[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_ba$recordedBy <- sapply(text_ba$recordedBy, corregir_et_al)
+
+#Varios autores sin separadores
+
+diccionario_reagrupar <- c(
+  "Marquez, G.J., Grossi, M.A. | Yanez, A." = 
+    "Marquez, G.J. | Grossi, M.A. | Yanez, A.",
+  
+  "Yanez, A., Cariglino, B., Melo, C. | Castia, F." = 
+    "Yanez, A. | Cariglino, B. | Melo, C. | Castia, F.",
+  
+  "Burkart, Arturo | Troncoso, Nelida, S." = 
+    "Burkart, A. | Troncoso, N.S.",
+  
+  "Marquez | Yanez" = 
+    "Marquez, G.J. | Yanez, A.",
+  
+  "Killip, E.P. | Smith, Albert, C." = 
+    "Killip, E.P. | Smith, A.C.",
+  
+  "Yanez, A., Marquez, G.J. | Watts, J." = 
+    "Yanez, A. | Marquez, G.J. | Watts, J."
+)
+
+corregir_reagrupar <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_reagrupar)) {
+    original <- str_squish(names(diccionario_reagrupar)[i])
+    if (texto_comparar == original) {
+      return(diccionario_reagrupar[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_ba$recordedBy <- sapply(text_ba$recordedBy, corregir_reagrupar)
+
+#Otros casos
+
+diccionario_varios <- c(
+  "Fevrier | L. H." = 
+    "Fevrier, L.H.",
+  
+  "Tressens, S.G. | col." = 
+    "Tressens, S.G.",
+  
+  "Van de Venne | Wolffhuegel" = 
+    "van de Venne. | Wolffhuegel."
+)
+
+corregir_varios <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar3 <- str_squish(texto)
+  
+  for (i in seq_along(diccionario_varios)) {
+    original <- str_squish(names(diccionario_varios)[i])
+    if (texto_comparar3 == original) {
+      return(diccionario_varios[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_ba$recordedBy <- sapply(text_ba$recordedBy, corregir_varios)
+```
+
+#Especificar cambios 
+
+```{r}
+
+#Especificar cambios en lifeForm
+
+agregar_comentario11 <- function(discardReason, comentario_nuevo10) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo10)
+  } else {
+    return(paste(discardReason, comentario_nuevo10, sep = " / "))
+  }
+}
+
+filas_cambiadas11 <- !is.na(text_ba$recordedBy) & 
+                    !is.na(text_ba$verbatimrecordedBy) &
+                    text_ba$verbatimrecordedBy != text_ba$recordedBy
+
+text_ba$discardReason[filas_cambiadas11] <- mapply(
+  agregar_comentario11,
+  text_ba$discardReason[filas_cambiadas11],
+  "standardized author names and accents corrected in recordedBy"
+)
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_ba %>%
+  count(identifiedBy, sort = TRUE)
+
+```
