@@ -79,7 +79,6 @@ TRUE ~ "simple"
 
 #Filtrar
 
-
 ```{r}
 dfCR <- dfCR %>%
   filter(.ok_for_analysis == FALSE,
@@ -112,12 +111,11 @@ dfCR17 <- dfCR %>%
 
 #Exportar a excel
 
-
 ```{r}
 write.csv(dfCR17, file = "C:/Desktop/Voluntariado epifitas/entrenamiento/17_Cuba.csv")
 ```
 
-#####
+##### 
 
 ```{r}
 #coordinateUncertaintyInMeters
@@ -125,7 +123,7 @@ dfCR$coordinateUncertaintyInMeters <- NA
 
 ```
 
-# Cargar coordenadas digitalizadas de csv
+#Cargar coordenadas digitalizadas de csv
 
 ```{r}
 
@@ -205,14 +203,10 @@ if (length(idx) > 0) {
 
 ```
 
-
-
 ```{r}
 library(qs2)
 saveRDS(dfCR, file = "C:/Epig_V2/EpIG_volunteership/data/Georreferencing/2.Processed/georef__CR2024.rds")
 ```
-
-# Carga de paquetes para analisis de datos esñaciales
 
 ```{r}
 install.packages("ctv")
@@ -220,9 +214,114 @@ library(ctv)
 install.views("Spatial")
 ```
 
+# #\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+#Cargar datos
+
+```{r}
+dfCHHL <- read.csv2("C:/Desktop/Voluntariado epifitas/EpIG_volunteership/data/Georreferencing/1.Raw/georef__HCCL2025.csv",sep = ",")
+
+names(dfCHHL) # check names of the columns
+View(dfCHHL) # if you want to open and see the file
+str(dfCHHL) #solo
+head(dfCHHL) # if you want to see more or less the structure of the dataframe (df)
+```
+
+#Crear columna de cambios y de aprobación
+
+```{r}
+if (!"ok.2" %in% names(dfCHHL)) dfCHHL$ok.2 <- dfCHHL$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
+if (!"discardReason" %in% names(dfCHHL)) dfCHHL$discardReason <- NA_character_
+view(dfCHHL)
+
+# flag AMAZ_47 for discard
+idx <- which(dfCR_ref$occurrenceID) 
+if (length(idx)) {
+  dfCR$discardReason[idx] <- "Impossible to correct, too vague coordinate"
+}
+
+
+```
+
+#Cargar coordenadas digitalizadas de csv
+
+```{r}
+dfCHHL_ref <- read.csv2("C:/Desktop/Voluntariado epifitas/entrenamiento/dfHCCL_2.csv",sep = ";")
+str(dfCHHL_ref)
+```
+
+#Codigo para unir data digitalizada y a data original
+
+```{r}
+str(dfCHHL)
+
+dfCHHL <- dfCHHL %>% # Archivo original
+  
+  left_join( 
+    dfCHHL %>% select( # Archivo a unir
+      occurrenceID, #Este es el campo para union de las columnas
+      longitude_corregida = decimalLongitude, 
+      latitude_corregida  = decimalLatitude,
+      incertidumbre = coordinateUncertaintyInMeters,
+      lo_corr = Localidad
+    ),
+    by = "occurrenceID" # Campo por medio del cual se realiza la unión
+  ) %>%
+  
+  
+  mutate(
+    decimalLongitude = coalesce(longitude_corregida, decimalLongitude),
+    decimalLatitude  = coalesce(latitude_corregida,  decimalLatitude),
+    coordinateUncertaintyInMeters = coalesce(incertidumbre,  coordinateUncertaintyInMeters),
+    locality = coalesce(lo_corr,  locality)
+  ) %>%
+  
+  # 3. Eliminamos las columnas temporales para dejar la base de datos limpia
+  select(-longitude_corregida, -latitude_corregida, -lo_corr, -incertidumbre)
+```
+
+```{r}
+codeCHHL <- dfCHHL_ref$occurrenceID
+codeCHHL
+
+# make sure ok.2 exists
+if (!"ok.2" %in% names(dfCHHL)) dfCHHL$ok.2 <- dfCHHL$.ok_for_analysis #Verificación de la existencia del nombre ok.2, si no existe que se cree
+
+# make sure discardReason exists
+if (!"discardReason" %in% names(dfCHHL)) dfCHHL$discardReason <- NA_character_
 
 
 
+for (code in codeCHHL) {
+  idx <- which(dfCHHL_ref$occurrenceID == code)
+  if (length(idx)) {
+    dfCHHL$ok.2[idx] <- TRUE
+    dfCHHL$discardReason[idx] <- "Corrected: points were corrected according to locality"
+  }
+}
+#_____________________________
 
+dfCHHL_mal <- read.table("clipboard",header = T )
+dfCHHL_mal
+# 2. Asegurarte de extraer los códigos como un vector simple (asumiendo que la columna se llama 'code' o es la primera)
+# Si tu tabla tiene una columna específica, reemplaza 'code' por el nombre real de tu columna:
+codigos_malos <- dfCHHL_mal[[1]] 
 
+# 3. Encontrar los índices en tu data frame principal (dfCHHL) donde el ID coincide con los códigos malos
+# (Reemplaza 'occurrenceID' por la columna de ID correspondiente en tu dfCHHL)
+idx <- which(dfCHHL$occurrenceID %in% codigos_malos)
 
+# 4. Aplicar los cambios si se encontraron coincidencias
+if (length(idx) > 0) {
+  dfCHHL$ok.2[idx] <- FALSE
+  dfCHHL$discardReason[idx] <- "Impossible to correct, locality information was vague"
+}
+
+```
+
+#Cargar datos
+
+```{r}
+library(qs2)
+saveCSV(dfCHHL, file = "C:/EpIG_volunteership/data/Georreferencing/2.Processed/georef__HCCL2025")
+```
