@@ -4050,7 +4050,6 @@ write.csv(text_bar, file = "data/Text/2.Processed/text__BAR2025.csv")
 
 #10. text__bertelmann_h_2025_PECS.csv
 
-
 ```{r}
 # Cargar librerias y revisar información
 
@@ -4080,25 +4079,19 @@ unique(text_pecs$basisOfRecord)                       #No necesita cambios
 unique(text_pecs$typeStatus)                          #No necesita cambios 
 unique(text_pecs$associatedReferences)                #No necesita cambios
 unique(text_pecs$institutionCode)                     #No necesita cambios
-unique(text_pecs$taxonRank)                           #Necesita estandarización
+unique(text_pecs$taxonRank)                           #No necesita cambios
 unique(text_pecs$collectionCode)                      #No necesita cambios
-unique(text_pecs$recordedBy)                          #Necesita estandarización
+unique(text_pecs$recordedBy)                          #No necesita cambios
 unique(text_pecs$recordNumber)                        #No necesita cambios
 unique(text_pecs$identifiedBy)                        #Necesita estandairación
-unique(text_pecs$lifeForm)                            #Necesita estandarización
+unique(text_pecs$lifeForm)                            #No necesita cambios
 unique(text_pecs$eventDate)                           #No necesita cambios
 
 ```
 
-#Crear columna de verbatim para columnas
+#Crear columna de verbatim
 
 ```{r}
-#recordedBy
-
-text_pecs <- text_pecs %>%
-  mutate(
-    verbatimrecordedBy = recordedBy
-  )
 
 #identifiedBy
 
@@ -4107,19 +4100,111 @@ text_pecs <- text_pecs %>%
     verbatimidentifiedBy = identifiedBy
   )
 
-#taxonRank
+```
 
-text_pecs <- text_pecs %>%
-  mutate(
-    verbatimtaxonRank = taxonRank
-  )
+#-identifiedBy: Detectar información dañada y corregir
 
-#lifeForm
-
-text_pecs <- text_pecs %>%
-  mutate(
-    verbatimlifeForm = lifeForm
-  )
+```{r}
+conteo_identifiedBy <- text_pecs %>%
+  count(identifiedBy, sort = TRUE)
 
 ```
 
+#Estandarizar autores
+
+```{r}
+
+text_pecs$identifiedBy <- gsub("Edith Rosario Clemente Arenas, Edison Quispe", "Clemente-Arenas, E.R. | Quispe, E.", text_pecs$identifiedBy)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario13 <- function(discardReason, comentario_nuevo13) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo13)
+  } else {
+    return(paste(discardReason, comentario_nuevo13, sep = " / "))
+  }
+}
+
+filas_cambiadas13 <- !is.na(text_pecs$identifiedBy) & 
+                    !is.na(text_pecs$verbatimidentifiedBy) &
+                    text_pecs$verbatimidentifiedBy != text_pecs$identifiedBy
+
+text_pecs$discardReason[filas_cambiadas13] <- mapply(
+  agregar_comentario13,
+ text_pecs$discardReason[filas_cambiadas13],
+  "standardized author names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_pecs$discardReason <- sapply(text_pecs$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_pecs, file = "data/Text/2.Processed/text__bertelmann_h_2025_PECS.csv")
+
+```
+
+#11. text__bertelmann_h_2025_PERE.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_pere <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__bertelmann_h_2025_PERE.csv")
+
+view(text_pere)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_pere)) text_pere$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_pere$basisOfRecord)                       #No necesita cambios
+unique(text_pere$typeStatus)                          #No necesita cambios 
+unique(text_pere$associatedReferences)                #No necesita cambios
+unique(text_pere$institutionCode)                     #No necesita cambios
+unique(text_pere$taxonRank)                           #No necesita cambios
+unique(text_pere$collectionCode)                      #No necesita cambios
+unique(text_pere$recordedBy)                          #No necesita cambios
+unique(text_pere$recordNumber)                        #No necesita cambios
+unique(text_pere$identifiedBy)                        #Necesita estandairación
+unique(text_pere$lifeForm)                            #No necesita cambios
+unique(text_pere$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#identifiedBy
+
+text_pere <- text_pere %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+```
