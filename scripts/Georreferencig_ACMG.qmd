@@ -263,7 +263,7 @@ dfCHHL <- dfCHHL %>% # Archivo original
       longitude_corregida = decimalLongitude, 
       latitude_corregida  = decimalLatitude,
       incertidumbre = coordinateUncertaintyInMeters,
-      lo_corr = Localidad
+      lo_corr = locality
     ),
     by = "occurrenceID" # Campo por medio del cual se realiza la unión
   ) %>%
@@ -322,6 +322,5 @@ if (length(idx) > 0) {
 #Cargar datos
 
 ```{r}
-library(qs2)
-saveCSV(dfCHHL, file = "C:/EpIG_volunteership/data/Georreferencing/2.Processed/georef__HCCL2025")
+write.csv2(dfCHHL, file = "C:/EpIG_volunteership/data/Georreferencing/2.Processed/georef__HCCL2025.csv")
 ```
