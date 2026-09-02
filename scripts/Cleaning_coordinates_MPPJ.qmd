@@ -275,7 +275,28 @@ idx <- which(voluntarios$dataset == "BA2025")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "27/08/26"
-    #voluntarios$finishingDateDC[idx] <- "27/08/26"
+    voluntarios$finishingDateDC[idx] <- "02/09/26"
+}
+
+idx <- which(voluntarios$dataset == "BAR2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "02/09/26"
+    voluntarios$finishingDateDC[idx] <- "02/09/26"
+}
+
+idx <- which(voluntarios$dataset == "bertelmann_h_2025_PECS")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "27/08/26"
+    voluntarios$finishingDateDC[idx] <- "02/09/26"
+}
+
+idx <- which(voluntarios$dataset == "bertelmann_h_2025_PERE")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "27/08/26"
+    voluntarios$finishingDateDC[idx] <- "02/09/26"
 }
 
 
@@ -285,8 +306,24 @@ idx <- which(voluntarios$dataset == "CR2024")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Camilo"
     voluntarios$startingDate[idx] <- "15/06/26"
+    voluntarios$finishingDate[idx] <- "30/07/26"
 }
 
+idx <- which(voluntarios$dataset == "HCCL2025")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Camilo"
+    voluntarios$startingDate[idx] <- "30/07/26"
+    voluntarios$finishingDate[idx] <- "02/09/2026"
+
+}
+
+idx <- which(voluntarios$dataset == "HCCL2025")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Camilo"
+    voluntarios$startingDate[idx] <- "02/09/26"
+    #voluntarios$finishingDate[idx] <- "02/09/2026"
+
+}
 
 
 
