@@ -214,7 +214,7 @@ library(ctv)
 install.views("Spatial")
 ```
 
-# #\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+# #\_\_\_\_\_\_dfCHHL\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
 #Cargar datos
 
@@ -246,8 +246,9 @@ if (length(idx)) {
 #Cargar coordenadas digitalizadas de csv
 
 ```{r}
-dfCHHL_ref <- read.csv2("C:/Desktop/Voluntariado epifitas/entrenamiento/dfHCCL_2.csv",sep = ";")
+dfCHHL_ref <- read.csv2("C:/Desktop/HCCL.csv",sep = ";")
 str(dfCHHL_ref)
+View(dfCHHL_ref)
 ```
 
 #Codigo para unir data digitalizada y a data original
@@ -258,7 +259,7 @@ str(dfCHHL)
 dfCHHL <- dfCHHL %>% # Archivo original
   
   left_join( 
-    dfCHHL %>% select( # Archivo a unir
+    dfCHHL_ref %>% select( # Archivo a unir
       occurrenceID, #Este es el campo para union de las columnas
       longitude_corregida = decimalLongitude, 
       latitude_corregida  = decimalLatitude,
@@ -318,6 +319,7 @@ if (length(idx) > 0) {
 }
 
 ```
+
 
 #Cargar datos
 
