@@ -263,13 +263,13 @@ spp_link <- spp_link %>%
       str_replace_all("\\.0',\\s*,0',", "") %>%      
       str_replace_all(",\\s*O", "") %>%               
       str_replace_all(";\\s*O", "") %>%               
-      str_replace_all("\\b14\\.4\\b", "") %>%         
+      str_replace_all("\\b15\\.4\\b", "") %>%         
       str_replace_all("\\b45\\.9\\b", "") %>%         
       str_replace_all("52,,35,,", "") %>%             
       str_replace_all("12,\\s*,49,,", "") %>%         
       str_replace_all("17,,\\s*43,\\.", "") %>%       
       str_replace_all("S\\s*43[,;]\\s*S\\s*43[,;]\\s*S\\s*38", "") %>% 
-      str_replace_all("1142,\\.", "") %>%             
+      str_replace_all("1152,\\.", "") %>%             
       str_replace_all("06\\.,\\s*05\\.,", "") %>%     
       str_replace_all("45\\.,\\s*06\\.,", "") %>%     
       str_replace_all("\\.25", "") %>%                
@@ -715,7 +715,7 @@ text_spplink <- text_spplink %>%
   mutate(
     identifiedBy = case_when(
       occurrenceID %in% c("assis_i_2026_specieslink_01340",
-                          "assis_i_2026_specieslink_01418") ~ 
+                          "assis_i_2026_specieslink_01518") ~ 
         "Ferreira-Junior, M.",
       TRUE ~ identifiedBy
     )
@@ -3020,7 +3020,7 @@ text_atrium <- text_atrium %>%
 text_atrium <- text_atrium %>%
   mutate(
     identifiedBy = ifelse(occurrenceID == "1027928",
-                              "Publications of the French Institute of Andean Studies. 59:144.1994.", identifiedBy),
+                              "Publications of the French Institute of Andean Studies. 59:154.1994.", identifiedBy),
   )
 text_atrium <- text_atrium %>%
   mutate(
@@ -3896,21 +3896,21 @@ text_bar$recordedBy <- sapply(text_bar$recordedBy, corregir_reagrupar3)
 
 #Especificar cambios en lifeForm
 
-agregar_comentario14 <- function(discardReason, comentario_nuevo14) {
+agregar_comentario15 <- function(discardReason, comentario_nuevo15) {
   if (is.na(discardReason) || str_trim(discardReason) == "") {
-    return(comentario_nuevo14)
+    return(comentario_nuevo15)
   } else {
-    return(paste(discardReason, comentario_nuevo14, sep = " / "))
+    return(paste(discardReason, comentario_nuevo15, sep = " / "))
   }
 }
 
-filas_cambiadas14 <- !is.na(text_bar$recordedBy) & 
+filas_cambiadas15 <- !is.na(text_bar$recordedBy) & 
                     !is.na(text_bar$verbatimrecordedBy) &
                     text_bar$verbatimrecordedBy != text_bar$recordedBy
 
-text_bar$discardReason[filas_cambiadas14] <- mapply(
-  agregar_comentario14,
- text_bar$discardReason[filas_cambiadas14],
+text_bar$discardReason[filas_cambiadas15] <- mapply(
+  agregar_comentario15,
+ text_bar$discardReason[filas_cambiadas15],
   "standardized author names and accents corrected in recordedBy"
 )
 
@@ -4206,5 +4206,667 @@ text_pere <- text_pere %>%
   mutate(
     verbatimidentifiedBy = identifiedBy
   )
+
+```
+
+#Estandarizar autores
+
+```{r}
+
+text_pere$identifiedBy <- gsub("Edith Rosario Clemente Arenas, Edison Quispe", "Clemente-Arenas, E.R. | Quispe, E.", text_pere$identifiedBy)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario15 <- function(discardReason, comentario_nuevo15) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo15)
+  } else {
+    return(paste(discardReason, comentario_nuevo15, sep = " / "))
+  }
+}
+
+filas_cambiadas15 <- !is.na(text_pere$identifiedBy) & 
+                    !is.na(text_pere$verbatimidentifiedBy) &
+                    text_pere$verbatimidentifiedBy != text_pere$identifiedBy
+
+text_pere$discardReason[filas_cambiadas15] <- mapply(
+  agregar_comentario15,
+ text_pere$discardReason[filas_cambiadas15],
+  "standardized author names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_pere$discardReason <- sapply(text_pere$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_pere, file = "data/Text/2.Processed/text__bertelmann_h_2025_PERE.csv")
+
+```
+
+#12. text__bertelmann_h_2025_PETE.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_pete <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__bertelmann_h_2025_PETE.csv")
+
+view(text_pete)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_pete)) text_pete$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_pete$basisOfRecord)                       #No necesita cambios
+unique(text_pete$typeStatus)                          #No necesita cambios 
+unique(text_pete$associatedReferences)                #No necesita cambios
+unique(text_pete$institutionCode)                     #No necesita cambios
+unique(text_pete$taxonRank)                           #No necesita cambios
+unique(text_pete$collectionCode)                      #No necesita cambios
+unique(text_pete$recordedBy)                          #No necesita cambios
+unique(text_pete$recordNumber)                        #No necesita cambios
+unique(text_pete$identifiedBy)                        #Necesita estandairación
+unique(text_pete$lifeForm)                            #No necesita cambios
+unique(text_pete$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#identifiedBy
+
+text_pete <- text_pete %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+```
+
+#Estandarizar autores
+
+```{r}
+
+text_pete$identifiedBy <- gsub("Edith Rosario Clemente Arenas, Edison Quispe", "Clemente-Arenas, E.R. | Quispe, E.", text_pete$identifiedBy)
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario15 <- function(discardReason, comentario_nuevo15) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo15)
+  } else {
+    return(paste(discardReason, comentario_nuevo15, sep = " / "))
+  }
+}
+
+filas_cambiadas15 <- !is.na(text_pete$identifiedBy) & 
+                    !is.na(text_pete$verbatimidentifiedBy) &
+                    text_pete$verbatimidentifiedBy != text_pete$identifiedBy
+
+text_pete$discardReason[filas_cambiadas15] <- mapply(
+  agregar_comentario15,
+ text_pete$discardReason[filas_cambiadas15],
+  "standardized author names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_pete$discardReason <- sapply(text_pete$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_pete, file = "data/Text/2.Processed/text__bertelmann_h_2025_PETE.csv")
+
+```
+
+#13. text__carranza_av_2004.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_ca04 <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__carranza_av_2004.csv")
+
+view(text_ca04)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_ca04)) text_ca04$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_ca04$basisOfRecord)                       #No necesita cambios
+unique(text_ca04$typeStatus)                          #No necesita cambios 
+unique(text_ca04$associatedReferences)                #No necesita cambios
+unique(text_ca04$institutionCode)                     #No necesita cambios
+unique(text_ca04$taxonRank)                           #No necesita cambios
+unique(text_ca04$collectionCode)                      #No necesita cambios
+unique(text_ca04$recordedBy)                          #Necesita estandairación
+unique(text_ca04$recordNumber)                        #No necesita cambios
+unique(text_ca04$identifiedBy)                        #Necesita estandairación
+unique(text_ca04$lifeForm)                            #No necesita cambios
+unique(text_ca04$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#identifiedBy
+
+text_ca04 <- text_ca04 %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_ca04 <- text_ca04 %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+
+#-identifiedBy: pegar iniciales
+
+```{r}
+
+pegar_iniciales_tras_coma <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_ca04$identifiedBy <- sapply(text_ca04$identifiedBy, pegar_iniciales_tras_coma)
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario15 <- function(discardReason, comentario_nuevo15) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo15)
+  } else {
+    return(paste(discardReason, comentario_nuevo15, sep = " / "))
+  }
+}
+
+filas_cambiadas15 <- !is.na(text_ca04$identifiedBy) & 
+                    !is.na(text_ca04$verbatimidentifiedBy) &
+                    text_ca04$verbatimidentifiedBy != text_ca04$identifiedBy
+
+text_ca04$discardReason[filas_cambiadas15] <- mapply(
+  agregar_comentario15,
+ text_ca04$discardReason[filas_cambiadas15],
+  "standardized author names in identifiedBy"
+)
+```
+
+#-recordedBy: pegar iniciales
+
+```{r}
+
+pegar_iniciales_tras_coma2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_ca04$recordedBy <- sapply(text_ca04$recordedBy, pegar_iniciales_tras_coma2)
+```
+
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+agregar_comentario16 <- function(discardReason, comentario_nuevo16) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo16)
+  } else {
+    return(paste(discardReason, comentario_nuevo16, sep = " / "))
+  }
+}
+
+filas_cambiadas16 <- !is.na(text_ca04$identifiedBy) & 
+                    !is.na(text_ca04$verbatimidentifiedBy) &
+                    text_ca04$verbatimidentifiedBy != text_ca04$identifiedBy
+
+text_ca04$discardReason[filas_cambiadas16] <- mapply(
+  agregar_comentario16,
+ text_ca04$discardReason[filas_cambiadas16],
+  "standardized author names in recordedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_ca04$discardReason <- sapply(text_ca04$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_ca04, file = "data/Text/2.Processed/text__carranza_av_2004.csv")
+
+```
+
+#14. text__carranza_av_2023.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_ca23 <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__carranza_av_2023.csv")
+
+view(text_ca23)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_ca23)) text_ca23$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_ca23$basisOfRecord)                       #No necesita cambios
+unique(text_ca23$typeStatus)                          #No necesita cambios 
+unique(text_ca23$associatedReferences)                #No necesita cambios
+unique(text_ca23$institutionCode)                     #No necesita cambios
+unique(text_ca23$taxonRank)                           #No necesita cambios
+unique(text_ca23$collectionCode)                      #No necesita cambios
+unique(text_ca23$recordedBy)                          #Necesita estandairación
+unique(text_ca23$recordNumber)                        #No necesita cambios
+unique(text_ca23$identifiedBy)                        #Necesita estandairación
+unique(text_ca23$lifeForm)                            #No necesita cambios
+unique(text_ca23$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#identifiedBy
+
+text_ca23 <- text_ca23 %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_ca23 <- text_ca23 %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_ca23 %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+
+#Quitar simbolos raros
+
+quitar_tildes7 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_ca23$identifiedBy <- sapply(text_ca23$identifiedBy, quitar_tildes7)
+
+#Pegar iniciales
+
+pegar_iniciales_tras_coma3 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_ca23$identifiedBy <- sapply(text_ca23$identifiedBy, pegar_iniciales_tras_coma3)
+
+#Pegar apellidos compuestos
+
+unir_apellido_antes_coma <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    "\\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)(?=,)",
+    "\\1-\\2"
+  )
+}
+
+text_ca23$identifiedBy <- sapply(text_ca23$identifiedBy, unir_apellido_antes_coma)
+
+```
+
+#Especificar cambios
+
+```{r}
+
+#Especificar cambios en identifiedBy
+
+agregar_comentario16 <- function(discardReason, comentario_nuevo16) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo16)
+  } else {
+    return(paste(discardReason, comentario_nuevo16, sep = " / "))
+  }
+}
+
+filas_cambiadas16 <- !is.na(text_ca23$identifiedBy) & 
+                    !is.na(text_ca23$verbatimidentifiedBy) &
+                    text_ca23$verbatimidentifiedBy != text_ca23$identifiedBy
+
+text_ca23$discardReason[filas_cambiadas16] <- mapply(
+  agregar_comentario16,
+ text_ca23$discardReason[filas_cambiadas16],
+  "standardized author names in identifiedBy"
+)
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_ca23 %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+
+#Pegar iniciales
+
+pegar_iniciales_tras_coma4 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_ca23$recordedBy <- sapply(text_ca23$recordedBy, pegar_iniciales_tras_coma4)
+
+#Pegar apellidos compuestos
+
+unir_apellido_antes_coma2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    "\\b([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]+)(?=,)",
+    "\\1-\\2"
+  )
+}
+
+text_ca23$recordedBy <- sapply(text_ca23$recordedBy, unir_apellido_antes_coma2)
+
+```
+
+
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+agregar_comentario17 <- function(discardReason, comentario_nuevo17) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo17)
+  } else {
+    return(paste(discardReason, comentario_nuevo17, sep = " / "))
+  }
+}
+
+filas_cambiadas17 <- !is.na(text_ca23$identifiedBy) & 
+                    !is.na(text_ca23$verbatimidentifiedBy) &
+                    text_ca23$verbatimidentifiedBy != text_ca23$identifiedBy
+
+text_ca23$discardReason[filas_cambiadas17] <- mapply(
+  agregar_comentario17,
+ text_ca23$discardReason[filas_cambiadas17],
+  "standardized author names in recordedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_ca23$discardReason <- sapply(text_ca23$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_ca23, file = "data/Text/2.Processed/text__carranza_av_2023.csv")
+
+```
+
+#15. text__CAUP2023.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_caup23 <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__CAUP2023.csv")
+
+view(text_caup23)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_caup23)) text_caup23$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_caup23$basisOfRecord)                       #No necesita cambios
+unique(text_caup23$typeStatus)                          #No necesita cambios 
+unique(text_caup23$associatedReferences)                #No necesita cambios
+unique(text_caup23$institutionCode)                     #No necesita cambios
+unique(text_caup23$taxonRank)                           #No necesita cambios
+unique(text_caup23$collectionCode)                      #Necesita estandairación
+unique(text_caup23$recordedBy)                          #Necesita estandairación
+unique(text_caup23$recordNumber)                        #No necesita cambios
+unique(text_caup23$identifiedBy)                        #Necesita estandairación
+unique(text_caup23$lifeForm)                            #No necesita cambios
+unique(text_caup23$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#collectionCode
+
+text_caup23 <- text_caup23 %>%
+  mutate(
+    verbatimcollectionCode = collectionCode
+  )
+
+#identifiedBy
+
+text_caup23 <- text_caup23 %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_caup23 <- text_caup23 %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-collectionCode: Unir información
+
+```{r}
+
+quitar_espacios_parentesis <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_replace_all(texto, "\\(\\s+", "(")
+  texto <- str_replace_all(texto, "\\s+\\)", ")")
+  texto
+}
+
+text_caup23$collectionCode <- sapply(text_caup23$collectionCode, quitar_espacios_parentesis)
+
+```
+
+#Especificar cambios en collectionCode y guardar
+
+```{r}
+agregar_comentario18 <- function(discardReason, comentario_nuevo18) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo18)
+  } else {
+    return(paste(discardReason, comentario_nuevo18, sep = " / "))
+  }
+}
+
+filas_cambiadas18 <- !is.na(text_caup23$collectionCode) & 
+                    !is.na(text_caup23$verbatimcollectionCode) &
+                    text_caup23$verbatimcollectionCode != text_caup23$collectionCode
+
+text_caup23$discardReason[filas_cambiadas18] <- mapply(
+  agregar_comentario18,
+ text_caup23$discardReason[filas_cambiadas18],
+  "standardized names in collectionCode"
+)
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_caup23 %>%
+  count(recordedBy, sort = TRUE)
 
 ```
