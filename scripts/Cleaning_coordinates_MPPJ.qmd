@@ -300,6 +300,49 @@ if (length(idx)) {
 }
 
 
+idx <- which(voluntarios$dataset == "bertelmann_h_2025_PETE")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "27/08/26"
+    voluntarios$finishingDateDC[idx] <- "03/09/26"
+}
+
+
+idx <- which(voluntarios$dataset == "carranza_av_2004")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "02/08/26"
+    voluntarios$finishingDateDC[idx] <- "03/09/26"
+}
+
+
+idx <- which(voluntarios$dataset == "carranza_av_2023")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "03/08/26"
+    voluntarios$finishingDateDC[idx] <- "03/09/26"
+}
+
+
+idx <- which(voluntarios$dataset == "CAUP2023")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "03/08/26"
+    voluntarios$finishingDateDC[idx] <- "03/09/26"
+}
+
+idx <- which(voluntarios$dataset == "CPUN2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "03/08/26"
+    #voluntarios$finishingDateDC[idx] <- "03/09/26"
+}
+
+
+
+
+
+
 
 #CAMILO
 idx <- which(voluntarios$dataset == "CR2024")
