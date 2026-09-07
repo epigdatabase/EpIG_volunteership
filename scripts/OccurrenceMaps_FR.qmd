@@ -1,0 +1,436 @@
+---
+title: "Occurrence Maps"
+author: "Francisco Riaño"
+date: "today"
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    code-fold: true
+    theme: "cosmo"
+execute:
+  warning: false
+  message: false
+---
+
+## Proposed Design
+
+-   Aggregate records into an equal-area hexagonal grid rather than plot 1.37 million overlapping points.
+-   Use the dissolved Neotropical boundary as the mask and outline.
+-   Use a logarithmic color scale for record counts.
+-   Retain empty areas so sampling gaps remain visible.
+-   Report the number of coordinate-valid records used and records outside the Neotropical boundary.
+-   Avoid exposing individual occurrence coordinates in the rendered output.
+
+### Loading Data
+
+The complete EpIG-DB 2.0 occurrence product is loaded locally. The raw database is employed only to prepare aggregate outputs and is not displayed in the HTML document.
+
+```{r}
+#| label: setup
+#| echo: false
+
+library(tidyverse)
+library(sf)
+library(knitr)
+library(kableExtra)
+library(scales)
+library(here)
+library(rnaturalearth)
+library(dplyr)
+
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
+
+# Load EpIG 2.0 complete database (1,372,136 records — full product)
+dbPath <- "C:/EpIG_v2.0_/EpIG_volunteership/data/Occurrences_visualization/db_EpIG2_clean_all.rds"
+db <- readRDS(here(dbPath))
+```
+
+### Preparation Block
+
+Three spatial inputs are prepared. the dissolved Neotropical boundary, country boundaries, and the Morrone biogeographic provinces. Invalid geometries are repaired before further spatial operations.
+
+```{r}
+#| echo: false
+#| label: prepare-map-layers
+
+library(sf)
+library(dplyr)
+
+map_dir <- file.path(
+  "C:/EpIG_v2.0_",
+  "EpIG_volunteership",
+  "data",
+  "Occurrences_visualization",
+  "Neotropics_Morrone"
+)
+
+# Read source layers
+# -----------------------------------------------
+neotropics_raw <- sf::st_read(
+  file.path(map_dir, "Neotropic_dissolved.shp"),
+  quiet = TRUE
+)
+# Country boundaries
+countries_raw <- sf::st_read(
+  file.path(map_dir, "Neotropic_Paises.shp"),
+  quiet = TRUE
+)
+# Morrone biogeographic provinces
+provinces_raw <- sf::st_read(
+  file.path(map_dir, "NeotropicMap_WGS84_1.shp"),
+  quiet = TRUE
+)
+
+# Record source-layer properties before geometry repair
+map_layer_summary <- tibble(
+  Layer = c(
+    "Neotropical boundary",
+    "Countries",
+    "Biogeographic provinces"
+  ),
+  Purpose = c(
+    "Analysis mask and outer boundary",
+    "Political reference boundaries",
+    "Morrone biogeographic units for subsequent maps"
+  ),
+  Features = c(
+    nrow(neotropics_raw),
+    nrow(countries_raw),
+    nrow(provinces_raw)
+  ),
+  `Invalid geometries before repair` = c(
+    sum(!sf::st_is_valid(neotropics_raw)),
+    sum(!sf::st_is_valid(countries_raw)),
+    sum(!sf::st_is_valid(provinces_raw))
+  ),
+  EPSG = c(
+    sf::st_crs(neotropics_raw)$epsg,
+    sf::st_crs(countries_raw)$epsg,
+    sf::st_crs(provinces_raw)$epsg
+  )
+)
+
+# Repair geometries 
+neotropics_raw <- sf::st_make_valid(neotropics_raw)
+countries <- sf::st_make_valid(countries_raw)
+provinces <- sf::st_make_valid(provinces_raw)
+
+# Dissolve the Neotropical boundary into one geometry
+neotropics <- sf::st_sf(
+  geometry = sf::st_union(sf::st_geometry(neotropics_raw)),
+  crs = sf::st_crs(neotropics_raw)
+)
+```
+
+Table @tbl-map-layers documents the role, size, geometry status, and coordinate reference system of each spatial input. All three inputs use WGS84 (EPSG:4326).
+
+```{r}
+#| label: tbl-map-layers
+#| echo: false
+#| tbl-cap: "Spatial layers used in the occurrence-map workflow."
+
+map_layer_summary |>
+  knitr::kable(
+    format = "html",
+    align = c("l", "l", "r", "r", "r"),
+    format.args = list(big.mark = ",")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE
+  )
+```
+
+### Coordinate Screening
+
+Longitude and latitude are converted to numeric values and evaluated sequentially. Records must have a complete coordinate pair, fall within the legal geographic ranges, and not represent the placeholder coordinate '(0, 0)'.
+
+```{r}
+#| label: prepare-accurrence-points
+#| echo: false
+
+coordinate_audit <- db |>
+  transmute(
+    longitude = suppressWarnings(as.numeric(decimalLongitude)), 
+    latitude = suppressWarnings(as.numeric(decimalLatitude))
+  ) |> 
+  mutate(
+    has_coordinate_pair = !is.na(longitude) & !is.na(latitude),
+    within_legal_range =
+      has_coordinate_pair &
+      between(longitude, -180, 180) &
+      between(latitude, -90, 90),
+    is_zero_zero =
+      has_coordinate_pair & longitude == 0 & latitude == 0,
+    is_coordinate_valid = within_legal_range & !is_zero_zero
+  )
+
+total_records <- nrow(coordinate_audit)
+complete_pairs <- sum(coordinate_audit$has_coordinate_pair)
+outside_legal_range <- sum(
+  coordinate_audit$has_coordinate_pair &
+    !coordinate_audit$within_legal_range
+)
+zero_zero_records <- sum(
+  coordinate_audit$within_legal_range &
+    coordinate_audit$is_zero_zero
+)
+valid_coordinate_records <- sum(
+  coordinate_audit$is_coordinate_valid
+)
+
+coordinate_screening_summary <- tibble(
+  Screening_step = c(
+    "All occurrence records",
+    "Excluded: incomplete or non-numeric coordinate pair",
+    "Excluded: coordinate outside legal range",
+    "Excluded: placeholder coordinate (0, 0)",
+    "Retained: coordinate-valid records"
+  ),
+  Records = c(
+    total_records,
+    total_records - complete_pairs,
+    outside_legal_range,
+    zero_zero_records,
+    valid_coordinate_records
+  )
+) |>
+  mutate(
+    `Percentage of all records` = scales::percent(
+      Records / total_records,
+      accuracy = 0.1
+    )
+  )
+# Retain only coordinates needed for the aggregate map
+occurrence_geo <- coordinate_audit |>
+  filter(is_coordinate_valid) |>
+  select(longitude, latitude) |>
+  sf::st_as_sf(
+    coords = c("longitude", "latitude"),
+    crs = 4326,
+    remove = FALSE
+  )
+```
+
+Table @tbl-coordinate-screening shows how coordinate-valid subset was obtained. Exclusion categories are mutually exclusive within this sequence.
+
+```{r}
+#| label: tbl-coordinate-screening
+#| echo: false
+#| tbl-cap: "Sequential screening of occurrence coordinates."
+
+coordinate_screening_summary |>
+  knitr::kable(
+    format = "html",
+    align = c("l", "r", "r"),
+    format.args = list(big.mark = ","),
+    col.names = c(
+      "Screening step",
+      "Records",
+      "Percentage of all records"
+    )
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE
+  )
+```
+
+### Occurrence Records
+
+Coordinate-valid records are projected to Equal Earth (EPSG:8857), filtered by the dissolved Neotropical boundary, and assigned to a 100-km equal-area hexagonal grid. Employing an equal-are projection makes the grid cells spatially comparable across the study region.
+
+```{r}
+#| label: calculate-occurrence-density
+#| echo: false
+
+
+# Equal-area projection suitable for cell-based comparisons
+map_crs_equal_area <- 8857
+
+neotropics_equal <- st_transform(
+  neotropics,
+  crs = map_crs_equal_area
+)
+
+countries_equal <- st_transform(
+  countries,
+  crs = map_crs_equal_area
+)
+
+# Keep only geometry to reduce memory use
+occurrence_points_equal <- occurrence_geo |>
+  select(geometry) |>
+  st_transform(crs = map_crs_equal_area)
+
+# Retain records inside the Neotropical boundary
+inside_neotropics <- lengths(
+  st_intersects(occurrence_points_equal, neotropics_equal)
+) > 0
+
+occurrence_neotropics <- occurrence_points_equal[
+  inside_neotropics,
+]
+
+# Construct a 100-km hexagonal grid
+grid_geometry <- st_make_grid(
+  neotropics_equal,
+  cellsize = 100000,
+  square = FALSE
+)
+
+occurrence_grid <- st_sf(
+  grid_id = seq_along(grid_geometry),
+  geometry = grid_geometry
+)
+
+# Retain grid cells touching the Neotropical boundary
+grid_inside <- lengths(
+  st_intersects(occurrence_grid, neotropics_equal)
+) > 0
+
+occurrence_grid <- occurrence_grid[grid_inside, ]
+
+# Assign each occurrence to a grid cell
+point_cell_matches <- st_intersects(
+  occurrence_neotropics,
+  occurrence_grid
+)
+
+point_cell_id <- vapply(
+  point_cell_matches,
+  function(x) {
+    if (length(x) == 0) NA_integer_ else x[[1]]
+  },
+  integer(1)
+)
+
+# Count occurrence records per cell
+cell_counts <- tabulate(
+  point_cell_id[!is.na(point_cell_id)],
+  nbins = nrow(occurrence_grid)
+)
+
+occurrence_grid$n_records <- cell_counts
+
+# Clip all cells, including empty cells, to the study boundary
+occurrence_grid_plot <- suppressWarnings(
+  sf::st_intersection(
+    occurrence_grid,
+    neotropics_equal
+  )
+) |>
+  mutate(
+    n_records_plot = na_if(n_records, 0L)
+  )
+
+records_inside <- nrow(occurrence_neotropics)
+records_assigned <- sum(occurrence_grid$n_records)
+
+# Simple quality-control summary
+density_map_summary <- tibble(
+  Metric = c(
+    "Coordinate-valid records",
+    "Records inside the Neotropical boundary",
+    "Records outside the Neotropical boundary",
+    "Records assigned to grid cells",
+    "Occupied grid cells",
+    "Empty grid cells",
+    "Cell-assignment check"
+  ),
+  Value = c(
+    scales::comma(nrow(occurrence_geo)),
+    scales::comma(records_inside),
+    scales::comma(nrow(occurrence_geo) - records_inside),
+    scales::comma(records_assigned),
+    scales::comma(sum(occurrence_grid$n_records > 0)),
+    scales::comma(sum(occurrence_grid$n_records == 0)),
+    if_else(
+      records_inside == records_assigned,
+      "Passed",
+      "Review required"
+    )
+  )
+)
+```
+
+Table @tbl-density-summary reports the final map denominator and verifies that all records inside the study boundary were assigned to grid cells.
+
+```{r}
+#| label: tbl-density-summary
+#| echo: false
+#| tbl-cap: "Summary of records and grid cells used in the occurrence-density map."
+
+density_map_summary |>
+  knitr::kable(
+    format = "html",
+    align = c("l", "r")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE
+  )
+```
+### Geographic Coverage
+
+Figure @fig-occurrence-density displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records.  
+```{r}
+#| label: fig-occurrence-density
+#| echo: false
+#| fig-cap: "Spatial distribution of EpIG-DB occurrence records across the Neotropical region. Counts were aggregated within 100-km equal-area hexagonal cells: light-grey cells contain no retained records."
+#| fig-width: 9
+#| fig-height: 8
+
+ggplot() +
+  geom_sf(
+    data = occurrence_grid_plot,
+    aes(fill = n_records_plot),
+    colour = "white",
+    linewidth = 0.03
+  ) +
+  geom_sf(
+    data = countries_equal,
+    fill = NA,
+    colour = "grey45",
+    linewidth = 0.2
+  ) +
+  geom_sf(
+    data = neotropics_equal,
+    fill = NA,
+    colour = "black",
+    linewidth = 0.45
+  ) +
+  scale_fill_viridis_c(
+    name = "Occurrence\nrecords",
+    option = "magma",
+    direction = -1,
+    trans = "log10",
+    labels = scales::label_number(big.mark = ","),
+    na.value = "grey92"
+  ) +
+  coord_sf(datum = NA) +
+  labs(
+    title = "Geographic coverage of EpIG-DB",
+    subtitle = "Occurrence records per 100-km equal-area hexagonal cell",
+    caption = paste0(
+      "Coordinate-valid records within the dissolved Neotropical boundary. ",
+      "Light-grey cells contain no retained records."
+    )
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 11),
+    plot.caption = element_text(
+      size = 8,
+      colour = "grey35",
+      hjust = 0
+    ),
+    legend.position = "right"
+  )
+```
+
+### Interpretation
+
+The map summarizes geographic sampling intensity rather than species richness or biological abundance. Cells with many records may reflect greater collection effort, data mobilization, or repeated sampling. Consequently, geographic differences in record density should not be interpreted directly as differences in epiphyte diversity. 

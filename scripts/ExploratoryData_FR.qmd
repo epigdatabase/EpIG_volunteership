@@ -13,8 +13,6 @@ execute:
   message: false
 ---
 
-## Data Summary
-
 The present section summarizes the main statistical attributes of the **EpIG-DB** v2.0 occurrences latest version.
 
 ```{r setup, message=FALSE, warning=FALSE}
