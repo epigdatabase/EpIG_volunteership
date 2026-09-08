@@ -5135,3 +5135,366 @@ text_cpun <- text_cpun %>%
   )
 
 ```
+
+#-taxonRank: convertir a mayusculas
+```{r}
+text_cpun$taxonRank <- toupper(text_cpun$taxonRank)
+text_cpun$taxonRank <- toupper(text_cpun$taxonRank)
+```
+
+#Especificar cambios en taxonRank 
+
+```{r}
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_cpun$taxonRank) & 
+                    !is.na(text_cpun$verbatimtaxonRank) &
+                    text_cpun$verbatimtaxonRank != text_cpun$taxonRank
+
+text_cpun$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_cpun$discardReason[filas_cambiadas],
+  "standardize taxonRank column to uppercase"
+)
+```
+
+#-lifeForm: Detectar información dañada y corregir
+
+```{r}
+conteo_lifeForm <- text_cpun %>%
+  count(lifeForm, sort = TRUE)
+
+```
+
+#Estandarizar tipos de vida
+
+```{r}
+
+lifeFormdic <- c(
+  "Arbusto" = "Shrub",
+  "Árbol" = "Tree"
+)
+
+corregir_lifeF <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto_comparar <- str_squish(texto)
+  
+  for (i in seq_along(lifeFormdic)) {
+    original <- str_squish(names(lifeFormdic)[i])
+    if (texto_comparar == original) {
+      return(lifeFormdic[i])
+    }
+  }
+  
+  return(texto)
+}
+
+text_cpun$lifeForm <- sapply(text_cpun$lifeForm, corregir_lifeF)
+
+```
+
+#Especificar cambios en lifeForm
+
+```{r}
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_cpun$lifeForm) & 
+                    !is.na(text_cpun$verbatimlifeForm) &
+                    text_cpun$verbatimlifeForm != text_cpun$lifeForm
+
+text_cpun$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_cpun$discardReason[filas_cambiadas],
+  "converted lifeForm values to english equivalents"
+)
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_cpun %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+#Quitar simbolos raros
+
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+ text_cpun$recordedBy <- sapply( text_cpun$recordedBy, quitar_tildes)
+ 
+ 
+write.csv(conteo_recordedBy, "conteo_recordedBy.csv", row.names = FALSE, fileEncoding = "UTF-8")
+
+getwd()  # te dice en qué carpeta se guardó, por si necesitas ubicarlo
+
+#Por autores
+
+colectores_conocidos <- c(
+  # --- Isidoro (Manuel) Sanchez Vega ---
+  "Isidoro Manuel Sanchez Vega" = "Sanchez-Vega, I.M.",
+  "I. Sanchez Vega."            = "Sanchez-Vega, I.M.",
+  "I. sanchez Vega"             = "Sanchez-Vega, I.M.",
+  "I. Sanchez vega"             = "Sanchez-Vega, I.M.",
+  "I. Sanche V."                = "Sanchez-Vega, I.M.",
+  "I. Sanchez V."               = "Sanchez-Vega, I.M.",
+  "I. Sanchez V"                = "Sanchez-Vega, I.M.",
+  "I. Sanchez Vega"             = "Sanchez-Vega, I.M.",
+
+  # --- Jose G. Sanchez Vega (persona DISTINTA de Isidoro, confirmado) ---
+  "Jose G. Sanchez Vega."       = "Sanchez-Vega, J.G.",
+  "Jose G. Sanchez Vega"        = "Sanchez-Vega, J.G.",
+  "Jose Sanchez Vega"           = "Sanchez-Vega, J.G.",
+  "J. Sanchez Vega."            = "Sanchez-Vega, J.G.",
+  "J. Sanchez Vega"             = "Sanchez-Vega, J.G.",
+  "J. G. Sanchez V."            = "Sanchez-Vega, J.G.",
+
+  # --- M.O. (Michael O.) Dillon ---
+  "Michael O. Dillon"           = "Dillon, M.O.",
+  "M. O. Dillon"                = "Dillon, M.O.",
+  "M.O. Dillon"                 = "Dillon, M.O.",
+
+  # --- Zapata Cruz / Zapata ---
+  "Mario Zapata Cruz"           = "Zapata-Cruz, M.",
+  "M. Zapata Cruz"              = "Zapata-Cruz, M.",
+  "M. Zapata"                   = "Zapata-Cruz, M.",
+
+  "James L. Luteyn"             = "Luteyn, J.L.",
+
+  # --- Sanchez Montoya (2do apellido a veces abreviado "M.") ---
+  "Manuel Sanchez Montoya"      = "Sanchez-Montoya, M.",
+  "M. Sanchez Montoya"          = "Sanchez-Montoya, M.",
+  "M. Sanchez M."               = "Sanchez-Montoya, M.",
+  "M Sanchez M."                = "Sanchez-Montoya, M.",
+
+  # --- David N. Smith ---
+  "David N. Smith"              = "Smith, D.N.",
+  "D. N. Smith"                 = "Smith, D.N.",
+  "D.N. Smith"                  = "Smith, D.N.",
+
+  "Kye Goodwin"                 = "Goodwin, K.",
+
+  # --- J. (Jose (M.)) Cabanillas Soriano ---
+  "Jose M. Cabanillas Soriano"   = "Cabanillas-Soriano, J.M.",
+  "J. Manuel Cabanillas Soriano" = "Cabanillas-Soriano, J.M.",
+  "J. Cabanillas Soriano."       = "Cabanillas-Soriano, J.M.",
+  "J. Cabanillas Soriano"        = "Cabanillas-Soriano, J.M.",
+  "J. Cabanillas S."             = "Cabanillas-Soriano, J.M.",
+  "J. Cabanillas"                = "Cabanillas-Soriano, J.M.",
+  "Manuel Cabanillas Soriano"   = "Cabanillas-Soriano, J.M.",
+  "M. Cabanillas Soriano"       = "Cabanillas-Soriano, J.M.",
+
+  # --- Cabanillas Medina (apellido doble DISTINTO) ---
+  "Jose Manuel Cabanillas Medina" = "Cabanillas-Medina, J.M.",
+  "J. Cabanillas Medina"          = "Cabanillas-Medina, J.M.",
+
+  "W. Ruiz Vigo"                = "Ruiz-Vigo, W.",
+
+  "Gustavo Iberico Vela"        = "Iberico-Vela, G.",
+  "G. Iberico Vela"             = "Iberico-Vela, G.",
+  "G. Iberico"                  = "Iberico-Vela, G.",
+
+  "R. Dieguez"                  = "Dieguez, R.",
+  "A. Lopez"                    = "Lopez, A.",
+  "Ken Young"                   = "Young, K.",
+
+  # --- Goicochea Rojas ("R." = Rojas, confirmado) ---
+  "A. Goicochea Rojas"          = "Goicochea-Rojas, A.",
+  "A. Goicochea R."             = "Goicochea-Rojas, A.",
+  "J. Goicochea R."             = "Goicochea-Rojas, J.",
+
+  # --- Gutierrez Ruiz ("R." = Ruiz, confirmado) ---
+  "A. D. Gutierrez Ruiz"        = "Gutierrez-Ruiz, A.D.",
+  "A. D. Gutierrez R."          = "Gutierrez-Ruiz, A.D.",
+  "A.D. Gutierrez R."           = "Gutierrez-Ruiz, A.D.",
+  "D. Gutierrez R."             = "Gutierrez-Ruiz, D.",
+
+  "L. Perez"                    = "Perez, L.",
+  "C. Rimarachin"               = "Rimarachin, C.",
+  "Mardonio Llanos"             = "Llanos, M.",
+
+  # --- Miranda Leiva (Alfonso) ---
+  "Alfonso Miranda Leiva"       = "Miranda-Leiva, A.",
+  "A. Miranda Leiva"            = "Miranda-Leiva, A.",
+  "A. Miranda L."               = "Miranda-Leiva, A.",
+  "A. Miranda"                  = "Miranda-Leiva, A.",
+
+  "Nicolas Dostert"             = "Dostert, N.",
+  "J. Torres"                   = "Torres, J.",
+
+  # --- Sagastegui Alva (Abundio) ---
+  "Abundio Sagastegui Alva"     = "Sagastegui-Alva, A.",
+  "Abundio Sagastegui"          = "Sagastegui-Alva, A.",
+  "A. Sagastegui Alva."         = "Sagastegui-Alva, A.",
+  "A. Sagastegui Alva"          = "Sagastegui-Alva, A.",
+  "A. Sagastegui A."            = "Sagastegui-Alva, A.",
+
+  # --- Guevara Barreto ---
+  "Jose Guevara Barreto"        = "Guevara-Barreto, J.",
+  "J. Guevara Barreto"          = "Guevara-Barreto, J.",
+  "J. Guevara"                  = "Guevara-Barreto, J.",
+
+  "Luis Davila E."              = "Davila-E, Luis.",
+  "Luis Davila"                 = "Davila, Luis.",
+
+  "A. Chavez Santa Cruz."       = "Chavez-Santa Cruz, A.",
+  "A. Chavez Sta. Cruz."        = "Chavez-Santa Cruz, A.",
+
+  "Carol Aliaga R."             = "Aliaga-Rojas, C.",
+  "C. Aliaga Rojas"             = "Aliaga-Rojas, C.",
+
+  "Oscar Zambrano C."           = "Zambrano-C, Oscar",
+  "Jorge Romero"                = "Romero, J.",
+  "Elvira Cotton"               = "Cotton, E.",
+  "Mats Gustafsson"             = "Gustafsson, M.",
+  "S. Becerra T."               = "Becerra-T, S.",
+  "A. Briones"                  = "Briones, A.",
+
+  "Wilson Diaz Miranda"         = "Diaz-Miranda, W.",
+  "Wilson Diaz M."              = "Diaz-Miranda, W.",
+  "W. Diaz Miranda"             = "Diaz-Miranda, W.",
+
+  "Segundo Leiva Gonzalez"      = "Leiva-Gonzalez, S.",
+  "S. Leiva G."                 = "Leiva-Gonzalez, S.",
+  "S.Leiva G."                  = "Leiva-Gonzalez, S.",
+
+  "W. Flores"                   = "Flores, W.",
+
+  "A. Cruzado S."               = "Cruzado-S, A.",
+  "A. Cruzado V."               = "Cruzado-V, A.",
+
+  "T. Vasquez S."               = "Vasquez-S, T.",
+  "Carmen Juarez V."            = "Juarez-V, C.",
+  "C. Juarez V."                = "Juarez-V, C.",
+  "Ronald Vargas S."            = "Vargas-S, R.",
+  "R. Vargas S."                = "Vargas-S, R.",
+
+  "Ulf Molau"                   = "Molau, U.",
+  "U. Molau"                    = "Molau, U.",
+  "B. Eriksen"                  = "Eriksen, B.",
+
+  "Peter Vargas Chuquilin"      = "Vargas-Chuquilin, P.",
+  "Peter Vargas Ch."            = "Vargas-Chuquilin, P.",
+  "Petter Vargas Ch."           = "Vargas-Chuquilin, P.",
+  "P. Vargas Ch."               = "Vargas-Chuquilin, P.",
+
+  "Carolina Tovar"              = "Tovar, C.",
+  "Antonio Arostegui Vargas"    = "Arostegui-Vargas, A.",
+  "Michael Hermann"             = "Hermann, M.",
+  "Miguel Valderrama"           = "Valderrama, M.",
+  "Steen Knudsen"               = "Knudsen, S.",
+  "Eve Emshwiller"              = "Emshwiller, E.",
+  "Luisa Zarpan Arias"          = "Zarpan-Arias, L.",
+  "Stephan Nylinder"            = "Nylinder, S.",
+
+  "Rene Valencia"               = "Valencia, R.",
+  "R. Valencia"                 = "Valencia, R.",
+  "Alfredo Gonzales"            = "Gonzales, A.",
+  "A. Gonzales"                 = "Gonzales, A.",
+  "M. Buddensiek"               = "Buddensiek, M.",
+  "D. Maldonado"                = "Maldonado, D.",
+
+  "G. Avila M."                 = "Avila-M, G.",
+  "M. A. Estela"                = "Estela, M.A.",
+  "D. E. O. Lozano B."          = "Lozano-B, D.E.O.",
+  "M. E. Cortes"                = "Cortes, M.E.",
+  "M. Weigend"                  = "Weigend, M.",
+  "J. Skrabal"                  = "Skrabal, J.",
+  "M. A. Gonzales B."           = "Gonzales-B, M.A.",
+  "H. Bazan Zurita"             = "Bazan-Zurita, H.",
+  "William Bazan Palomino"      = "Bazan-Palomino, W.",
+  "William Bazan P."            = "Bazan-Palomino, W.",
+  "Jose Garcia P."              = "Garcia-P, Jose",
+  "J. Lu Guerra"                = "Guerra-Lu, J.",
+  "Jose Guerra Lu"              = "Guerra-Lu, J.",
+  "A. Aldave"                   = "Aldave, A.",
+  "Juan C. Ocana"               = "Ocana, J.C.",
+  "Eddy Pena C."                = "Pena-C, Eddy",
+  "Eddy Pena Cruz"              = "Pena-C, Eddy",
+  "L. Marcelo Pena"             = "Marcelo-Pena, L.",
+  "Jorge Diaz P."               = "Diaz-P, Jorge",
+  "Jose Millan Tapia"           = "Millan-Tapia, J.",
+  "Abraham Cueva R."            = "Cueva-R, A.",
+  "R. Cueva R."                 = "Cueva-R, R.",
+  "Alonso Cordova"              = "Cordova, A.",
+  "R. Cruz Cordova."            = "Cruz-Cordova, R.",
+  "Ernesto Medina."             = "Medina, E.",
+  "J. Cadle."                   = "Cadle, J.",
+  "J. Cadle"                    = "Cadle, J.",
+  "P. Chuna"                    = "Chuna, P.",
+  "Olga Orozco"                 = "Orozco, O.",
+  "Kalen Quiroz V."             = "Quiroz-V, K."
+)
+
+estandarizar_multicolector <- function(texto, diccionario) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  original <- texto
+  diccionario <- diccionario[order(nchar(names(diccionario)), decreasing = TRUE)]
+  
+  encontrados <- data.frame(pos = integer(0), valor = character(0))
+  
+  for (nombre in names(diccionario)) {
+    ubic <- str_locate_all(texto, fixed(nombre))[[1]]
+    if (nrow(ubic) > 0) {
+      for (i in seq_len(nrow(ubic))) {
+        encontrados <- rbind(encontrados, data.frame(pos = ubic[i,1], valor = diccionario[[nombre]]))
+        str_sub(texto, ubic[i,1], ubic[i,2]) <- strrep(" ", ubic[i,2] - ubic[i,1] + 1)
+      }
+    }
+  }
+  
+  if (nchar(str_squish(texto)) > 0) return(original)
+  if (nrow(encontrados) == 0) return(original)
+  
+  encontrados <- encontrados[order(encontrados$pos), ]
+  paste(encontrados$valor, collapse = " | ")
+  
+}
+
+text_cpun$recordedBy <- sapply(text_cpun$recordedBy, estandarizar_multicolector, 
+                                 diccionario = colectores_conocidos)
+
+ver_residuo <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(NA_character_)
+  for (nombre in names(colectores_conocidos)) texto <- str_replace_all(texto, fixed(nombre), "")
+  resto <- str_squish(texto)
+  if (nchar(resto) == 0) return(NA_character_)
+  resto
+}
+
+text_cpun %>%
+  mutate(residuo = sapply(verbatimrecordedBy, ver_residuo)) %>%
+  filter(!is.na(residuo)) %>%
+  count(residuo, sort = TRUE) %>%
+  View()
+
+```
+
