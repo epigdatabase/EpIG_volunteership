@@ -5253,7 +5253,6 @@ quitar_tildes <- function(texto) {
  
 write.csv(conteo_recordedBy, "conteo_recordedBy.csv", row.names = FALSE, fileEncoding = "UTF-8")
 
-getwd()  # te dice en qué carpeta se guardó, por si necesitas ubicarlo
 
 #Por autores
 
@@ -5355,11 +5354,13 @@ colectores_conocidos <- c(
   "A. Sagastegui Alva."         = "Sagastegui-Alva, A.",
   "A. Sagastegui Alva"          = "Sagastegui-Alva, A.",
   "A. Sagastegui A."            = "Sagastegui-Alva, A.",
+  "A. Sagastegui"               = "Sagastegui-Alva, A.",
 
   # --- Guevara Barreto ---
   "Jose Guevara Barreto"        = "Guevara-Barreto, J.",
   "J. Guevara Barreto"          = "Guevara-Barreto, J.",
   "J. Guevara"                  = "Guevara-Barreto, J.",
+  "J. Guevara B."               = "Guevara-Barreto, J.",
 
   "Luis Davila E."              = "Davila-E, Luis.",
   "Luis Davila"                 = "Davila, Luis.",
@@ -5370,7 +5371,7 @@ colectores_conocidos <- c(
   "Carol Aliaga R."             = "Aliaga-Rojas, C.",
   "C. Aliaga Rojas"             = "Aliaga-Rojas, C.",
 
-  "Oscar Zambrano C."           = "Zambrano-C, Oscar",
+  "Oscar Zambrano C."           = "Zambrano-C, O.",
   "Jorge Romero"                = "Romero, J.",
   "Elvira Cotton"               = "Cotton, E.",
   "Mats Gustafsson"             = "Gustafsson, M.",
@@ -5446,8 +5447,10 @@ colectores_conocidos <- c(
   "Alonso Cordova"              = "Cordova, A.",
   "R. Cruz Cordova."            = "Cruz-Cordova, R.",
   "Ernesto Medina."             = "Medina, E.",
+  "J. Chamaya G."               = "Chamaya-G, J.",
   "J. Cadle."                   = "Cadle, J.",
   "J. Cadle"                    = "Cadle, J.",
+  "H. Vidaurre"                 = "Vidaurre, H.",
   "P. Chuna"                    = "Chuna, P.",
   "Olga Orozco"                 = "Orozco, O.",
   "Kalen Quiroz V."             = "Quiroz-V, K."
