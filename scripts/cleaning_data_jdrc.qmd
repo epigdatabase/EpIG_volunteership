@@ -4936,7 +4936,7 @@ text_caup23$recordedBy <- gsub("Yordy Polindara, W.", "Polindara, Y.W.", text_ca
 
 ```
 
-#Especificar cambios en recordedBy y guardar
+#Especificar cambios en recordedBy
 
 ```{r}
 agregar_comentario18 <- function(discardReason, comentario_nuevo18) {
@@ -5251,7 +5251,6 @@ quitar_tildes <- function(texto) {
  text_cpun$recordedBy <- sapply( text_cpun$recordedBy, quitar_tildes)
  
  
-write.csv(conteo_recordedBy, "conteo_recordedBy.csv", row.names = FALSE, fileEncoding = "UTF-8")
 
 
 #Por autores
@@ -5450,7 +5449,6 @@ colectores_conocidos <- c(
   "J. Chamaya G."               = "Chamaya-G, J.",
   "J. Cadle."                   = "Cadle, J.",
   "J. Cadle"                    = "Cadle, J.",
-  "H. Vidaurre"                 = "Vidaurre, H.",
   "P. Chuna"                    = "Chuna, P.",
   "Olga Orozco"                 = "Orozco, O.",
   "Kalen Quiroz V."             = "Quiroz-V, K."
@@ -5485,19 +5483,239 @@ estandarizar_multicolector <- function(texto, diccionario) {
 text_cpun$recordedBy <- sapply(text_cpun$recordedBy, estandarizar_multicolector, 
                                  diccionario = colectores_conocidos)
 
-ver_residuo <- function(texto) {
-  if (is.na(texto) || str_trim(texto) == "") return(NA_character_)
-  for (nombre in names(colectores_conocidos)) texto <- str_replace_all(texto, fixed(nombre), "")
-  resto <- str_squish(texto)
-  if (nchar(resto) == 0) return(NA_character_)
-  resto
+```
+
+#Casos especificos
+```{r}
+
+#Variados
+text_cpun$recordedBy <- gsub("David N. Smith L. Sanchez H. Vidaurre", "Smith, D.N. | Sanchez, L. | Vidaurre, H.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("D.N. Smith L. Sanchez H. Vidaurre", "Smith, D.N. | Sanchez, L. | Vidaurre, H.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("Carmen Juarez V. A. Sanchez Rojas", "Juarez-V, C. | Sanchez-Rojas, A.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("H. Castillo E. Cochachin S. Castillo", "Castillo, H. | Cochachin, E. | Castillo, S.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("I. Sanchez Vega W. Ruiz Vigo.", "Sanchez-Vega, I.M. | Ruiz-Vigo, W.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("Ken Young Blanca Leon", "Young, K. | Leon, B.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("L. Portal V. B. Perez P.", "Portal-V, L. | Perez-P, B.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("S. Leiva P. Chuna J. Cadle", "Leiva, S. | Chuna, P. | Cadle, J.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("A. Galan I. Sanchez Vega E. Linares", "Galan, A. | Sanchez-Vega, I.M. | Linares, E.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("A. Galan J. Montoya Q. E. Linares", "Galan, A. | Montoya-Q, J. | Linares, E.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("V. Quipuscoa S. A. Sagastegui A. S. Leiva M. Bejarano C.", "Quipuscoa-S, V. | Sagastegui-A, A. | Leiva-M, S. | Bejarano, C.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("S. Llatas Quiroz", "Llatas-Quiroz, S.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("S. Gutierrez Bardales", "Gutierrez-Bardales, S.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("Manuel Cabanillas Soriano Isidoro Manuel Sanchez Vega Manuel Sanchez Montoya Manuel Cabanillas Medina", "Cabanillas-Soriano, M. | Sanchez-Vega, I.M. | Sanchez-Montoya, M. | Cabanillas-Medina, M.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("L. Garcia Llatas", "Garcia-Llatas, L.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("Davila, Luis.", "Davila, L.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("S. Olortegui Chamoli Juan Montoya Q.", "Olortegui-Chamoli, S. | Montoya-Q, J.", text_cpun$recordedBy)
+text_cpun$recordedBy <- gsub("T. Vasquez P. Vargas Ch.", "Vasquez, T. | Vargas-Ch, P.", text_cpun$recordedBy)
+
+#Sanchez-Vega
+
+autores <- c(
+  "I. Sanchez V. B. Revilla Ch." =
+   "Sanchez-Vega, I.M. | Revilla-Ch, B.",
+    
+  "I. Sanchez Vega A. Correa M. Varas." =
+   "Sanchez-Vega, I.M. | Correa, A. | Varas, M.",
+    
+  "I. Sanchez Vega Alonso Cordova A. R. Cruz Cordova." =
+   "Sanchez-Vega, I.M. | Cordova-A, A. | Cruz-Cordova, R.",
+    
+  "I. Sanchez Vega J. Cabanillas Soriano Daniel Montesinos." =
+   "Sanchez-Vega, I.M. | Cabanillas-Soriano, J.M. | Montesinos, D.",
+
+  "I. Sanchez Vega J. Manuel Cabanillas Soriano D. Montesinos." = 
+    "Sanchez-Vega, I.M. | Cabanillas-Soriano, J.M. | Montesinos, D.",
+    
+  "I. Sanchez Vega J. Montoya Q. R. Cueva R." =
+    "Sanchez-Vega, I.M. | Montoya-Q, J. | Cueva-R, R.",
+    
+  "I. Sanchez Vega J. Sanchez V." =
+    "Sanchez-Vega, I.M. | Sanchez-V, J.",
+    
+  "I. Sanchez Vega J. Sanchez Vega A. Leon" =
+    "Sanchez-Vega, I.M. | Sanchez-Vega, J. | Leon, A.",
+    
+  "I. Sanchez Vega L. Marcelo Pena Wi. Diaz Miranda" =
+    "Sanchez-Vega, I.M. | Marcelo-Pena, L. | Diaz-Miranda, W.",
+    
+  "I. Sanchez Vega M. Alva Z." =
+    "Sanchez-Vega, I.M. | Alva-Z, M.",
+    
+  "I. Sanchez Vega M. Gonzales B. T. Ayers" =
+    "Sanchez-Vega, I.M. | Gonzales, M. | Ayers, B.T.",
+    
+  "I. Sanchez Vega Raquel Sanchez M." =
+    "Sanchez-Vega, I.M. | Sanchez-M, R.",
+    
+  "I. Sanchez Vega Ulf Molau. Stephan Nylinder" =
+    "Sanchez-Vega, I.M. | Molau, U. | Nylinder, S.",
+    
+  "I. Sanchez Vega W. Castillo" =
+    "Sanchez-Vega, I.M. | Castillo, W.",
+    
+  "Iberico-Vela, G. | Davila-E, Luis" =
+    "Iberico-Vela, G. | Davila-E, L.",
+    
+  "Isidoro Manuel Sanchez Vega A. Correa M. Varas" =
+    "Sanchez-Vega, I.M. | Correa, A. | Varas, M.",
+    
+  "Isidoro Manuel Sanchez Vega E. Linares A. Galan" =
+    "Sanchez-Vega, I.M. | Linares, E. | Galan, A.",
+    
+  "Isidoro Manuel Sanchez Vega Jose Manuel Cabanillas Soriano Manuel Sanchez Montoya" =
+    "Sanchez-Vega, I.M. | Cabanillas-Soriano, J.M. | Sanchez-Montoya, M.",
+    
+  "Isidoro Manuel Sanchez Vega Jose Manuel Cabanillas Soriano Manuel Sanchez Montoya Jose Manuel Cabanillas Medina" =
+    "Sanchez-Vega, I.M. | Cabanillas-Soriano, J.M. | Sanchez-Montoya, M. | Cabanillas-Medina, J.M.",
+    
+  "Isidoro Manuel Sanchez Vega Ramiro Cruz Cordova Eddy Pena Cruz" =
+    "Sanchez-Vega, I.M. | Cruz-Cordova, R. | Pena-Cruz, E.",
+    
+  "Isidoro Manuel Sanchez Vega Roger Javier Cueva Robriguez" =
+   "Sanchez-Vega, I.M. | Cueva-Rodriguez, R.J.",
+    
+  "J. Sanchez Vega W. Ruiz Vigo J. Cabanillas Dr. Aldave" =
+    "Sanchez-Vega, I.M. | Ruiz-Vigo, W. | Cabanillas, J. | Aldave, A.",
+    
+  "J. Sanchez Vega W. Ruiz Vigo Jose Cabanillas A. Lopez" =
+    "Sanchez-Vega, I.M. | Ruiz-Vigo, W. | Cabanillas, J. | Lopez, A.",
+    
+  "Jose Sanchez Vega W. Ruiz Vigo J. Cabanillas Dr. Aldave" =
+    "Sanchez-Vega, I.M. | Ruiz-Vigo, W. | Cabanillas, J. | Aldave, A."
+)
+
+  
+estandarizar_multicolector2 <- function(texto, diccionario) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  original <- texto
+  diccionario <- diccionario[order(nchar(names(diccionario)), decreasing = TRUE)]
+  
+  encontrados <- data.frame(pos = integer(0), valor = character(0))
+  
+  for (nombre in names(diccionario)) {
+    ubic <- str_locate_all(texto, fixed(nombre))[[1]]
+    if (nrow(ubic) > 0) {
+      for (i in seq_len(nrow(ubic))) {
+        encontrados <- rbind(encontrados, data.frame(pos = ubic[i,1], valor = diccionario[[nombre]]))
+        str_sub(texto, ubic[i,1], ubic[i,2]) <- strrep(" ", ubic[i,2] - ubic[i,1] + 1)
+      }
+    }
+  }
+  
+  if (nchar(str_squish(texto)) > 0) return(original)
+  if (nrow(encontrados) == 0) return(original)
+  
+  encontrados <- encontrados[order(encontrados$pos), ]
+  paste(encontrados$valor, collapse = " | ")
+  
 }
 
-text_cpun %>%
-  mutate(residuo = sapply(verbatimrecordedBy, ver_residuo)) %>%
-  filter(!is.na(residuo)) %>%
-  count(residuo, sort = TRUE) %>%
-  View()
+text_cpun$recordedBy <- sapply(text_cpun$recordedBy, estandarizar_multicolector2, 
+                                 diccionario = autores)
 
 ```
 
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_cpun$recordedBy) & 
+                    !is.na(text_cpun$verbatimrecordedBy) &
+                    text_cpun$verbatimrecordedBy != text_cpun$recordedBy
+
+text_cpun$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_cpun$discardReason[filas_cambiadas],
+  "standardized author names in recordedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_cpun$discardReason <- sapply(text_cpun$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_cpun, file = "data/Text/2.Processed/text__CPUN2025.csv")
+
+```
+
+#17. text__CUZ2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_cuz <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__CUZ2025.csv")
+
+view(text_cuz)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_cuz)) text_cuz$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_cuz$basisOfRecord)                       #No necesita cambios
+unique(text_cuz$typeStatus)                          #No necesita cambios 
+unique(text_cuz$associatedReferences)                #No necesita cambios
+unique(text_cuz$institutionCode)                     #No necesita cambios
+unique(text_cuz$taxonRank)                           #No necesita cambios
+unique(text_cuz$collectionCode)                      #No necesita cambios
+unique(text_cuz$recordedBy)                          #Necesita estandairación
+unique(text_cuz$recordNumber)                        #No necesita cambios
+unique(text_cuz$identifiedBy)                        #Necesita estandairación
+unique(text_cuz$lifeForm)                            #No necesita cambios
+unique(text_cuz$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#identifiedBy
+
+text_cuz <- text_cuz %>%
+  mutate(
+    verbatimlifeForm = lifeForm
+  )
+
+#recordedBy
+
+text_cuz <- text_cuz %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_cuz %>%
+  count(identifiedBy, sort = TRUE)
+
+```
