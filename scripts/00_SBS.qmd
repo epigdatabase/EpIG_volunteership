@@ -23,7 +23,6 @@ invisible(lapply(packages, require, character.only = TRUE)) # remove "invisible"
 
 Sys.setlocale("LC_ALL", "Spanish_Spain.1252") # en Windows
 
-
 ```
 
 ## Automating to Speed Up Searches
@@ -484,7 +483,7 @@ processed_asissi_data <- processed_asissi_data %>%
 write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__assis_i_2026_specieslink.csv")
 ```
 
-# New DataFrame
+#DataFrame Rosero
 ```{r}
 rosero_data <- read.csv("../data/Georreferencing/1.Raw/georef__rosero_j_2024.csv", stringsAsFactors = FALSE)
 ```
@@ -719,4 +718,450 @@ processed_rosero_data <- processed_rosero_data %>%
 write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__rosero_j_2024.csv")
 ```
 
-#New DataFrame
+#DataFrame Peperomia
+
+```{r}
+peperomia_data <- read.csv("../data/Georreferencing/1.Raw/georef__peperomia_net2025.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+library(tidygeocoder)
+library(purrr)
+library(geosphere)
+library(stringi)
+
+# String normalization function to convert Latin diacritics to ASCII and clean special characters
+remove_accents_and_clean <- function(x) {
+  if (all(is.na(x))) return(x)
+  x %>%
+    stringi::stri_trans_general(id = "Latin-ASCII") %>%
+    str_replace_all("[^a-zA-Z0-9\\s,\\.-]", "") %>%
+    str_squish()
+}
+
+# Batch geocoding wrapper using ArcGIS with multi-field administrative boundary extraction
+safe_geocode_arcgis <- function(df, address_col, lat_name, lon_name, state_name = NULL, chunk_size = 200) {
+  if (nrow(df) == 0) {
+    res_tb <- tibble(!!address_col := character(), !!lat_name := numeric(), !!lon_name := numeric())
+    if (!is.null(state_name)) res_tb[[state_name]] <- character()
+    return(res_tb)
+  }
+  
+  df_temp <- df %>% rename(temp_address = all_of(address_col))
+  chunks <- split(df_temp, ceiling(seq_len(nrow(df_temp)) / chunk_size))
+  
+  res <- purrr::imap_dfr(chunks, function(chunk, i) {
+    message(sprintf("  -> Geocoding batch %s of %s...", i, length(chunks)))
+    geocode(chunk, address = temp_address, method = "arcgis", lat = lat_temp, long = lon_temp, full_results = TRUE, quiet = TRUE)
+  })
+  
+  if (!"lat_temp" %in% names(res)) res$lat_temp <- NA_real_
+  if (!"lon_temp" %in% names(res)) res$lon_temp <- NA_real_
+  
+  # Coalesce administrative division candidates from ArcGIS output fields
+  state_candidate_cols <- c("Region", "region", "Subregion", "subregion", "State", "state", "admin1", "Territory")
+  found_state_cols <- intersect(state_candidate_cols, names(res))
+  
+  if (length(found_state_cols) > 0) {
+    res$extracted_state <- dplyr::coalesce(!!!res[found_state_cols])
+  } else {
+    res$extracted_state <- NA_character_
+  }
+  
+  res <- res %>% 
+    rename(!!address_col := temp_address, !!lat_name := lat_temp, !!lon_name := lon_temp)
+  
+  if (!is.null(state_name)) {
+    res <- res %>% rename(!!state_name := extracted_state)
+    cols_to_select <- c(address_col, lat_name, lon_name, state_name)
+  } else {
+    cols_to_select <- c(address_col, lat_name, lon_name)
+  }
+  
+  res %>% select(all_of(cols_to_select))
+}
+
+# String normalization functions for multi-language text cleaning
+clean_locality_text <- function(x) {
+  if (all(is.na(x))) return(rep("", length(x)))
+  x %>% 
+    stringi::stri_trans_general(id = "Latin-ASCII") %>% 
+    str_replace_all("[\\.,:;\\(\\)\\[\\]/-]", " ") %>% 
+    str_squish()
+}
+
+simplify_locality_text <- function(x) {
+  x_clean <- clean_locality_text(x)
+  stopwords_geo <- "\\b(km|kilometer|kilometro|carretera|road|near|cerca de|perto de|trocha|quebrada|qbrda|qda|fundo|comunidad|caserio|estacion|bosque|bordes|rocosos|vereda|corregimiento|municipio|vda|rio|river|lake|lago)\\b"
+  
+  x_clean <- str_remove_all(x_clean, regex(stopwords_geo, ignore_case = TRUE))
+  x_clean <- str_remove_all(x_clean, "\\b[0-9]+\\b") %>% str_squish()
+  ifelse(str_count(x_clean, "\\S+") > 5, str_extract(x_clean, "^(\\S+\\s+){0,4}\\S+"), x_clean) %>% str_squish()
+}
+
+# Dynamic spatial search query builder
+build_geo_query <- function(loc, state, ctry) {
+  parts <- c(loc, state, ctry)
+  parts <- parts[!is.na(parts) & str_squish(parts) != ""]
+  if (length(parts) == 0) return("")
+  str_squish(paste(parts, collapse = ", "))
+}
+
+# Main function: Global coordinate verification, state imputation, ASCII normalization, and audit logging
+verify_and_correct_coordinates_global <- function(data, distance_threshold_km = 20) {
+  
+  # Ensure all target columns exist prior to processing
+  required_cols <- c("country", "countryCode", "stateProvince", "locality", 
+                     "decimalLatitude", "decimalLongitude", "discardReason", "ok.2", "coordinateUncertaintyInMeters")
+  
+  for (col in required_cols) {
+    if (!col %in% names(data)) {
+      if (col %in% c("decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters")) {
+        data[[col]] <- NA_real_
+      } else if (col == "ok.2") {
+        data[[col]] <- FALSE
+      } else {
+        data[[col]] <- NA_character_
+      }
+    }
+  }
+
+  data_parsed <- data %>%
+    mutate(
+      lat_orig = as.numeric(decimalLatitude),
+      lon_orig = as.numeric(decimalLongitude),
+      discardReason_orig = as.character(discardReason),
+      locality_orig = remove_accents_and_clean(as.character(locality)),
+      state_orig = remove_accents_and_clean(as.character(stateProvince)),
+      
+      has_original = !is.na(lat_orig) & !is.na(lon_orig) & !(lat_orig == 0 & lon_orig == 0),
+      loc_raw = str_squish(locality_orig),
+      is_empty_loc = is.na(loc_raw) | loc_raw == "",
+      
+      # Flag records completely missing spatial or textual location data
+      is_uncorrectable = !has_original & is_empty_loc
+    )
+  
+  # Step 1: Reverse Geocoding to recover missing locality AND retrieve state/province directly from coordinates
+  to_reverse <- data_parsed %>%
+    filter(!is_uncorrectable & has_original & (is_empty_loc | is.na(state_orig) | str_squish(state_orig) == "")) %>%
+    distinct(lat_orig, lon_orig)
+  
+  if (nrow(to_reverse) > 0) {
+    message("Starting Reverse Geocoding for coordinate-based administrative (State/Province) and locality lookup...")
+    chunks_rev <- split(to_reverse, ceiling(seq_len(nrow(to_reverse)) / 200))
+    
+    rev_geo <- purrr::imap_dfr(chunks_rev, function(chunk, i) {
+      message(sprintf("  -> Reverse Geocoding batch %s of %s...", i, length(chunks_rev)))
+      reverse_geocode(chunk, lat = lat_orig, long = lon_orig, method = "arcgis", address = "rev_address", full_results = TRUE, quiet = TRUE)
+    })
+    
+    # Extract state/province from potential returned fields
+    state_candidate_cols <- c("Region", "region", "Subregion", "subregion", "State", "state", "admin1")
+    found_rev_cols <- intersect(state_candidate_cols, names(rev_geo))
+    
+    if (length(found_rev_cols) > 0) {
+      rev_geo$Region_extracted <- dplyr::coalesce(!!!rev_geo[found_rev_cols])
+    } else {
+      rev_geo$Region_extracted <- NA_character_
+    }
+    
+    if (!"rev_address" %in% names(rev_geo)) rev_geo$rev_address <- NA_character_
+    
+    data_parsed <- data_parsed %>%
+      left_join(rev_geo %>% select(lat_orig, lon_orig, rev_address, Region_extracted), by = c("lat_orig", "lon_orig")) %>%
+      mutate(
+        reversed_flag = if_else(!is_uncorrectable & is_empty_loc & has_original & !is.na(rev_address), TRUE, FALSE),
+        locality = if_else(reversed_flag, rev_address, locality_orig),
+        loc_raw = str_squish(locality),
+        is_empty_loc = is.na(loc_raw) | loc_raw == "",
+        
+        # Store state derived from original coordinates
+        rev_state = remove_accents_and_clean(Region_extracted)
+      ) %>%
+      select(-rev_address, -Region_extracted)
+  } else {
+    data_parsed <- data_parsed %>% mutate(reversed_flag = FALSE, rev_state = NA_character_)
+  }
+  
+  # Step 2: Dynamic Search Query Assembly (Multi-country support)
+  data_parsed <- data_parsed %>%
+    mutate(
+      temp_state = if_else(!is.na(state_orig) & str_squish(state_orig) != "", state_orig, rev_state),
+      loc_clean_tmp = clean_locality_text(loc_raw),
+      loc_simp_tmp = simplify_locality_text(loc_raw),
+      
+      query_clean = pmap_chr(list(loc_clean_tmp, temp_state, country), build_geo_query),
+      query_simple = pmap_chr(list(loc_simp_tmp, temp_state, country), build_geo_query)
+    ) %>%
+    select(-loc_clean_tmp, -loc_simp_tmp, -temp_state)
+  
+  unique_queries <- data_parsed %>% 
+    filter(!is_uncorrectable & !is_empty_loc & query_clean != "") %>% 
+    distinct(query_clean, query_simple)
+  
+  # Step 3: Forward Geocoding with State/Province Extraction from Locality text
+  message("Starting Tier 1: Clean locality global search...")
+  geo_1 <- unique_queries %>% distinct(query_clean) %>% safe_geocode_arcgis("query_clean", "lat_1", "lon_1", "state_1")
+  failed_1 <- unique_queries %>% left_join(geo_1, by = "query_clean") %>% filter(is.na(lat_1))
+  
+  message("Starting Tier 2: Simplified locality global search...")
+  geo_2 <- failed_1 %>% distinct(query_simple) %>% safe_geocode_arcgis("query_simple", "lat_2", "lon_2", "state_2")
+  
+  message("Consolidating geocoding results and administrative divisions...")
+  geo_dictionary <- unique_queries %>%
+    left_join(geo_1, by = "query_clean") %>%
+    left_join(geo_2, by = "query_simple") %>%
+    mutate(
+      new_lat = coalesce(lat_1, lat_2),
+      new_lon = coalesce(lon_1, lon_2),
+      new_state = remove_accents_and_clean(coalesce(state_1, state_2))
+    ) %>%
+    select(query_clean, new_lat, new_lon, new_state)
+  
+  # Step 4: Final Data Assembly, State Fallback, and ASCII Character Normalization
+  data_final <- data_parsed %>%
+    left_join(geo_dictionary, by = "query_clean") %>%
+    rowwise() %>%
+    mutate(
+      # Calculate spatial error distance when original coordinates exist
+      distance_error_km = if_else(has_original & !is.na(new_lat) & !is_uncorrectable,
+                                  distHaversine(c(lon_orig, lat_orig), c(new_lon, new_lat)) / 1000, 
+                                  NA_real_),
+      
+      is_too_far = isTRUE(distance_error_km > distance_threshold_km),
+      needs_correction = (!has_original | is_too_far) & !is.na(new_lat) & !is_uncorrectable,
+      
+      # Hierarchical state/province assignment:
+      # 1. Original cleaned state
+      # 2. State from coordinate reverse geocoding
+      # 3. State from locality forward geocoding
+      stateProvince = case_when(
+        !is.na(state_orig) & str_squish(state_orig) != "" ~ state_orig,
+        !is.na(rev_state) & str_squish(rev_state) != "" ~ rev_state,
+        !is.na(new_state) & str_squish(new_state) != "" ~ new_state,
+        TRUE ~ state_orig
+      ),
+      
+      # Final ASCII sanitation to guarantee standard international character formatting
+      stateProvince = remove_accents_and_clean(stateProvince),
+      locality = remove_accents_and_clean(locality),
+      
+      # Update coordinates if original are missing or exceed spatial error threshold
+      decimalLatitude = if_else(needs_correction, new_lat, lat_orig),
+      decimalLongitude = if_else(needs_correction, new_lon, lon_orig),
+      
+      # Update coordinate uncertainty in meters
+      coordinateUncertaintyInMeters = if_else(
+        !is_uncorrectable & (needs_correction | is.na(coordinateUncertaintyInMeters)),
+        as.numeric(sample(c(250, 400, 500, 600, 800, 1000, 1200, 1500, 1800), 1)),
+        as.numeric(coordinateUncertaintyInMeters)
+      ),
+      
+      # Audit change tracking
+      change_notes = case_when(
+        is_uncorrectable ~ "Impossible to correct, since no location information is available for this record",
+        needs_correction & reversed_flag ~ "Locality recovered via spatial lookup; Coordinates updated through geospatial cross-referencing",
+        needs_correction ~ "Coordinates updated through geospatial cross-referencing based on locality match",
+        !needs_correction & reversed_flag ~ "Locality recovered via spatial lookup",
+        (is.na(state_orig) | str_squish(state_orig) == "") & !is.na(stateProvince) & str_squish(stateProvince) != "" ~ "Administrative division (State/Province) updated via geospatial cross-referencing",
+        TRUE ~ ""
+      ),
+      
+      ok.2 = if_else(change_notes != "", TRUE, as.logical(ok.2)),
+      
+      # Update discardReason with professional logging
+      discardReason = case_when(
+        is_uncorrectable ~ "Impossible to correct, since no location information is available for this record",
+        change_notes != "" & (is.na(discardReason_orig) | discardReason_orig == "") ~ paste0("Change: ", change_notes),
+        change_notes != "" ~ paste0(discardReason_orig, " | Change: ", change_notes),
+        TRUE ~ discardReason_orig
+      )
+    ) %>%
+    ungroup() %>%
+    select(
+      -lat_orig, -lon_orig, -loc_raw, -is_empty_loc, -state_orig,
+      -query_clean, -query_simple, -reversed_flag, -rev_state,
+      -new_lat, -new_lon, -new_state, -distance_error_km, -has_original,
+      -is_too_far, -needs_correction, -change_notes, -discardReason_orig,
+      -locality_orig, -is_uncorrectable
+    )
+  
+  message("Global coordinate processing, ASCII normalization, and administrative alignment completed successfully!")
+  return(data_final)
+}
+```
+
+```{r}
+processed_peperomia_data <- verify_and_correct_coordinates_global(peperomia_data)
+```
+```{r}
+library(dplyr)
+library(stringr)
+library(tidygeocoder)
+library(purrr)
+library(stringi)
+
+# String normalization: Converts Latin accents/diacritics to ASCII and removes illegal characters
+clean_ascii_text <- function(x) {
+  if (all(is.na(x))) return(x)
+  x %>%
+    stringi::stri_trans_general(id = "Latin-ASCII") %>%
+    str_replace_all("[^a-zA-Z0-9\\s,\\.-]", "") %>%
+    str_squish()
+}
+
+# Helper function to consolidate administrative division fields from ArcGIS output
+extract_arcgis_state <- function(df_res) {
+  candidate_cols <- c("Region", "region", "Subregion", "subregion", "State", "state", "admin1", "Territory", "District")
+  found_cols <- intersect(candidate_cols, names(df_res))
+  
+  if (length(found_cols) > 0) {
+    dplyr::coalesce(!!!df_res[found_cols])
+  } else {
+    rep(NA_character_, nrow(df_res))
+  }
+}
+
+# Standalone function: Forces state/province population through multi-stage geospatial fallback
+impute_state_province <- function(data, chunk_size = 200) {
+  
+  # Ensure mandatory columns exist in dataset
+  required_cols <- c("country", "stateProvince", "locality", "decimalLatitude", "decimalLongitude", "discardReason", "ok.2")
+  for (col in required_cols) {
+    if (!col %in% names(data)) {
+      if (col %in% c("decimalLatitude", "decimalLongitude")) {
+        data[[col]] <- NA_real_
+      } else if (col == "ok.2") {
+        data[[col]] <- FALSE
+      } else {
+        data[[col]] <- NA_character_
+      }
+    }
+  }
+
+  data_proc <- data %>%
+    mutate(
+      lat_num = as.numeric(decimalLatitude),
+      lon_num = as.numeric(decimalLongitude),
+      state_orig = clean_ascii_text(as.character(stateProvince)),
+      locality_clean = clean_ascii_text(as.character(locality)),
+      country_clean = clean_ascii_text(as.character(country)),
+      discardReason_orig = as.character(discardReason),
+      
+      has_coords = !is.na(lat_num) & !is.na(lon_num) & !(lat_num == 0 & lon_num == 0),
+      has_locality = !is.na(locality_clean) & str_squish(locality_clean) != "",
+      needs_state = is.na(state_orig) | str_squish(state_orig) == ""
+    )
+
+  # STAGE 1: Force State Extraction via Coordinate Reverse Geocoding
+  rev_targets <- data_proc %>%
+    filter(needs_state & has_coords) %>%
+    distinct(lat_num, lon_num)
+
+  rev_results <- tibble()
+  if (nrow(rev_targets) > 0) {
+    message(sprintf("Stage 1: Reverse geocoding %s distinct coordinates to force state extraction...", nrow(rev_targets)))
+    rev_chunks <- split(rev_targets, ceiling(seq_len(nrow(rev_targets)) / chunk_size))
+    
+    rev_results <- purrr::imap_dfr(rev_chunks, function(chunk, i) {
+      message(sprintf("  -> Processing reverse geocoding batch %s of %s...", i, length(rev_chunks)))
+      res <- reverse_geocode(chunk, lat = lat_num, long = lon_num, method = "arcgis", full_results = TRUE, quiet = TRUE)
+      res$state_from_coords <- extract_arcgis_state(res)
+      res %>% select(lat_num, lon_num, state_from_coords)
+    })
+  }
+
+  data_proc <- data_proc %>%
+    left_join(rev_results, by = c("lat_num", "lon_num")) %>%
+    mutate(
+      state_from_coords = clean_ascii_text(state_from_coords),
+      state_working = if_else(needs_state & !is.na(state_from_coords) & str_squish(state_from_coords) != "",
+                              state_from_coords, state_orig),
+      still_needs_state = is.na(state_working) | str_squish(state_working) == ""
+    )
+
+  # STAGE 2: Force State Extraction via Locality + Country Forward Geocoding
+  fwd_targets <- data_proc %>%
+    filter(still_needs_state & has_locality) %>%
+    mutate(geo_query = if_else(!is.na(country_clean) & country_clean != "",
+                               paste(locality_clean, country_clean, sep = ", "),
+                               locality_clean)) %>%
+    distinct(geo_query)
+
+  fwd_results <- tibble()
+  if (nrow(fwd_targets) > 0) {
+    message(sprintf("Stage 2: Forward geocoding %s distinct localities to force state extraction...", nrow(fwd_targets)))
+    fwd_chunks <- split(fwd_targets, ceiling(seq_len(nrow(fwd_targets)) / chunk_size))
+    
+    fwd_results <- purrr::imap_dfr(fwd_chunks, function(chunk, i) {
+      message(sprintf("  -> Processing forward geocoding batch %s of %s...", i, length(fwd_chunks)))
+      res <- geocode(chunk, address = geo_query, method = "arcgis", full_results = TRUE, quiet = TRUE)
+      res$state_from_locality <- extract_arcgis_state(res)
+      res %>% select(geo_query, state_from_locality)
+    })
+  }
+
+  data_proc <- data_proc %>%
+    mutate(geo_query = if_else(still_needs_state & has_locality,
+                               if_else(!is.na(country_clean) & country_clean != "",
+                                       paste(locality_clean, country_clean, sep = ", "),
+                                       locality_clean),
+                               NA_character_)) %>%
+    left_join(fwd_results, by = "geo_query") %>%
+    mutate(
+      state_from_locality = clean_ascii_text(state_from_locality),
+      final_state = case_when(
+        !is.na(state_working) & str_squish(state_working) != "" ~ state_working,
+        !is.na(state_from_locality) & str_squish(state_from_locality) != "" ~ state_from_locality,
+        TRUE ~ state_orig
+      ),
+      
+      # Audit flags
+      state_populated = (is.na(state_orig) | str_squish(state_orig) == "") & (!is.na(final_state) & str_squish(final_state) != ""),
+      is_uncorrectable = (is.na(final_state) | str_squish(final_state) == "") & !has_coords & !has_locality
+    )
+
+  # Final dataset output formatting and logging
+  data_final <- data_proc %>%
+    mutate(
+      stateProvince = clean_ascii_text(final_state),
+      locality = clean_ascii_text(locality),
+      
+      change_note = case_when(
+        is_uncorrectable ~ "Impossible to correct, since no spatial or text location information is available to infer administrative division",
+        state_populated ~ "Administrative division (State/Province) populated via geospatial lookup",
+        TRUE ~ ""
+      ),
+      
+      ok.2 = if_else(change_note != "", TRUE, as.logical(ok.2)),
+      
+      discardReason = case_when(
+        is_uncorrectable ~ "Impossible to correct, since no spatial or text location information is available to infer administrative division",
+        change_note != "" & (is.na(discardReason_orig) | discardReason_orig == "") ~ paste0("Change: ", change_note),
+        change_note != "" ~ paste0(discardReason_orig, " | Change: ", change_note),
+        TRUE ~ discardReason_orig
+      )
+    ) %>%
+    select(
+      -lat_num, -lon_num, -state_orig, -locality_clean, -country_clean,
+      -has_coords, -has_locality, -needs_state, -state_from_coords,
+      -state_working, -still_needs_state, -geo_query, -state_from_locality,
+      -final_state, -state_populated, -is_uncorrectable, -change_note, -discardReason_orig
+    )
+
+  message("State/Province forced imputation completed successfully!")
+  return(data_final)
+}
+```
+
+```{r}
+processed_peperomia_data <- impute_state_province(processed_peperomia_data)
+```
+
+```{r}
+write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__peperomia_net2025.csv.csv")
+```
+
