@@ -335,10 +335,15 @@ idx <- which(voluntarios$dataset == "CPUN2025")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "03/08/26"
-    #voluntarios$finishingDateDC[idx] <- "03/09/26"
+    voluntarios$finishingDateDC[idx] <- "10/09/26"
 }
 
-
+idx <- which(voluntarios$dataset == "CUZ2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "10/08/26"
+    #voluntarios$finishingDateDC[idx] <- "10/09/26"
+}
 
 
 
