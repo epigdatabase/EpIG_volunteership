@@ -15,6 +15,8 @@ execute:
 
 ## Proposed Design
 
+-   Prepare one reusable set of coordinate-valid records within the Neotropical boundary.
+-   Display geographic distribution as rasterized point panels separated by source group.
 -   Aggregate records into an equal-area hexagonal grid rather than plot 1.37 million overlapping points.
 -   Use the dissolved Neotropical boundary as the mask and outline.
 -   Use a logarithmic color scale for record counts.
@@ -22,7 +24,7 @@ execute:
 -   Report the number of coordinate-valid records used and records outside the Neotropical boundary.
 -   Avoid exposing individual occurrence coordinates in the rendered output.
 
-### Loading Data
+## Loading Data
 
 The complete EpIG-DB 2.0 occurrence product is loaded locally. The raw database is employed only to prepare aggregate outputs and is not displayed in the HTML document.
 
@@ -46,7 +48,9 @@ dbPath <- "C:/EpIG_v2.0_/EpIG_volunteership/data/Occurrences_visualization/db_Ep
 db <- readRDS(here(dbPath))
 ```
 
-### Preparation Block
+## Spatial Data Preparation
+
+### Spatial Layers
 
 Three spatial inputs are prepared. the dissolved Neotropical boundary, country boundaries, and the Morrone biogeographic provinces. Invalid geometries are repaired before further spatial operations.
 
@@ -147,35 +151,104 @@ map_layer_summary |>
 Longitude and latitude are converted to numeric values and evaluated sequentially. Records must have a complete coordinate pair, fall within the legal geographic ranges, and not represent the placeholder coordinate '(0, 0)'.
 
 ```{r}
-#| label: prepare-accurrence-points
+#| label: prepare-occurrence-points
 #| echo: false
 
+# Fields that potentially will be required by the map workflow
+map_candidate_fields <- c(
+  "occurrenceID",
+  "datasetID",
+  "source_group",
+  "family",
+  "genus",
+  "scientificName",
+  "matchedNameEpig",
+  "taxonRank",
+  "eventDate",
+  "decimalLongitude",
+  "decimalLatitude"
+)
+
+# Confirm which candidate fields occur in the complete database
+map_field_inventory <- tibble(
+  Field = map_candidate_fields,
+  Available = map_candidate_fields %in% names(db)
+)
+
+# Coordinates employed for every map
+required_coordinate_fields <- c(
+  "decimalLongitude",
+  "decimalLatitude"
+)
+
+missing_coordinate_fields <- setdiff(
+  required_coordinate_fields,
+  names(db)
+)
+
+if (length(missing_coordinate_fields) > 0) {
+  stop(
+    paste(
+      "Missing required coordinate fields:",
+      paste(missing_coordinate_fields, collapse = ", ")
+    )
+  )
+}
+
+# Retain only fields needed for the map workflow
 coordinate_audit <- db |>
-  transmute(
-    longitude = suppressWarnings(as.numeric(decimalLongitude)), 
-    latitude = suppressWarnings(as.numeric(decimalLatitude))
-  ) |> 
   mutate(
-    has_coordinate_pair = !is.na(longitude) & !is.na(latitude),
+    record_index = dplyr::row_number(),
+    .before = 1
+  ) |>
+  select(
+    record_index,
+    any_of(map_candidate_fields)
+  ) |>
+  mutate(
+    longitude = suppressWarnings(
+      as.numeric(as.character(decimalLongitude))
+    ),
+    latitude = suppressWarnings(
+      as.numeric(as.character(decimalLatitude))
+    ),
+    has_coordinate_pair =
+      !is.na(longitude) &
+      !is.na(latitude),
     within_legal_range =
       has_coordinate_pair &
+      is.finite(longitude) &
+      is.finite(latitude) &
       between(longitude, -180, 180) &
       between(latitude, -90, 90),
     is_zero_zero =
-      has_coordinate_pair & longitude == 0 & latitude == 0,
-    is_coordinate_valid = within_legal_range & !is_zero_zero
+      within_legal_range &
+      longitude == 0 &
+      latitude == 0,
+    is_coordinate_valid =
+      within_legal_range &
+      !is_zero_zero
+  ) |>
+  select(
+    -decimalLongitude,
+    -decimalLatitude
   )
 
 total_records <- nrow(coordinate_audit)
-complete_pairs <- sum(coordinate_audit$has_coordinate_pair)
+
+complete_pairs <- sum(
+  coordinate_audit$has_coordinate_pair
+)
+
 outside_legal_range <- sum(
   coordinate_audit$has_coordinate_pair &
     !coordinate_audit$within_legal_range
 )
+
 zero_zero_records <- sum(
-  coordinate_audit$within_legal_range &
-    coordinate_audit$is_zero_zero
+  coordinate_audit$is_zero_zero
 )
+
 valid_coordinate_records <- sum(
   coordinate_audit$is_coordinate_valid
 )
@@ -202,10 +275,29 @@ coordinate_screening_summary <- tibble(
       accuracy = 0.1
     )
   )
-# Retain only coordinates needed for the aggregate map
+
+# Convert the coordinate-valid subset to an sf object while
+# retaining the analytical attributes
 occurrence_geo <- coordinate_audit |>
   filter(is_coordinate_valid) |>
-  select(longitude, latitude) |>
+  select(
+    record_index,
+    any_of(
+      c(
+        "occurrenceID",
+        "datasetID",
+        "source_group",
+        "family",
+        "genus",
+        "scientificName",
+        "matchedNameEpig",
+        "taxonRank",
+        "eventDate"
+      )
+    ),
+    longitude,
+    latitude
+  ) |>
   sf::st_as_sf(
     coords = c("longitude", "latitude"),
     crs = 4326,
@@ -237,12 +329,12 @@ coordinate_screening_summary |>
   )
 ```
 
-### Occurrence Records
+### Projected Neotropical Dataset
 
 Coordinate-valid records are projected to Equal Earth (EPSG:8857), filtered by the dissolved Neotropical boundary, and assigned to a 100-km equal-area hexagonal grid. Employing an equal-are projection makes the grid cells spatially comparable across the study region.
 
 ```{r}
-#| label: calculate-occurrence-density
+#| label: prepare-spatial-subset
 #| echo: false
 
 
@@ -259,10 +351,14 @@ countries_equal <- st_transform(
   crs = map_crs_equal_area
 )
 
-# Keep only geometry to reduce memory use
+provinces_equal <- st_transform(
+  provinces,
+  crs = map_crs_equal_area
+)
+
+# Keep all the needed information for posterior maps visualizations
 occurrence_points_equal <- occurrence_geo |>
-  select(geometry) |>
-  st_transform(crs = map_crs_equal_area)
+  sf::st_transform(crs = map_crs_equal_area)
 
 # Retain records inside the Neotropical boundary
 inside_neotropics <- lengths(
@@ -272,6 +368,215 @@ inside_neotropics <- lengths(
 occurrence_neotropics <- occurrence_points_equal[
   inside_neotropics,
 ]
+
+```
+## Geographic Distribution
+
+### Distribution by Data Source
+
+The geographic distribution of coordinate-valid records was compared among four broad source groups. Separate panels were used because repositories account for most recods and would obscure less sources in a single overlaid map. All panels use the same projection, geographic extent, point size, and transparency. 
+
+```{r}
+#| label: prepare-geographic-distribution
+#| echo: false
+
+# Prepare a regular data frame for the geographic-distribution figure.
+#
+# occurrence_neotropics is an sf object:
+# - each row represents one retained occurrence record;
+# - the geometry column contains its projected point location;
+# - the remaining columns contain attributes such as source_group.
+
+# st_geometry() extracts only the spatial geometry from the sf object.
+# st_coordinates() converts those point geometries into a numeric matrix:
+#   column 1 = x coordinate
+#   column 2 = y coordinate
+
+# 1. Extract the projected Coordinates --------
+# Extract Equal Earth coordinates from the retained point geometries
+point_coordinates <- sf::st_coordinates(
+  sf::st_geometry(occurrence_neotropics)
+)
+
+# 1. Build the Plotting DataFrame ---------
+# st_drop_geometry() removes the sf geometry column while retaining the
+# ordinary attribute columns.
+#
+# transmute() creates a new data frame containing only the variables
+# declared below. This keeps the plotting object small.
+geographic_distribution_data <- occurrence_neotropics |>
+  sf::st_drop_geometry() |>
+  transmute(
+    record_index,
+    source_group = stringr::str_to_lower(
+      stringr::str_trim(source_group)
+    ),
+    x = point_coordinates[, 1],
+    y = point_coordinates[, 2]
+  )
+
+# 3. Define the expected source groups and their display order
+source_group_levels <- c(
+  "repositories",
+  "researchers",
+  "herbaria",
+  "literature"
+)
+
+# 4.Check for unexpected values --------
+unexpected_source_groups <- setdiff(
+  unique(geographic_distribution_data$source_group),
+  source_group_levels
+)
+# Stop the render if an unexpected category is detected
+if (length(unexpected_source_groups) > 0) {
+  stop(
+    paste(
+      "Unexpected source-group values:",
+      paste(unexpected_source_groups, collapse = ", ")
+    )
+  )
+}
+# 5. Count Records in each Source Group ------
+source_group_counts <- geographic_distribution_data |>
+  count(
+    source_group,
+    name = "records"
+  ) |>
+  mutate(
+    source_group = factor(
+      source_group,
+      levels = source_group_levels
+    ),
+    # Construct the text displayed above each map panel
+    panel_label = paste0(
+      stringr::str_to_title(as.character(source_group)),
+      "\n",
+      scales::comma(records),
+      " records"
+    )
+  ) |>
+  arrange(source_group)
+# 6. Attach the Panel Labels to Every Record --------
+geographic_distribution_data <- geographic_distribution_data |>
+  left_join(
+    source_group_counts |>
+      select(source_group, panel_label),
+    by = "source_group"
+  ) |>
+  mutate(
+    source_group = factor(
+      source_group,
+      levels = source_group_levels
+    ),
+    panel_label = factor(
+      panel_label,
+      levels = source_group_counts$panel_label
+    )
+  )
+# 7. Define the Map colors ---------
+source_group_palette <- c(
+  repositories = "#0072B2",
+  researchers = "#D55E00",
+  herbaria = "#009E73",
+  literature = "#CC79A7"
+)
+```
+
+```{r}
+#| label: fig-geographic-distribution
+#| echo: false
+#| fig-cap: "Geographic distribution of coordinate-valid EpIG-DB occurrence records within the Neotropical region, separated by source group."
+#| fig-width: 11
+#| fig-height: 9
+#| fig-format: png
+#| dpi: 300
+
+ggplot() +
+  geom_sf(
+    data = neotropics_equal,
+    fill = "grey98",
+    colour = NA
+  ) +
+  geom_point(
+    data = geographic_distribution_data,
+    aes(
+      x = x,
+      y = y,
+      colour = source_group
+    ),
+    size = 0.08,
+    alpha = 0.15,
+    shape = 16
+  ) +
+  geom_sf(
+    data = countries_equal,
+    fill = NA,
+    colour = "grey45",
+    linewidth = 0.18
+  ) +
+  geom_sf(
+    data = neotropics_equal,
+    fill = NA,
+    colour = "black",
+    linewidth = 0.4
+  ) +
+  facet_wrap(
+    vars(panel_label),
+    ncol = 2
+  ) +
+  scale_colour_manual(
+    values = source_group_palette,
+    guide = "none"
+  ) +
+  coord_sf(
+    crs = sf::st_crs(neotropics_equal),
+    datum = NA,
+    expand = FALSE
+  ) +
+  labs(
+    title = "Geographic distribution of EpIG-DB records",
+    subtitle = "Coordinate-valid records by source group",
+    caption = paste0(
+      "Points represent occurrence records rather than unique localities. ",
+      "Overlapping records may appear as areas of greater visual intensity."
+    )
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title = element_text(
+      face = "bold",
+      size = 14
+    ),
+    plot.subtitle = element_text(
+      size = 11
+    ),
+    plot.caption = element_text(
+      size = 8,
+      colour = "grey35",
+      hjust = 0
+    ),
+    strip.text = element_text(
+      face = "bold",
+      size = 10,
+      margin = margin(4, 4, 4, 4)
+    ),
+       panel.spacing = unit(
+      0.8,
+      "lines"
+    )
+  )
+```
+
+## Sampling Density
+
+### Spatial Aggregation
+
+Records retained within tyhe Neotropical boundary are assigned to a 100-km hexagonal grid in the Equal Earth Projection. Interior cells are spatially comparable; cells intersecting the outer biundary are clipped for display. 
+
+```{r}
+#| label: calculate-occurrence-density
+#| echo: false
 
 # Construct a 100-km hexagonal grid
 grid_geometry <- st_make_grid(
@@ -372,9 +677,11 @@ density_map_summary |>
     full_width = FALSE
   )
 ```
-### Geographic Coverage
 
-Figure @fig-occurrence-density displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records.  
+### Sampling Density <ap
+
+Figure @fig-occurrence-density displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records. 
+
 ```{r}
 #| label: fig-occurrence-density
 #| echo: false

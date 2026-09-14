@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francisco Riaño">
-<meta name="dcterms.date" content="2026-09-07">
+<meta name="dcterms.date" content="2026-09-13">
 
 <title>Occurrence Maps</title>
 <style>
@@ -53,13 +53,22 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#proposed-design" id="toc-proposed-design" class="nav-link active" data-scroll-target="#proposed-design">Proposed Design</a>
-  <ul class="collapse">
+  <li><a href="#proposed-design" id="toc-proposed-design" class="nav-link active" data-scroll-target="#proposed-design">Proposed Design</a></li>
   <li><a href="#loading-data" id="toc-loading-data" class="nav-link" data-scroll-target="#loading-data">Loading Data</a></li>
-  <li><a href="#preparation-block" id="toc-preparation-block" class="nav-link" data-scroll-target="#preparation-block">Preparation Block</a></li>
+  <li><a href="#spatial-data-preparation" id="toc-spatial-data-preparation" class="nav-link" data-scroll-target="#spatial-data-preparation">Spatial Data Preparation</a>
+  <ul class="collapse">
+  <li><a href="#spatial-layers" id="toc-spatial-layers" class="nav-link" data-scroll-target="#spatial-layers">Spatial Layers</a></li>
   <li><a href="#coordinate-screening" id="toc-coordinate-screening" class="nav-link" data-scroll-target="#coordinate-screening">Coordinate Screening</a></li>
-  <li><a href="#occurrence-records" id="toc-occurrence-records" class="nav-link" data-scroll-target="#occurrence-records">Occurrence Records</a></li>
-  <li><a href="#geographic-coverage" id="toc-geographic-coverage" class="nav-link" data-scroll-target="#geographic-coverage">Geographic Coverage</a></li>
+  <li><a href="#projected-neotropical-dataset" id="toc-projected-neotropical-dataset" class="nav-link" data-scroll-target="#projected-neotropical-dataset">Projected Neotropical Dataset</a></li>
+  </ul></li>
+  <li><a href="#geographic-distribution" id="toc-geographic-distribution" class="nav-link" data-scroll-target="#geographic-distribution">Geographic Distribution</a>
+  <ul class="collapse">
+  <li><a href="#distribution-by-data-source" id="toc-distribution-by-data-source" class="nav-link" data-scroll-target="#distribution-by-data-source">Distribution by Data Source</a></li>
+  </ul></li>
+  <li><a href="#sampling-density" id="toc-sampling-density" class="nav-link" data-scroll-target="#sampling-density">Sampling Density</a>
+  <ul class="collapse">
+  <li><a href="#spatial-aggregation" id="toc-spatial-aggregation" class="nav-link" data-scroll-target="#spatial-aggregation">Spatial Aggregation</a></li>
+  <li><a href="#sampling-density-ap" id="toc-sampling-density-ap" class="nav-link" data-scroll-target="#sampling-density-ap">Sampling Density &lt;ap</a></li>
   <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a></li>
   </ul></li>
   </ul>
@@ -86,7 +95,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 7, 2026</p>
+      <p class="date">September 13, 2026</p>
     </div>
   </div>
   
@@ -101,6 +110,8 @@ ul.task-list li input[type="checkbox"] {
 <section id="proposed-design" class="level2">
 <h2 class="anchored" data-anchor-id="proposed-design">Proposed Design</h2>
 <ul>
+<li>Prepare one reusable set of coordinate-valid records within the Neotropical boundary.</li>
+<li>Display geographic distribution as rasterized point panels separated by source group.</li>
 <li>Aggregate records into an equal-area hexagonal grid rather than plot 1.37 million overlapping points.</li>
 <li>Use the dissolved Neotropical boundary as the mask and outline.</li>
 <li>Use a logarithmic color scale for record counts.</li>
@@ -108,12 +119,15 @@ ul.task-list li input[type="checkbox"] {
 <li>Report the number of coordinate-valid records used and records outside the Neotropical boundary.</li>
 <li>Avoid exposing individual occurrence coordinates in the rendered output.</li>
 </ul>
-<section id="loading-data" class="level3">
-<h3 class="anchored" data-anchor-id="loading-data">Loading Data</h3>
+</section>
+<section id="loading-data" class="level2">
+<h2 class="anchored" data-anchor-id="loading-data">Loading Data</h2>
 <p>The complete EpIG-DB 2.0 occurrence product is loaded locally. The raw database is employed only to prepare aggregate outputs and is not displayed in the HTML document.</p>
 </section>
-<section id="preparation-block" class="level3">
-<h3 class="anchored" data-anchor-id="preparation-block">Preparation Block</h3>
+<section id="spatial-data-preparation" class="level2">
+<h2 class="anchored" data-anchor-id="spatial-data-preparation">Spatial Data Preparation</h2>
+<section id="spatial-layers" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-layers">Spatial Layers</h3>
 <p>Three spatial inputs are prepared. the dissolved Neotropical boundary, country boundaries, and the Morrone biogeographic provinces. Invalid geometries are repaired before further spatial operations.</p>
 <p>Table <a href="#tbl-map-layers" class="quarto-xref">Table&nbsp;1</a> documents the role, size, geometry status, and coordinate reference system of each spatial input. All three inputs use WGS84 (EPSG:4326).</p>
 <div class="cell">
@@ -222,9 +236,37 @@ Table&nbsp;2: Sequential screening of occurrence coordinates.
 </div>
 </div>
 </section>
-<section id="occurrence-records" class="level3">
-<h3 class="anchored" data-anchor-id="occurrence-records">Occurrence Records</h3>
+<section id="projected-neotropical-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="projected-neotropical-dataset">Projected Neotropical Dataset</h3>
 <p>Coordinate-valid records are projected to Equal Earth (EPSG:8857), filtered by the dissolved Neotropical boundary, and assigned to a 100-km equal-area hexagonal grid. Employing an equal-are projection makes the grid cells spatially comparable across the study region.</p>
+</section>
+</section>
+<section id="geographic-distribution" class="level2">
+<h2 class="anchored" data-anchor-id="geographic-distribution">Geographic Distribution</h2>
+<section id="distribution-by-data-source" class="level3">
+<h3 class="anchored" data-anchor-id="distribution-by-data-source">Distribution by Data Source</h3>
+<p>The geographic distribution of coordinate-valid records was compared among four broad source groups. Separate panels were used because repositories account for most recods and would obscure less sources in a single overlaid map. All panels use the same projection, geographic extent, point size, and transparency.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="fig-geographic-distribution" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-geographic-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="OccurrenceMaps_FR_files/figure-html/fig-geographic-distribution-1.png" class="img-fluid figure-img" width="3300">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-geographic-distribution-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;1: Geographic distribution of coordinate-valid EpIG-DB occurrence records within the Neotropical region, separated by source group.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="sampling-density" class="level2">
+<h2 class="anchored" data-anchor-id="sampling-density">Sampling Density</h2>
+<section id="spatial-aggregation" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-aggregation">Spatial Aggregation</h3>
+<p>Records retained within tyhe Neotropical boundary are assigned to a 100-km hexagonal grid in the Equal Earth Projection. Interior cells are spatially comparable; cells intersecting the outer biundary are clipped for display.</p>
 <p>Table <a href="#tbl-density-summary" class="quarto-xref">Table&nbsp;3</a> reports the final map denominator and verifies that all records inside the study boundary were assigned to grid cells.</p>
 <div class="cell">
 <div id="tbl-density-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored">
@@ -280,9 +322,9 @@ Table&nbsp;3: Summary of records and grid cells used in the occurrence-density m
 </div>
 </div>
 </section>
-<section id="geographic-coverage" class="level3">
-<h3 class="anchored" data-anchor-id="geographic-coverage">Geographic Coverage</h3>
-<p>Figure <a href="#fig-occurrence-density" class="quarto-xref">Figure&nbsp;1</a> displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records.</p>
+<section id="sampling-density-ap" class="level3">
+<h3 class="anchored" data-anchor-id="sampling-density-ap">Sampling Density &lt;ap</h3>
+<p>Figure <a href="#fig-occurrence-density" class="quarto-xref">Figure&nbsp;2</a> displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records.</p>
 <div class="cell">
 <div class="cell-output-display">
 <div id="fig-occurrence-density" class="quarto-float quarto-figure quarto-figure-center anchored">
@@ -291,7 +333,7 @@ Table&nbsp;3: Summary of records and grid cells used in the occurrence-density m
 <img src="OccurrenceMaps_FR_files/figure-html/fig-occurrence-density-1.png" class="img-fluid figure-img" width="864">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-occurrence-density-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;1: Spatial distribution of EpIG-DB occurrence records across the Neotropical region. Counts were aggregated within 100-km equal-area hexagonal cells: light-grey cells contain no retained records.
+Figure&nbsp;2: Spatial distribution of EpIG-DB occurrence records across the Neotropical region. Counts were aggregated within 100-km equal-area hexagonal cells: light-grey cells contain no retained records.
 </figcaption>
 </figure>
 </div>
