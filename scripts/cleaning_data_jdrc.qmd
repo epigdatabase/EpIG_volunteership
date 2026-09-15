@@ -5700,7 +5700,7 @@ unique(text_cuz$eventDate)                           #No necesita cambios
 
 text_cuz <- text_cuz %>%
   mutate(
-    verbatimlifeForm = lifeForm
+    verbatimidentifiedBy = identifiedBy
   )
 
 #recordedBy
@@ -5717,5 +5717,332 @@ text_cuz <- text_cuz %>%
 ```{r}
 conteo_identifiedBy <- text_cuz %>%
   count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+
+#Eliminar datos extra
+
+limpiar_identifiedBy <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  # 1. Quitar bloques entre () o [] completos (incluso con de más, ej. "((...)")
+  texto <- str_remove_all(texto, "\\({1,2}[^()]*\\){1,2}")
+  texto <- str_remove_all(texto, "\\[{1,2}[^\\[\\]]*\\]{1,2}")
+  
+  # 2. Quitar paréntesis o corchetes sueltos, sin pareja
+  texto <- str_remove_all(texto, "[()\\[\\]]")
+  
+  # 3. Quitar "Â" (símbolo de codificación)
+  texto <- str_remove_all(texto, "Â")
+  
+  # 4. Quitar nombres de meses en español
+  texto <- str_remove_all(texto, regex("\\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre|March|April)\\b", ignore_case = TRUE))
+  
+  # 5. Quitar números y símbolos de fecha sueltos
+  texto <- str_remove_all(texto, "[0-9/]+")
+  
+  # 6. Quitar guiones dobles sueltos (ej. ", --")
+  texto <- str_remove_all(texto, "-{2,}")
+  
+  # 7. Quitar comas/puntos sueltos al inicio o final
+  texto <- str_remove_all(texto, "^[,.\\s]+|[,.\\s]+$")
+  
+  str_squish(texto)
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, limpiar_identifiedBy)
+
+#Organizar autores en formato
+
+
+estandarizar_iniciales_apellido_multi <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  INITIALS <- "(?:[A-ZÁÉÍÓÚÑ]\\.\\s*){1,4}"
+  SURNAME  <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)*"
+  
+  patron_A <- paste0(INITIALS, SURNAME)
+  patron_B <- paste0(SURNAME, ",\\s*", INITIALS)
+  
+  patron_combinado <- paste0("(", patron_B, ")|(", patron_A, ")")
+  
+  autores_encontrados <- str_extract_all(texto, patron_combinado)[[1]]
+  
+  if (length(autores_encontrados) == 0) return(texto)
+  
+  formatear <- function(autor) {
+    autor <- str_trim(autor)
+    if (str_detect(autor, paste0("^", SURNAME, ",\\s*", INITIALS, "$"))) {
+      return(str_squish(autor))
+    }
+    m <- str_match(autor, paste0("^(", INITIALS, ")(", SURNAME, ")$"))
+    iniciales <- str_trim(m[,2])
+    apellido  <- m[,3]
+    paste0(apellido, ", ", iniciales)
+  }
+  
+  autores_formateados <- sapply(autores_encontrados, formatear)
+  
+  paste(autores_formateados, collapse = " | ")
+}
+
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, estandarizar_iniciales_apellido_multi)
+
+```
+
+#Identificar patrones
+
+```{r}
+#Identificar nombre apellido
+
+patron_nombre_completo <- "^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}\\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,}$"
+
+nombres_para_revisar <- text_cuz %>%
+  filter(str_detect(identifiedBy, patron_nombre_completo)) %>%
+  count(identifiedBy, sort = TRUE)
+
+View(nombres_para_revisar)
+
+#Ajustar formato
+
+estandarizar_nombre_apellido <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  patron <- "^([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,})\\s+([A-ZÁÉÍÓÚÑ][a-záéíóúñ]{2,})$"
+  
+  if (str_detect(texto, patron)) {
+    m <- str_match(texto, patron)
+    nombre   <- m[,2]
+    apellido <- m[,3]
+    inicial  <- str_sub(nombre, 1, 1)
+    return(paste0(apellido, ", ", inicial, "."))
+  }
+  
+  texto
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, estandarizar_nombre_apellido)
+
+#Corregir casos especificos
+
+autores <- c(
+  "Croat, B." = "Croat, T.B.",
+  "Croat, T." = "Croat, T.B.",                  
+  "Croat, T. | Acebey, C." = "Croat, T.B. | Acebey, C.",
+  "Max, R." = "Rykaczewski, M.",
+  "Croat" = "Croat, T.B.",
+  "Cortes, A. L.A." = "Cortes, L.A.",
+  "Gonz, F." = "Gonzalez, F.",
+  "Gonzales, F." = "Gonzalez, F.",
+  "Favio GonzÃ¡lez" = "Gonzalez, F.",
+  "Gonc, E. G." = "Goncalves, E.G.",
+  "Hofreiter" = "Hofreiter, A.",
+  "John Pruski & Paola Ferreira" = "Pruski, J. | Ferreira, P.",
+  "John. Pruski" = "Pruski, J.",
+  "John Pruski , TOPOTYPE" = "Pruski, J.",
+  "Pruski & Sancho, Novon :" = "Pruski, J. | Sancho, G.",
+  "ohn Pruski" = "Pruski, J.",
+  "Philodendron guianense Croat & Grayum" = "Croat, T.B. | Grayum, M.H.",
+  "Juan de Dios MuÃ±oz" = "Munoz, J.D.",
+  "Ricardo FernÃ¡ndez" = "Fernandez, R.",
+  "fide Beltran" = "Beltran, A.",
+  "A, Henderson" = "Henderson, A.",
+  "Constance & Affolter" = "Constance, L. | Affolter, J.M.",
+  "Eric A, Christenson" = "Christenso, E.A.",
+  "G- Calatayud" = "Calatayud, G.",
+  "fide HÃ¡gsater" = "Hagsater, E.",
+  "HÃ¡gsater" = "Hagsater, E.",
+  "Al Gentry" = "Gentry, A.",
+  "Stig DalstrÃ¶m" = "Dalstrom, S.",
+  "SMith, S.F." = "Smith, S.F.",
+  "SMith, S." = "Smith, S.",
+  "Szlachetko & Kolanowska" = "Szlachetko, D. | Kolanowska, M.",
+  "fide Morales" = "Morales, A.",
+  "Luer" = "Luer, C.A.",
+  "Th, L." = "Westra, L.Y.T.",
+  "van, H." = "van der Werff, H.",
+  "Greg de Nevers" = "de Nevers, G.",
+  "Meerow, A." = "Meerow, A.W.",
+  "Meerow, W" = "Meerow, A.W.",
+  "Zhu, G." = "Zhu, G.H.",
+  "Maas, P. | van, A." = "Maas, P.J.M. | van Setten, A.",
+  "M, P.J. | Maas, H." = "Maas, P.J.M. | Maas-van de Kamer, H.",
+  "Maas, P. | Maas, H." = "Maas, P.J.M. | Maas-van de Kamer, H.",
+  "Maas, H." = "Maas-van de Kamer, H.",
+  "Maas, P. | Westra, L." = "Maas, P.J.M. | Westra, L.Y.T.",
+  "Maas, P. | Arias, S." = "Maas, P.J.M. | Arias, S.",
+  "Maas, P." = "Maas, P.J.M.",
+  "Maas, P. | Setten, A.K." = "Maas, P.J.M. | Setten, A.K.",
+  "Maas, P.J.M. | Maas, H." = "Maas, P.J.M. | Maas-van de Kamer, H.",
+  "Junikka, L. | Maas, P." = "Junikka, L. | Maas, P.J.M.",
+  "Maas, P.J.M. | Th, L.Y." = "Maas, P.J.M. | Westra, L.Y.T.",
+  "Maas, P. J. M. | Th, L. Y." = "Maas, P.J.M. | Westra, L.Y.T.",
+  "Percy NÃºÃ±ez V" = "Nunez, P."
+)
+
+estandarizar_multicolector <- function(texto, diccionario) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  original <- texto
+  diccionario <- diccionario[order(nchar(names(diccionario)), decreasing = TRUE)]
+  
+  encontrados <- data.frame(pos = integer(0), valor = character(0))
+  
+  for (nombre in names(diccionario)) {
+    ubic <- str_locate_all(texto, fixed(nombre))[[1]]
+    if (nrow(ubic) > 0) {
+      for (i in seq_len(nrow(ubic))) {
+        encontrados <- rbind(encontrados, data.frame(pos = ubic[i,1], valor = diccionario[[nombre]]))
+        str_sub(texto, ubic[i,1], ubic[i,2]) <- strrep(" ", ubic[i,2] - ubic[i,1] + 1)
+      }
+    }
+  }
+  
+  if (nchar(str_squish(texto)) > 0) return(original)
+  if (nrow(encontrados) == 0) return(original)
+  
+  encontrados <- encontrados[order(encontrados$pos), ]
+  paste(encontrados$valor, collapse = " | ")
+  
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, estandarizar_multicolector, 
+                                 diccionario = autores)
+
+#Eliminar palabras especificas
+
+valores_a_vaciar <- c(
+  "jp-",
+  "duplicado",
+  "Information, C.",
+  "Pleurothallis aff. Spiralis",
+  "Pleurothallis otopetalum Schltr",
+  "repetido",
+  "°'S °'W",
+  "Annona mucosa Jacq",
+  "Attalea butyracea Wess. Boer",
+  "HOLOTIPO",
+  "revisar",
+  "revisar nombre",
+  "RL",
+  "S"
+)
+
+text_cuz$identifiedBy[str_squish(text_cuz$identifiedBy) %in% valores_a_vaciar] <- ""
+
+
+```
+
+#Ajustar detalles
+
+```{r}
+
+#Punto final a la ultima letra
+agregar_punto_final <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  if (!str_detect(texto, "\\.$")) {
+    texto <- paste0(texto, ".")
+  }
+  
+  texto
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, agregar_punto_final)
+
+#Pegar iniciales
+pegar_iniciales_tras_coma <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, pegar_iniciales_tras_coma)
+
+
+#Otros casos especificos
+
+corregir_1 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Mueller, J.", "Muller, J.")
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, corregir_1)
+
+
+corregir_2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "Le, B.", "Leon, B.")
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, corregir_2)
+
+corregir_3 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(texto, "H, E.", "Hagsater, E.")
+}
+
+text_cuz$identifiedBy <- sapply(text_cuz$identifiedBy, corregir_3)
+
+
+
+```
+
+#Especificar cambios en identifiedBy 
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_cuz$identifiedBy) & 
+                    !is.na(text_cuz$verbatimidentifiedBy) &
+                    text_cuz$verbatimidentifiedBy != text_cuz$identifiedBy
+
+text_cuz$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_cuz$discardReason[filas_cambiadas],
+  "standardized author names in identifiedBy"
+)
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedByy <- text_cuz %>%
+  count(recordedBy, sort = TRUE)
 
 ```
