@@ -207,10 +207,15 @@ idx <- which(voluntarios$dataset == "peperomia_net2025")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Simon"
     voluntarios$startingDate[idx] <- "25/08/26"
-    #voluntarios$finishingDate[idx] <- "23/08/26"
+    voluntarios$finishingDate[idx] <- "10/09/26"
 }
 
-
+idx <- which(voluntarios$dataset == "literature2024")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Simon"
+    voluntarios$startingDate[idx] <- "14/09/26"
+    #voluntarios$finishingDate[idx] <- "10/09/26"
+}
 
 
 
