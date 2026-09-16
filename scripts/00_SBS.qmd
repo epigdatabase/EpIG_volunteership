@@ -997,6 +997,7 @@ verify_and_correct_coordinates_global <- function(data, distance_threshold_km = 
 ```{r}
 processed_peperomia_data <- verify_and_correct_coordinates_global(peperomia_data)
 ```
+
 ```{r}
 library(dplyr)
 library(stringr)
@@ -1162,6 +1163,6 @@ processed_peperomia_data <- impute_state_province(processed_peperomia_data)
 ```
 
 ```{r}
-write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__peperomia_net2025.csv.csv")
+write.csv(processed_peperomia_data, file = "../data/Georreferencing/2.Processed/georef__peperomia_net2025.csv")
 ```
 
