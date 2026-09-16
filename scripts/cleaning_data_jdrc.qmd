@@ -6042,7 +6042,335 @@ text_cuz$discardReason[filas_cambiadas] <- mapply(
 #-recordedBy: Detectar información dañada y corregir
 
 ```{r}
-conteo_recordedByy <- text_cuz %>%
+conteo_recordedBy <- text_cuz %>%
   count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+
+#Quitar tildes
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUU",
+    texto
+  )
+  
+  texto
+}
+
+text_cuz$recordedBy <- sapply(text_cuz$recordedBy, quitar_tildes)
+
+#Ajustar separadores
+
+
+separar_autores <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_replace_all(texto, "\\s*&\\s*", " | ")
+  texto <- str_replace_all(texto, "\\s*,\\s*", " | ")
+  
+  str_squish(texto)
+}
+
+text_cuz$recordedBy <- sapply(text_cuz$recordedBy, separar_autores)
+
+#Estandarizar autores como A. Gentry
+
+text_cuz <- text_cuz %>%
+ mutate(recordedBy = str_replace_all(recordedBy, "\\b([A-Za-z])\\.?\\s+([A-Za-zÁ-ÿ]+)\\b", "\\2, \\1."))
+
+#Estandarizar autores como Gloria Alarcon
+
+text_cuz <- text_cuz %>%
+  mutate(
+    # 1. Caso: "Luis Valenzuela G." -> "Valenzuela-G, L."
+    recordedBy = str_replace_all(
+      recordedBy,
+      "\\b(?!et al\\b)([A-Za-zÁ-ÿ])[a-zá-ÿ]+\\s+([A-Za-zÁ-ÿ]+)\\s+([A-Za-zÁ-ÿ])(?:\\.|\\b)",
+      "\\2-\\3, \\1."
+    ),
+    # 2. Caso: "Gloria Calatayud" -> "Calatayud, G." (sin tocar "et al" ni iniciales sueltas)
+    recordedBy = str_replace_all(
+      recordedBy,
+      "\\b(?!et al\\b)([A-Za-zÁ-ÿ])[a-zá-ÿ]+\\s+(?!al\\b)([A-Za-zÁ-ÿ]{2,})\\b",
+      "\\2, \\1."
+    ),
+    # 3. Quitar comas o espacios entre iniciales para unirlas: "Galiano, W., L." o "W. L." -> "Galiano, W.L."
+    recordedBy = str_replace_all(
+      recordedBy,
+      "\\b([A-Za-zÁ-ÿ]\\.)[,\\s]+([A-Za-zÁ-ÿ]\\.)",
+      "\\1\\2"
+    )
+  )
+
+```
+
+#Casos especificos
+
+```{r}
+autores_tipo1 <- c(
+  "G.Calatayud" = "Calatayud, G.",
+  "P. NAºA±ez" = "Nunez, P.",                  
+  "Percy NAºA±V, e.." = "Nunez, P.",
+  "EfraA­n Suclli" = "Suclli, E.",
+  "FarfA, J.¡n" = "Farfan, J.",
+  "MartA­n TimanA, E.¡" = "Timana, M.E.",
+  "CA, L.¡rdenas" = "Cardenas, L.",
+  "CA, J.¡rdenas" = "Cardenas, J.",
+  "CA, C.¡rdenas" = "Cardenas, C.",
+  "JosA© Tito" = "Tito, J.",
+  "van, H. Werff, d." = "van der Werff, H.",
+  "JosA© Ayerbe, R." = "Ayerbe, J.R.",
+  "A. RodrA­guez" = "Rodriguez, A.",
+  "FarfA, W.¡R, n.." = "Farfan-R, W.",
+  "AlarcA, E.³n" = "Alarcon, E.",
+  "PeA, A.±a" = "Pena, A.",
+  "K. GarcA­a C." = "Garcia-C, K.",
+  "R. ChevarrA­a" = "Chevarria, R.",
+  "V.QquellA, H.³n" = "Qquellon, V.H.",
+  "VA, R.¡squez" = "Vasquez, R.",
+  "ArA, A.©P, s.." = "Aristeguieta-P, L. ",
+  "GutiA, Y.©rrez" = "Gutierrez, Y.",
+  "FarfA, O.¡n" = "Farfan, O.",
+  "St. Beck, G." = "Beck, St. G.",
+  "B, R.. Foster" = "Foster, R.B.",
+  "ZuA, M.±iga" = "Zuniga, M.",
+  "GutiA, D.©rrez" = "Gutierrez, D.",
+  "I.Huamantupa" = "Huamantupa, I.",
+  "NapoleA³n NAºA±ez" = "Nunez, N.",
+  "ChA, P.¡vez" = "Chavez, P.",
+  "DueA, H.±as" = "Duenas, P.",
+  "H. DueÃ±as L." = "Duenas, L.P.",
+  "E, H.. Ahles" = "Ahles, H.E.",
+  "C. DA­az" = "Diaz, C.",
+  "V.Diaz, R." = "Diaz, V.R.",
+  "HuamA, M.¡n" = "Huaman, A.",
+  "NuA, P.±ez" = "Nunez, P.",
+  "L.Valenzuela" = "Valenzuela, L.",
+  "J. La Torre" = "la Torre, J.",
+  "C, H.. Bansal" = "Bansal, H.C.",
+  "Piper, C. Smith" = "Piper-Smith, C.",
+  "S, L.. Rose" = "Rose, L.S.",
+  "de, R. Colina, L. " = "de la Colina, R. ",
+  "BA, I.¡rcena" = "Barcena, I.",
+  "LingA, J.¡n" = "Lingan, J.",
+  "A.Radford, E." = "Radford, A.E.",
+  "SuA, N.¡rez" = "Suarez, N.",
+  "JosA© de, C. Cruz, l. " = "Campos de la Cruz, J. ",
+  "del, O. Castillo" = "del Castillo, O.",
+  "J.Silva, E.E." = "Silva-E, J.E.",
+  "D.Galiano, F.C." = "Galiano-C, D.F.",
+  "R, A.-DA¡vila" = "Davila-R, A.",
+  "P, S.. Sylvester" = "Sylvester, S.P.",
+  "Ritchie, C. Bell" = "Ritchie-Bell, C.",
+  "Latorre, J." = "la Torre, J.",
+  "QuiA, L.±ones" = "Quinones, L.",
+  "Timana, M. A, y.. Rubio" = "Timana, M. | Rubio, A.",
+  "J.La, P. Torre" = "la Torre, J.",
+  "CA, L.¡V, r.." = "Cardenas-V, L.",
+  "Antonieta, a. Vargas" = "Vargas, A.",
+  "M, A.. Huidobro, R." = "Ruiz-Huidobro, A.M.",
+  "P&E. Berry" = "Berry, P.E.",
+  "S.Smith, F." = "Smith, S.F.",
+  "E.Succlli" = "Suclli, E.",
+  "P | Berry, E." = "Berry, P.E.",
+  "Leg. Chavez, R." = "Chavez, R.",
+  "Santa, V. Cruz" = "Santa Cruz, V.",
+  "TimanA, M.¡ A, y.. Rubio" = "Timana, M. | Rubio, A.",
+  "La, J. Torre" = "la Torre, J.",
+  "de, R. Michel" = "de Michel, R.",
+  "JosA© Ayerbe" = "Ayerbe, J.",
+  "C, H.. Bansel" = "Bansel, H.C.",
+  "C.Hitchcock, L." = "Hitchcock, C.L.",
+  "J, G.. Schwarz" = "Schwarz, J.G.",
+  "Leg. St, B.. G." = "Beck, St. G.",
+  "Schunke, J. Vigo" = "Schunke-Vigo, J.",
+  "Linares, E. Perea" = "Linares-Perea, E.",
+  "ArgandoA, W.±a" = "Argandona, W.",
+  "Van, H. Werff, d." = "van der Werff, H.",
+  "Velarde, O. NuA±ez" = "Velarde-Nunez, O.",
+  "de, R. Barba" = "de Barba, R.",
+  "A, V.. Funk" = "Funk, V.A.",
+  "C.Vargas" = "Vargas, C.",
+  "L, J.. Luteyn" = "Luteyn, J.L.",
+  "Acevedo, P.-RodrA­guez" = "Acevedo, P. | Rodriguez, M.",
+  "Severo, M. BaldeA³n" = "Baldeon, S.",
+  "M.Chuspe, E." = "Chuspe, M.E.",
+  "F. RodrA­guez" = "Rodriguez, F.",
+  "P, M.. NuA±ez" = "Nunez, M.P.",
+  "R, V.. Escalante" = "Escalante, V.R.",
+  "Sottec, C. Rogue" = "Sottec-Rogue, C.",
+  " E | Suclli" = " Suclli, E.",
+  " N | Suarez " = " Suarez, N. ",
+  "Tito, J.. Luza, M." = "Tito, J. | Luza, M.",
+  "huamantupa, I." = "Huamantupa, I.",
+  "PeA, A.±Cruz, a." = "Pena-Cruz, A.",
+  "A, C.. Ridoutt" = "Ridoutt, C.A.",
+  "A | Tupayachi | Galiano, W.L.L.L.L. | Oroz, T." = "Tupayachi, A. | Galiano, W.L. | Oroz, T.",
+  "A, C.. O'Donell" = "O'Donell, C.A.",
+  "A, M.. Palacios" = "Palacios, M.A.",
+  "C.Ochoa" = "Ochoa, C.",
+  "A, P.. Munz" = "Munz, P.A.",
+  "F, S.. Smith" = "Smith, S.F.",
+  "Bennett, D.E. Mark, a. Chase" = "Bennett, D.E. | Chase, M.",
+  "AcuA, D.±Solis, a." = "Acuna-Solis, D.",
+  "Acevedo, P.-Rdgz" = "Acevedo-Rdgz, P",
+  "Acevedo, P.-Rdgz." = "Acevedo-Rdgz, P",
+  "Bennett, G. Vargas, A." = "Bennett, G. | Vargas, A.",
+  "Ã‘acchero" = "Acchero",
+  "Carhuaricra, T.. Alvarez, A." = "Carhuaricra, T. | Alvarez, A.",
+  "De, F. Torre, L." = "la Torre, F.",
+  "DueA, H.±L, a.." = "Duena-L, H.",
+  "E, A.. Radford" = "Radford, A.E.",
+  "E, J.. Montes" = "Montes, J.E.",
+  "E, M.. Tapia" = "Tapia, M.E.",
+  "F, R.. Steinbach" = "Steinbach, R.F.",
+  "FarfA¡W, n.." = "Farfan, W.",
+  "C.Moretz, C." = "Moretz, C.C.",
+  "Fortunato, L. ranibar, M.A." = "Morales-Aranibar, L.F.",
+  "G.Gonzales" = "Gonzales, G.",
+  "NuA, P.±es" = "Nunez, P.",
+  "H.Bansel, C." = "Bansel, H.C.",
+  "G, y.. Calatayud" = "| Calatayud, G.",
+  "CarriA, L.³n" = "Carrion, L.",
+  "J.Herrera, L." = "Herrera, J.L.",
+  "J.Luteyn, L." = "Luteyn, J.L.",
+  "J.Schmit, P." = "Schmit, J.P.",
+  "Jara, N. Moscoso" = "Jara-Moscoso, N.",
+  "L, F.. Herrera" = "Herrera, F.L.",
+  "L, J.. Herrera" = "Herrera, J.L.",
+  "L- Valenzuela | Suclli, E.. Farfan, J." = "Valenzuela, L. | Suclli, E. | Farfan, J.",
+  "M, R.. Aguilar" = "Aguilar, R.M.",
+  "N, D.. Smith" = "Smith, D.N.",
+  "E. Neh Mad" = "Nehmad, E.",
+  "O, A.. Phillips, L." = "Phillips, O.L.",
+  "BeltrA, H.¡n" = "Beltran, H.",
+  "O.Phillips" = "Phillips, O.L.",
+  "J.. Schmit" = "Schmit, J.P.",
+  "QuiA, E.±ones" = "Quinones, E.",
+  "R, C.. Bell" = "Bell, C.R.",
+  "R.Ehrich" = "Ehrich, R.",
+  "S, T.. Ibarrola" = "Ibarrola, T.S.",
+  "SiA, R.±ani" = "Sinani, R.",
+  "Sta, J. Cruz" = "Santa Cruz, J.",
+  "TimanA, M.¡" = "Timana, M.",
+  "V, A.. la, d. Sota" = "de la Sota, A.V.",
+  "V, L.. Hoogte, D." = "Hoogte, L.V.D.",
+  "Vaca DA­ez" = "Vaca-Diaz",
+  "rado, B" = "Rado, B.",
+  "Valenzuela, L.. Farfan, J." = "Valenzuela, L. | Farfan, J.",
+  "Fl, F.. | Javier" = "Farfan, J.",
+  "Wurth, A.." = "Wurth, A.",
+  "RocA­o Rojas" = "Rojas, R.",
+  "Llerena | N." = "Llerena, N. ",
+  "P, T. | Jose" = "Tenteyo-P, J.",
+  "Neh, E. Mad" = "Nehmad, E.",
+  " Alonso " = " Alonso, J. ",
+  "Pacaya, J. Flores" = "Pacaya-Flores, J.",
+  "Luton | J." = "Louton, J.",
+  "F. RamA­rez R." = "Ramirez-R, F.",
+  "Chambi, P.O. P." = "Chambi-P, O.P.",
+  "Percy NAºA±ez V." = "Nunez-V, P.",
+  "Tupayachi, A.. Galiano, W.L." = "Tupayachi, A. | Galiano, W.L.",
+  "| et al." = "et al.",
+  "| et al" = "et al.",
+  "| et.al." = "et al.",
+  "A.Tupayachi" = "Tupayachi, A.",
+  "A | Tupayachi" = "Tupayachi, A.",
+  "ArA, A.©stegui P." = "Arostegui-P, A.",
+  "W.Galiano" = "Galiano, W.",
+  "E, T.. Boza E." = "Boza-E, T.E.",
+  "Valenzuela, L. G." = "Valenzuela-G, L.",
+  "CA, F.¡ceres H." = "Caceres-H, F.",
+  "E, J.. Molleapasa A." = "Molleapasa-A, J.E.",
+  "De, R. Colina, l." = "de la Colina, R.",
+  "de, R. Colina, l." = "de la Colina, R.",
+  "P, Schmit, J.P." = "Schmit, J.P.",
+  "Huaman | D." = "Huaman, D.",
+  "Tupayachi, A.. Galiano, W. " = "Tupayachi, A. | Galiano, W. ",
+  "Tenteyo P | Jose" = "Tenteyo-P, Jose",
+  "Acevedo, P.-Ruiz" = "Acevedo-Ruiz, P.",
+  "NuA, O.±es" = "Nunez, O."
+)
+
+text_cuz <- text_cuz %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores_tipo1)))
+
+autores_tipo2 <-c(
+  "T, A.. H" = "A.T.H.",
+  "R, E.." = "E.R.",
+  "E, J.. A, M.." = "Molleapasa-A, J.E.",
+  "L.G, V.." = "Valenzuela-G, L.",
+  "E, P.." = "P.E.",
+  "L, F.. P, S." = "F.L.S.P.",
+  "L, F.. P, S.." = "F.L.S.P",
+  "F.L.S.P" = "F.L.S.P.",
+  "E, T.. E, B." = "Boza-E, T.E.",
+  "FLSP" = "F.L.S.P.",
+  "E, T.. E, B.." = "Boza-E, T.E.",
+  "CA, F.¡H, c.." = "Caceres-H, F."
+)
+
+text_cuz <- text_cuz %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores_tipo2)))
+
+#Eliminar palabras especificas
+
+valores_a_vaciar <- c(
+  "del, C. de, b. arroyada | del, o. rA­o.",
+  "NO on, I. specimen",
+  "NO DATA",
+  "EpA­fita; verdes, f..",
+  "colector, S.",
+  "ConvenciA, L.³n",
+  "13°10'S 071°54'W",
+  "13°03'S 072°56'W",
+  "13°03'S 073°05'W",
+  "Dist. Yanatile, Q. | Lacco, c.a.. Bosque HAºmedo Primario."
+)
+
+text_cuz$recordedBy[str_squish(text_cuz$recordedBy) %in% valores_a_vaciar] <- ""
+
+text_cuz$recordedBy <- gsub("Valenzuela, L. | Farfan, J. | Rado, B.. | Valenzuela, R. | Gamarra, L.", "Valenzuela, L. | Farfan, J. | Rado, B. | Valenzuela, R. | Gamarra, L.", text_cuz$recordedBy)
+
+text_cuz <- text_cuz %>%
+  mutate(recordedBy = if_else(occurrenceID == "CUZ2025_018527", "", recordedBy))
+
+
+SURNAME_CORE <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?(?:\\s[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?"
+INITIALS     <- "(?:[A-ZÁÉÍÓÚÑ]\\.){1,6}"
+
+patron_autor_valido <- paste0("^", SURNAME_CORE, ",\\s*", INITIALS, "$")
+
+es_autor_valido <- function(autor) {
+  autor <- str_trim(autor)
+  str_detect(autor, patron_autor_valido)
+}
+
+cumple_estructura <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(NA)
+  
+  texto <- str_trim(texto)
+  partes <- str_split(texto, "\\|")[[1]]
+  partes <- str_trim(partes)
+  
+  all(sapply(partes, es_autor_valido))
+}
+
+text_cuz$cumple_formato <- sapply(text_cuz$recordedBy, cumple_estructura)
+
+sum(text_cuz$cumple_formato == FALSE, na.rm = TRUE)
+
+revisar_formato <- text_cuz %>%
+  filter(cumple_formato == FALSE) %>%
+  count(recordedBy, sort = TRUE)
+
+View(revisar_formato)
 
 ```
