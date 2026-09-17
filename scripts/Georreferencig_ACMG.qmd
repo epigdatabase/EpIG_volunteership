@@ -326,3 +326,138 @@ if (length(idx) > 0) {
 ```{r}
 write.csv2(dfCHHL, file = "C:/EpIG_volunteership/data/Georreferencing/2.Processed/georef__HCCL2025.csv")
 ```
+
+
+
+
+#------------------------------------------------
+
+#Cargar data original
+
+```{r}
+dfSURCO <- read.csv2("C:/Desktop/Voluntariado epifitas/EpIG_volunteership/data/Georreferencing/1.Raw/georef__SURCO2025.csv",sep = ",")
+
+names(dfSURCO) # check names of the columns
+View(dfSURCO) # if you want to open and see the file
+str(dfSURCO) #solo
+head(dfSURCO) # if you want to see more or less the structure of the dataframe (df)
+```
+
+# Exportar a csv
+
+```{r}
+library(readr)
+
+write_excel_csv(dfSURCO, 
+                 file = "C:/Desktop/Voluntariado epifitas/entrenamiento/georef__SURCO2025.csv",
+                 delim = ";")
+```
+
+
+#Cargar coordenadas digitalizadas de csv
+
+```{r}
+
+dfSURCO_ref <- read.csv2("C:/Desktop/Voluntariado epifitas/entrenamiento/SURCO2025.csv",sep = ";")
+str(dfSURCO_ref)
+head(dfSURCO_ref)
+View(dfSURCO_ref)
+```
+
+
+#Crear columna de cambios y de aprobación
+
+```{r}
+
+if (!"ok.2" %in% names(dfSURCO)) dfSURCO$ok.2 <- dfSURCO$.ok_for_analysis 
+if (!"discardReason" %in% names(dfSURCO)) dfSURCO$discardReason <- NA_character_
+# view(dfSURCO) # Puedes dejar comentado el view para no abrir la tabla cada vez que corras el código
+
+# flag AMAZ_47 for discard
+# 1. CORRECCIÓN: Añadimos la condición lógica (== "AMAZ_47") y buscamos en dfSURCO
+idx <- which(dfSURCO$occurrenceID == "AMAZ_47") 
+
+if (length(idx) > 0) {
+  # 2. CORRECCIÓN: Cambiamos dfCR por dfSURCO
+  dfSURCO$discardReason[idx] <- "Impossible to correct, too vague coordinate"
+  
+  # Opcional pero recomendado: si estás descartando el punto, ok.2 debería ser FALSE
+  dfSURCO$ok.2[idx] <- FALSE 
+}
+
+
+```
+
+#Codigo para unir data digitalizada y a data original
+
+```{r}
+dfSURCO <- dfSURCO %>% # Archivo original
+  
+  left_join( 
+    dfSURCO_ref %>% select( # Archivo a unir
+      occurrenceID, # Este es el campo para union de las columnas
+      longitude_corregida = decimalLongitude, 
+      latitude_corregida  = decimalLatitude,
+      incertidumbre = coordinateUncertaintyInMeters,
+      lo_corr = locality
+    ),
+    by = "occurrenceID" # Campo por medio del cual se realiza la unión
+  ) %>%
+  
+  mutate(
+    decimalLongitude = coalesce(longitude_corregida, decimalLongitude),
+    decimalLatitude  = coalesce(latitude_corregida,  decimalLatitude),
+    
+    # CORRECCIÓN: Forzamos ambas variables a ser numéricas para evitar el choque de tipos
+    coordinateUncertaintyInMeters = coalesce(as.numeric(incertidumbre), as.numeric(coordinateUncertaintyInMeters)),
+    
+    locality = coalesce(lo_corr,  locality)
+  ) %>%
+  
+  # 3. Eliminamos las columnas temporales para dejar la base de datos limpia
+  select(-longitude_corregida, -latitude_corregida, -lo_corr, -incertidumbre)
+```
+
+```{r}
+# 1. CORRECCIÓN: Asignamos los IDs a codeSURCO, no a dfSURCO
+codeSURCO <- dfSURCO_ref$occurrenceID
+
+# make sure ok.2 exists
+if (!"ok.2" %in% names(dfSURCO)) dfSURCO$ok.2 <- dfSURCO$.ok_for_analysis 
+
+# make sure discardReason exists
+if (!"discardReason" %in% names(dfSURCO)) dfSURCO$discardReason <- NA_character_
+
+for (code in codeSURCO) {
+  # CORRECCIÓN: Asumo que querías buscar en dfSURCO (o dfSURCO_ref), no en dfCHHL_ref
+  idx <- which(dfSURCO$occurrenceID == code) 
+  
+  if (length(idx)) {
+    dfSURCO$ok.2[idx] <- TRUE
+    dfSURCO$discardReason[idx] <- "Corrected: points were corrected according to locality"
+  }
+}
+#_____________________________
+
+
+```
+
+#Datos mal
+```{r}
+
+idx <- which(dfSURCO$occurrenceID == "SURCO:478")
+if (length(idx)) {
+    dfSURCO$ok.2[idx] <- F
+    dfSURCO$discardReason[idx] <- "Impossible to correct, too vague coordinate"
+}
+```
+
+
+
+
+#Cargar datos
+
+```{r}
+write.csv2(dfSURCO, file = "C:/EpIG_volunteership/data/Georreferencing/2.Processed/georef__SURCO2025.csv")
+```
+
