@@ -2386,7 +2386,7 @@ estandarizar_iniciales_apellido_multi3 <- function(texto) {
   formatear <- function(autor) {
     autor <- str_trim(autor)
     if (str_detect(autor, paste0("^", SURNAME, ",\\s*", INITIALS, "$"))) {
-      return(str_squish(autor))  # ya estaba bien, solo normaliza espacios
+      return(str_squish(autor))  
     }
     m <- str_match(autor, paste0("^(", INITIALS, ")(", SURNAME, ")$"))
     iniciales <- str_trim(m[,2])
@@ -2858,7 +2858,7 @@ estandarizar_iniciales_apellido_multi4 <- function(texto) {
   formatear <- function(autor) {
     autor <- str_trim(autor)
     if (str_detect(autor, paste0("^", SURNAME, ",\\s*", INITIALS, "$"))) {
-      return(str_squish(autor))  # ya estaba bien, solo normaliza espacios
+      return(str_squish(autor))  
     }
     m <- str_match(autor, paste0("^(", INITIALS, ")(", SURNAME, ")$"))
     iniciales <- str_trim(m[,2])
@@ -6145,14 +6145,13 @@ autores_tipo1 <- c(
   "I.Huamantupa" = "Huamantupa, I.",
   "NapoleA³n NAºA±ez" = "Nunez, N.",
   "ChA, P.¡vez" = "Chavez, P.",
-  "DueA, H.±as" = "Duenas, P.",
-  "H. DueÃ±as L." = "Duenas, L.P.",
+  "DueA, H.±as" = "Duenas, H.",
+  "H. DueÃ±as L." = "Duenas-L, H.",
   "E, H.. Ahles" = "Ahles, H.E.",
   "C. DA­az" = "Diaz, C.",
   "V.Diaz, R." = "Diaz, V.R.",
   "HuamA, M.¡n" = "Huaman, A.",
   "NuA, P.±ez" = "Nunez, P.",
-  "L.Valenzuela" = "Valenzuela, L.",
   "J. La Torre" = "la Torre, J.",
   "C, H.. Bansal" = "Bansal, H.C.",
   "Piper, C. Smith" = "Piper-Smith, C.",
@@ -6220,8 +6219,8 @@ autores_tipo1 <- c(
   "F, S.. Smith" = "Smith, S.F.",
   "Bennett, D.E. Mark, a. Chase" = "Bennett, D.E. | Chase, M.",
   "AcuA, D.±Solis, a." = "Acuna-Solis, D.",
-  "Acevedo, P.-Rdgz" = "Acevedo-Rdgz, P",
-  "Acevedo, P.-Rdgz." = "Acevedo-Rdgz, P",
+  "Acevedo, P.-Rdgz" = "Acevedo-Rdgz, P.",
+  "Acevedo, P.-Rdgz." = "Acevedo-Rdgz, P.",
   "Bennett, G. Vargas, A." = "Bennett, G. | Vargas, A.",
   "Ã‘acchero" = "Acchero",
   "Carhuaricra, T.. Alvarez, A." = "Carhuaricra, T. | Alvarez, A.",
@@ -6245,7 +6244,6 @@ autores_tipo1 <- c(
   "Jara, N. Moscoso" = "Jara-Moscoso, N.",
   "L, F.. Herrera" = "Herrera, F.L.",
   "L, J.. Herrera" = "Herrera, J.L.",
-  "L- Valenzuela | Suclli, E.. Farfan, J." = "Valenzuela, L. | Suclli, E. | Farfan, J.",
   "M, R.. Aguilar" = "Aguilar, R.M.",
   "N, D.. Smith" = "Smith, D.N.",
   "E. Neh Mad" = "Nehmad, E.",
@@ -6264,7 +6262,6 @@ autores_tipo1 <- c(
   "V, L.. Hoogte, D." = "Hoogte, L.V.D.",
   "Vaca DA­ez" = "Vaca-Diaz",
   "rado, B" = "Rado, B.",
-  "Valenzuela, L.. Farfan, J." = "Valenzuela, L. | Farfan, J.",
   "Fl, F.. | Javier" = "Farfan, J.",
   "Wurth, A.." = "Wurth, A.",
   "RocA­o Rojas" = "Rojas, R.",
@@ -6281,12 +6278,12 @@ autores_tipo1 <- c(
   "| et al." = "et al.",
   "| et al" = "et al.",
   "| et.al." = "et al.",
+  "et.al." = "et al.",
   "A.Tupayachi" = "Tupayachi, A.",
   "A | Tupayachi" = "Tupayachi, A.",
   "ArA, A.©stegui P." = "Arostegui-P, A.",
   "W.Galiano" = "Galiano, W.",
   "E, T.. Boza E." = "Boza-E, T.E.",
-  "Valenzuela, L. G." = "Valenzuela-G, L.",
   "CA, F.¡ceres H." = "Caceres-H, F.",
   "E, J.. Molleapasa A." = "Molleapasa-A, J.E.",
   "De, R. Colina, l." = "de la Colina, R.",
@@ -6337,40 +6334,154 @@ valores_a_vaciar <- c(
 
 text_cuz$recordedBy[str_squish(text_cuz$recordedBy) %in% valores_a_vaciar] <- ""
 
-text_cuz$recordedBy <- gsub("Valenzuela, L. | Farfan, J. | Rado, B.. | Valenzuela, R. | Gamarra, L.", "Valenzuela, L. | Farfan, J. | Rado, B. | Valenzuela, R. | Gamarra, L.", text_cuz$recordedBy)
-
 text_cuz <- text_cuz %>%
   mutate(recordedBy = if_else(occurrenceID == "CUZ2025_018527", "", recordedBy))
 
 
-SURNAME_CORE <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?(?:\\s[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?"
-INITIALS     <- "(?:[A-ZÁÉÍÓÚÑ]\\.){1,6}"
+#Corregir finales
 
-patron_autor_valido <- paste0("^", SURNAME_CORE, ",\\s*", INITIALS, "$")
+text_cuz$recordedBy <- gsub("L.Valenzuela", "Valenzuela, L.", text_cuz$recordedBy)
 
-es_autor_valido <- function(autor) {
-  autor <- str_trim(autor)
-  str_detect(autor, patron_autor_valido)
+ids_a_corregir <- c("CUZ2025_026773", "CUZ2025_029048", "CUZ2025_054335")
+text_cuz$recordedBy[text_cuz$occurrenceID %in% ids_a_corregir] <- "Duenas-L, H."
+
+text_cuz$recordedBy[text_cuz$occurrenceID == "CUZ2025_069300"] <- "Valenzuela, L. | Farfan, J. | Suclli, E."
+
+text_cuz$recordedBy[text_cuz$occurrenceID == "CUZ2025_069009"] <- "Valenzuela, L. | Suclli, E. | Farfan, J. | Chama, V. | Anaya, N."
+
+text_cuz$recordedBy[text_cuz$occurrenceID == "CUZ2025_069691"] <- "Valenzuela, L. | Farfan, J. | Vizcardo, Y. | Reynaga, A."
+
+ids_a_corregir2 <- c("CUZ2025_068939", "CUZ2025_068940")
+text_cuz$recordedBy[text_cuz$occurrenceID %in% ids_a_corregir2] <- "Valenzuela-G, L."
+
+corregir_galiano <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  # 1. Reparar casos ya dañados (2 o más "L" repetidas)
+  texto <- str_replace_all(texto, "Galiano, W\\.(?:L\\.?){2,}", "Galiano, W.L.")
+  
+  # 2. Completar los que quedaron como "Galiano, W." sola (sin L)
+  texto <- str_replace_all(texto, "Galiano, W\\.(?!L)", "Galiano, W.L.")
+  
+  texto
 }
 
-cumple_estructura <- function(texto) {
-  if (is.na(texto) || str_trim(texto) == "") return(NA)
+text_cuz$recordedBy <- sapply(text_cuz$recordedBy, corregir_galiano)
+
+#Corregir muchos puntos
+
+text_cuz$recordedBy <- str_replace_all(text_cuz$recordedBy, "\\.{2,}", ".")
+
+#Agregar punto final
+
+agregar_punto_final <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
   
   texto <- str_trim(texto)
-  partes <- str_split(texto, "\\|")[[1]]
-  partes <- str_trim(partes)
   
-  all(sapply(partes, es_autor_valido))
+  if (!str_detect(texto, "\\.$")) {
+    texto <- paste0(texto, ".")
+  }
+  
+  texto
 }
 
-text_cuz$cumple_formato <- sapply(text_cuz$recordedBy, cumple_estructura)
+text_cuz$recordedBy <- sapply(text_cuz$recordedBy, agregar_punto_final)
 
-sum(text_cuz$cumple_formato == FALSE, na.rm = TRUE)
+```
 
-revisar_formato <- text_cuz %>%
-  filter(cumple_formato == FALSE) %>%
-  count(recordedBy, sort = TRUE)
 
-View(revisar_formato)
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+agregar_comentario2 <- function(discardReason, comentario_nuevo2) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo2)
+  } else {
+    return(paste(discardReason, comentario_nuevo2, sep = " / "))
+  }
+}
+
+filas_cambiadas2 <- !is.na(text_cuz$recordedBy) & 
+                    !is.na(text_cuz$verbatimrecordedBy) &
+                    text_cuz$verbatimrecordedBy != text_cuz$recordedBy
+
+text_cuz$discardReason[filas_cambiadas2] <- mapply(
+  agregar_comentario2,
+ text_cuz$discardReason[filas_cambiadas2],
+  "standardized author names in recordedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_cuz$discardReason <- sapply(text_cuz$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_cuz, file = "data/Text/2.Processed/text__CUZ2025.csv")
+
+```
+
+#18. text__EBUM2024.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_ebum <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__EBUM2024.csv")
+
+view(text_ebum)
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_ebum)) text_ebum$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_ebum$basisOfRecord)                       #No necesita cambios
+unique(text_ebum$typeStatus)                          #No necesita cambios 
+unique(text_ebum$associatedReferences)                #No necesita cambios
+unique(text_ebum$institutionCode)                     #No necesita cambios
+unique(text_ebum$taxonRank)                           #No necesita cambios
+unique(text_ebum$collectionCode)                      #No necesita cambios
+unique(text_ebum$recordedBy)                          #Necesita estandairación
+unique(text_ebum$recordNumber)                        #No necesita cambios
+unique(text_ebum$identifiedBy)                        #Necesita estandairación
+unique(text_ebum$lifeForm)                            #No necesita cambios
+unique(text_ebum$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#identifiedBy
+
+text_ebum <- text_ebum %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_ebum <- text_ebum %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
 
 ```
