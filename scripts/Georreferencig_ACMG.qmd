@@ -443,6 +443,7 @@ for (code in codeSURCO) {
 ```
 
 #Datos mal
+
 ```{r}
 
 idx <- which(dfSURCO$occurrenceID == "SURCO:478")
