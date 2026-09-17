@@ -347,10 +347,15 @@ idx <- which(voluntarios$dataset == "CUZ2025")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "10/08/26"
-    #voluntarios$finishingDateDC[idx] <- "10/09/26"
+    voluntarios$finishingDateDC[idx] <- "16/09/26"
 }
 
-
+idx <- which(voluntarios$dataset == "EBUM2024")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "16/08/26"
+    #voluntarios$finishingDateDC[idx] <- "10/09/26"
+}
 
 
 
@@ -374,9 +379,17 @@ idx <- which(voluntarios$dataset == "SURCO2025")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Camilo"
     voluntarios$startingDate[idx] <- "02/09/26"
-    #voluntarios$finishingDate[idx] <- "02/09/2026"
-
+    voluntarios$finishingDate[idx] <- "17/09/2026"
 }
+
+idx <- which(voluntarios$dataset == "USD2025")
+if (length(idx)) {
+    voluntarios$voluntarios[idx] <- "Camilo"
+    voluntarios$startingDate[idx] <- "17/09/26"
+    #voluntarios$finishingDate[idx] <- "17/09/2026"
+}
+
+
 
 
 
