@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francisco Riaño">
-<meta name="dcterms.date" content="2026-09-13">
+<meta name="dcterms.date" content="2026-09-21">
 
 <title>Occurrence Maps</title>
 <style>
@@ -71,6 +71,11 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#sampling-density-ap" id="toc-sampling-density-ap" class="nav-link" data-scroll-target="#sampling-density-ap">Sampling Density &lt;ap</a></li>
   <li><a href="#interpretation" id="toc-interpretation" class="nav-link" data-scroll-target="#interpretation">Interpretation</a></li>
   </ul></li>
+  <li><a href="#species-richness-by-biogeographic-province" id="toc-species-richness-by-biogeographic-province" class="nav-link" data-scroll-target="#species-richness-by-biogeographic-province">Species Richness by Biogeographic Province</a>
+  <ul class="collapse">
+  <li><a href="#stage-1-province-layer-audit" id="toc-stage-1-province-layer-audit" class="nav-link" data-scroll-target="#stage-1-province-layer-audit">Stage 1: Province Layer Audit</a></li>
+  <li><a href="#stage-1b-province-layer-exceptions" id="toc-stage-1b-province-layer-exceptions" class="nav-link" data-scroll-target="#stage-1b-province-layer-exceptions">Stage 1b: Province-Layer Exceptions</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -95,7 +100,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 13, 2026</p>
+      <p class="date">September 21, 2026</p>
     </div>
   </div>
   
@@ -342,7 +347,330 @@ Figure&nbsp;2: Spatial distribution of EpIG-DB occurrence records across the Neo
 </section>
 <section id="interpretation" class="level3">
 <h3 class="anchored" data-anchor-id="interpretation">Interpretation</h3>
-<p>The map summarizes geographic sampling intensity rather than species richness or biological abundance. Cells with many records may reflect greater collection effort, data mobilization, or repeated sampling. Consequently, geographic differences in record density should not be interpreted directly as differences in epiphyte diversity.</p>
+<p>The map summarizes geographic sampling intensity rather than species richness or biological abundance. Cells with many records may reflect greater collection effort, or repeated sampling. Consequently, geographic differences in record density should not be interpreted directly as differences in epiphyte diversity.</p>
+</section>
+</section>
+<section id="species-richness-by-biogeographic-province" class="level2">
+<h2 class="anchored" data-anchor-id="species-richness-by-biogeographic-province">Species Richness by Biogeographic Province</h2>
+<p>The province-level choropleth will represent the number of distinct formally named species recorded within each Morrone biogeographic province. Morphospecies will be evaluated separately because their identifiers may be contributor-specific.</p>
+<p>The workflow is divided into:</p>
+<ol type="1">
+<li>audit the province layer and identify its province-name field;</li>
+<li>define the records and taxonomic key used to count species;</li>
+<li>assign eligible occurrences to province polygons; 4.validate unmatched and multiple spatial assignments;</li>
+<li>calculate species richness while retaining provinces with zero records; and</li>
+<li>construct an interpret the choropleth.</li>
+</ol>
+<section id="stage-1-province-layer-audit" class="level3">
+<h3 class="anchored" data-anchor-id="stage-1-province-layer-audit">Stage 1: Province Layer Audit</h3>
+<p>We must check for valid geometry, empty features, and overlapping province interiors.</p>
+<p>Table <a href="#tbl-province-fields" class="quarto-xref">Table&nbsp;4</a> lists the available province attributes. The field selected as the province identifier should be complete and should normally contain one distinct value per province feature.</p>
+<div class="cell">
+<div id="tbl-province-fields" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-province-fields-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4: Attributes available in the Morrone biogeographic-province layer.
+</figcaption>
+<div aria-describedby="tbl-province-fields-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Attribute</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Class</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Non-missing features</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Distinct non-missing values</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Example values</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">OBJECTID</td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">1; 2; 3</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Provincias</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: left;">Araucaria Forest province; Atacama province; Atlantic province</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IDProv</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Region</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">Neotropical</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Subregion</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">Chacoan; South American Transition Zone; Antillean</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IDSubreg</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Dominio</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: left;">Parana; Mesoamerican; Chacoan</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">IDDominio</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Area_km</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: left;">268459.892474321; 122518.721827285; 318663.938717835</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Perimetro</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: left;">7935.94906299966; 2231.80126228647; 14680.4424504175</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">IDProvince</td>
+<td style="text-align: left;">character</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Shape_Leng</td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">67.5957607297; 18.928575915; 124.601108259</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Shape_Area</td>
+<td style="text-align: left;">numeric</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: left;">19.5196932431; 9.20181450569; 24.1146207964</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+<p>Table <a href="#tbl-province-geometry" class="quarto-xref">Table&nbsp;5</a> reports the geometric conditions that could affect the subsequent point-in-polygon operation.</p>
+<div class="cell">
+<div id="tbl-province-geometry" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-province-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5: Geometry audit of the Morrone biogeographic-province layer.
+</figcaption>
+<div aria-describedby="tbl-province-geometry-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Metric</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Province features</td>
+<td style="text-align: right;">60</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Geometry types after repair</td>
+<td style="text-align: right;">MULTIPOLYGON</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Empty geometries</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Invalid geometries after repair</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Source-layer EPSG</td>
+<td style="text-align: right;">4326</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Overlapping feature pairs</td>
+<td style="text-align: right;">4</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="stage-1b-province-layer-exceptions" class="level3">
+<h3 class="anchored" data-anchor-id="stage-1b-province-layer-exceptions">Stage 1b: Province-Layer Exceptions</h3>
+<p>The province layer contains 60 identified polygon features, but only 57 have province names. It also contains four pairs of overlapping interiors. these exceptions are examined before occurrences are assigned to provinces.</p>
+<section id="display-the-unnamed-features" class="level4">
+<h4 class="anchored" data-anchor-id="display-the-unnamed-features">Display the unnamed features</h4>
+<div class="cell">
+<div id="tbl-unnamed-provinces" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-unnamed-provinces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6: Province-layer features without a value in the Provincias field.
+</figcaption>
+<div aria-describedby="tbl-unnamed-provinces-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">province_row</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">OBJECTID</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Provincias</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Region</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Subregion</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Dominio</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Area_km</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Shape_Area</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">58</td>
+<td style="text-align: right;">349</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.58e-05</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">59</td>
+<td style="text-align: right;">364</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">3.40e-05</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">376</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.81e-05</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="display-the-overlap-pairs" class="level4">
+<h4 class="anchored" data-anchor-id="display-the-overlap-pairs">Display the overlap pairs</h4>
+<div class="cell">
+<div id="tbl-province-overlaps" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-province-overlaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7: Pairs of biogeographic-province features with overlapping interiors.
+</figcaption>
+<div aria-describedby="tbl-province-overlaps-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">Province ID 1</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Province 1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Province ID 2</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Province 2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Overlap area (km²)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Smaller province area (km²)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Overlap share of smaller province</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Chaco province</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: left;">Comechingones province</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">7,386.6</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Chaco province</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">Esteros del Ibera province</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">163,912.4</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">Chaco province</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: left;">Pampean province</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">967,249.6</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">19</td>
+<td style="text-align: left;">Esteros del Ibera province</td>
+<td style="text-align: right;">35</td>
+<td style="text-align: left;">Pampean province</td>
+<td style="text-align: right;">0.00</td>
+<td style="text-align: right;">163,912.4</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
 </section>
 </section>
 

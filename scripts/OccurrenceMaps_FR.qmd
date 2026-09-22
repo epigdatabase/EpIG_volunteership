@@ -370,11 +370,12 @@ occurrence_neotropics <- occurrence_points_equal[
 ]
 
 ```
+
 ## Geographic Distribution
 
 ### Distribution by Data Source
 
-The geographic distribution of coordinate-valid records was compared among four broad source groups. Separate panels were used because repositories account for most recods and would obscure less sources in a single overlaid map. All panels use the same projection, geographic extent, point size, and transparency. 
+The geographic distribution of coordinate-valid records was compared among four broad source groups. Separate panels were used because repositories account for most recods and would obscure less sources in a single overlaid map. All panels use the same projection, geographic extent, point size, and transparency.
 
 ```{r}
 #| label: prepare-geographic-distribution
@@ -572,7 +573,7 @@ ggplot() +
 
 ### Spatial Aggregation
 
-Records retained within tyhe Neotropical boundary are assigned to a 100-km hexagonal grid in the Equal Earth Projection. Interior cells are spatially comparable; cells intersecting the outer biundary are clipped for display. 
+Records retained within tyhe Neotropical boundary are assigned to a 100-km hexagonal grid in the Equal Earth Projection. Interior cells are spatially comparable; cells intersecting the outer biundary are clipped for display.
 
 ```{r}
 #| label: calculate-occurrence-density
@@ -678,9 +679,9 @@ density_map_summary |>
   )
 ```
 
-### Sampling Density <ap
+### Sampling Density \<ap
 
-Figure @fig-occurrence-density displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records. 
+Figure @fig-occurrence-density displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records.
 
 ```{r}
 #| label: fig-occurrence-density
@@ -740,4 +741,351 @@ ggplot() +
 
 ### Interpretation
 
-The map summarizes geographic sampling intensity rather than species richness or biological abundance. Cells with many records may reflect greater collection effort, data mobilization, or repeated sampling. Consequently, geographic differences in record density should not be interpreted directly as differences in epiphyte diversity. 
+The map summarizes geographic sampling intensity rather than species richness or biological abundance. Cells with many records may reflect greater collection effort, or repeated sampling. Consequently, geographic differences in record density should not be interpreted directly as differences in epiphyte diversity.
+
+## Species Richness by Biogeographic Province
+
+The province-level choropleth will represent the number of distinct formally named species recorded within each Morrone biogeographic province. Morphospecies will be evaluated separately because their identifiers may be contributor-specific. 
+
+The workflow is divided into:
+
+1. audit the province layer and identify its province-name field;
+2. define the records and taxonomic key used to count species;
+3. assign eligible occurrences to province polygons;
+4.validate unmatched and multiple spatial assignments;
+5. calculate species richness while retaining provinces with zero records; and
+6. construct an interpret the choropleth.
+
+### Stage 1: Province Layer Audit
+
+We must check for valid geometry, empty features, and overlapping province interiors. 
+
+```{r}
+#| label: audit-biogeographic-provinces
+#| echo: false
+
+# Remove geomtry temporarily so the attributes structure can be assessed 
+province_attributes <- provinces |>
+  sf::st_drop_geometry()
+
+# Summarize every attribute in the province shapefile. 
+province_field_summary <- tibble(
+  Attribute = names(province_attributes)
+) |>
+  mutate(
+    Class = purrr::map_chr(
+      Attribute,
+      \(field) paste(
+        class(province_attributes[[field]]),
+        collapse = ", "
+      )
+    ),
+    `Non-missing features` = purrr::map_int(
+      Attribute,
+      \(field) sum(!is.na(province_attributes[[field]]))
+    ),
+    `Distinct non-missing values` = purrr::map_int(
+      Attribute,
+      \(field) dplyr::n_distinct(
+        province_attributes[[field]],
+        na.rm = TRUE
+      )
+    ),
+    `Example values` = purrr::map_chr(
+      Attribute,
+      \(field) {
+        values <- province_attributes[[field]] |>
+          as.character()
+
+        values <- unique(
+          values[
+            !is.na(values) &
+              stringr::str_trim(values) != ""
+          ]
+        )
+
+        values |>
+          head(3) |>
+          stringr::str_trunc(width = 35) |>
+          paste(collapse = "; ")
+      }
+    )
+  )
+# st_overlaps() identifies polygons whose interiors overlap. Each pair is
+# returned twice, so the summed number of matches is divided by two.
+province_overlap_matches <- sf::st_overlaps(
+  provinces_equal
+)
+
+province_geometry_summary <- tibble(
+  Metric = c(
+    "Province features",
+    "Geometry types after repair",
+    "Empty geometries",
+    "Invalid geometries after repair",
+    "Source-layer EPSG",
+    "Overlapping feature pairs"
+  ),
+  Value = c(
+    scales::comma(nrow(provinces)),
+    paste(
+      unique(as.character(sf::st_geometry_type(provinces))),
+      collapse = ", "
+    ),
+    scales::comma(sum(sf::st_is_empty(provinces))),
+    scales::comma(sum(!sf::st_is_valid(provinces), na.rm = TRUE)),
+    as.character(sf::st_crs(provinces)$epsg),
+    scales::comma(sum(lengths(province_overlap_matches)) / 2)
+  )
+)
+```
+
+Table @tbl-province-fields lists the available province attributes. The field selected as the province identifier should be complete and should normally contain one distinct value per province feature. 
+
+```{r}
+#| label: tbl-province-fields
+#| echo: false
+#| tbl-cap: "Attributes available in the Morrone biogeographic-province layer."
+
+province_field_summary |> 
+  knitr::kable(
+    format = "html", 
+    align = c("l", "l", "r", "r", "l"), 
+    format.args = list(big.mark = ",")
+  ) |> 
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+    full_width = FALSE
+  )
+```
+
+Table @tbl-province-geometry reports the geometric conditions that could affect the subsequent point-in-polygon operation. 
+
+```{r}
+#| label: tbl-province-geometry
+#| echo: false
+#| tbl-cap: "Geometry audit of the Morrone biogeographic-province layer."
+
+province_geometry_summary |>
+  knitr::kable(
+    format = "html", 
+    align = c("l", "r")
+  ) |> 
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"), 
+    full_width = FALSE
+  )
+```
+
+### Stage 1b: Province-Layer Exceptions
+
+The province layer contains 60 identified polygon features, but only 57 have province names. It also contains four pairs of overlapping interiors. these exceptions are examined before occurrences are assigned to provinces. 
+
+```{r}
+#| label: diagnose-province-exceptions
+#| echo: false
+
+# Create a lookup table linking the sf row position to the two fields
+# that will be used later:
+#
+# province_id = complete internal identifier
+# province_name = human-readable map and table label
+province_lookup <- provinces_equal |>
+  mutate(
+    province_row = dplyr::row_number(),
+    province_id = OBJECTID,
+    province_name = stringr::str_squish(Provincias),
+    province_name = dplyr::na_if(province_name, "")
+  ) |>
+  sf::st_drop_geometry() |>
+  select(
+    province_row,
+    province_id,
+    province_name
+  )
+
+
+# 1. Identify the three empty features
+
+unnamed_province_features <- provinces_equal |>
+  mutate(
+    province_row = dplyr::row_number(),
+    province_name = stringr::str_squish(Provincias),
+    province_name = dplyr::na_if(province_name, "")
+  ) |>
+  filter(is.na(province_name)) |>
+  sf::st_drop_geometry() |>
+  select(
+    province_row,
+    OBJECTID,
+    Provincias,
+    Region,
+    Subregion,
+    Dominio,
+    Area_km,
+    Shape_Area
+  )
+
+
+# 2. Construct the four unique overlap pairs
+
+# st_overlaps() returns the row numbers of overlapping features.
+# Each relationship occurs twice: A overlaps B and B overlaps A.
+province_overlap_index <- sf::st_overlaps(
+  provinces_equal
+)
+
+province_overlap_pairs <- tibble(
+  feature_1 = rep(
+    seq_along(province_overlap_index),
+    lengths(province_overlap_index)
+  ),
+  feature_2 = unlist(
+    province_overlap_index,
+    use.names = FALSE
+  )
+) |>
+  # Retain only one copy of each pair.
+  filter(feature_1 < feature_2)
+
+
+# 3. Attach identifiers and province names
+
+province_overlap_pairs <- province_overlap_pairs |>
+  left_join(
+    province_lookup |>
+      rename(
+        feature_1 = province_row,
+        province_id_1 = province_id,
+        province_name_1 = province_name
+      ),
+    by = "feature_1"
+  ) |>
+  left_join(
+    province_lookup |>
+      rename(
+        feature_2 = province_row,
+        province_id_2 = province_id,
+        province_name_2 = province_name
+      ),
+    by = "feature_2"
+  )
+
+
+# 4. Measure the area of each overlap
+
+# Province areas are calculated from the Equal Earth geometries rather
+# than from the character field Area_km in the shapefile.
+province_area_km2 <- as.numeric(
+  sf::st_area(provinces_equal)
+) / 1e6
+
+province_overlap_summary <- province_overlap_pairs |>
+  rowwise() |>
+  mutate(
+    overlap_area_km2 = {
+      overlap_geometry <- suppressWarnings(
+        sf::st_intersection(
+          sf::st_geometry(provinces_equal)[feature_1],
+          sf::st_geometry(provinces_equal)[feature_2]
+        )
+      )
+
+      if (length(overlap_geometry) == 0) {
+        0
+      } else {
+        as.numeric(
+          sum(sf::st_area(overlap_geometry))
+        ) / 1e6
+      }
+    },
+    smaller_province_area_km2 = min(
+      province_area_km2[feature_1],
+      province_area_km2[feature_2]
+    ),
+    `Overlap share of smaller province` =
+      overlap_area_km2 /
+      smaller_province_area_km2
+  ) |>
+  ungroup() |>
+  mutate(
+    overlap_area_km2 = round(
+      overlap_area_km2,
+      digits = 2
+    ),
+    smaller_province_area_km2 = round(
+      smaller_province_area_km2,
+      digits = 2
+    )
+  )
+```
+
+
+#### Display the unnamed features
+
+```{r}
+#| label: tbl-unnamed-provinces
+#| echo: false
+#| tbl-cap: "Province-layer features without a value in the Provincias field."
+
+unnamed_province_features |>
+  knitr::kable(
+    format = "html",
+    align = c("r", "r", "l", "l", "l", "l", "r", "r"),
+    format.args = list(big.mark = ",")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed", "responsive"),
+    full_width = FALSE
+  )
+```
+
+
+#### Display the overlap pairs
+
+```{r}
+#| label: tbl-province-overlaps
+#| echo: false
+#| tbl-cap: "Pairs of biogeographic-province features with overlapping interiors."
+
+province_overlap_summary |>
+  select(
+    province_id_1,
+    province_name_1,
+    province_id_2,
+    province_name_2,
+    overlap_area_km2,
+    smaller_province_area_km2,
+    `Overlap share of smaller province`
+  ) |>
+  knitr::kable(
+    format = "html",
+    align = c(
+      "r", "l", "r", "l",
+      "r", "r", "r"
+    ),
+    col.names = c(
+      "Province ID 1",
+      "Province 1",
+      "Province ID 2",
+      "Province 2",
+      "Overlap area (km²)",
+      "Smaller province area (km²)",
+      "Overlap share of smaller province"
+    ),
+    digits = c(
+      0, NA, 0, NA,
+      2, 2, 4
+    ),
+    format.args = list(big.mark = ",")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c(
+      "striped",
+      "hover",
+      "condensed",
+      "responsive"
+    ),
+    full_width = FALSE
+  )
+```
