@@ -6442,7 +6442,6 @@ library(readxl)
 
 text_ebum <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__EBUM2024.csv")
 
-view(text_ebum)
 
 # Crear columna de comentarios
 
@@ -6480,6 +6479,337 @@ text_ebum <- text_ebum %>%
 #recordedBy
 
 text_ebum <- text_ebum %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_ebum %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+
+#Quitar tildes
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUU",
+    texto
+  )
+  
+  texto
+}
+
+text_ebum$recordedBy <- sapply(text_ebum$recordedBy, quitar_tildes)
+
+# Cambiar simbolo de separacion
+
+text_ebum <- text_ebum %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ";", " | ")
+  )
+
+text_ebum <- text_ebum %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ",", " | ")
+  )
+
+
+#Aplicar formato autores
+
+
+estandarizar_nombre_completo <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  procesar_segmento <- function(segmento) {
+    segmento <- str_trim(segmento)
+    
+    if (!str_detect(segmento, "^[A-Za-zÁÉÍÓÚÑáéíóúñ]+(\\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){2,3}$")) {
+      return(segmento)
+    }
+    
+    palabras <- str_split(segmento, "\\s+")[[1]]
+    n <- length(palabras)
+    
+    apellido <- paste0(palabras[n-1], "-", palabras[n])
+    nombres  <- palabras[1:(n-2)]
+    iniciales <- paste0(str_sub(nombres, 1, 1), ".", collapse = "")
+    
+    paste0(apellido, ", ", iniciales)
+  }
+  
+  segmentos <- str_split(texto, "\\|")[[1]]
+  segmentos <- str_trim(segmentos)
+  
+  resultado <- sapply(segmentos, procesar_segmento)
+  
+  paste(resultado, collapse = " | ")
+}
+
+text_ebum$recordedBy <- sapply(text_ebum$recordedBy, estandarizar_nombre_completo)
+
+#Corregir autores tipo: W. Martinez
+
+corregir_inicial_apellido_simple <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  procesar_segmento <- function(segmento) {
+    segmento <- str_trim(segmento)
+    
+    patron <- "^([A-ZÁÉÍÓÚÑ])\\.\\s+([A-Za-zÁÉÍÓÚÑáéíóúñ]+)$"
+    
+    if (str_detect(segmento, patron)) {
+      m <- str_match(segmento, patron)
+      return(paste0(m[,3], ", ", m[,2], "."))
+    }
+    
+    segmento  # cualquier otro caso, se deja intacto
+  }
+  
+  segmentos <- str_split(texto, "\\|")[[1]]
+  resultado <- sapply(segmentos, procesar_segmento)
+  
+  paste(str_trim(resultado), collapse = " | ")
+}
+
+text_ebum$recordedBy <- sapply(text_ebum$recordedBy, corregir_inicial_apellido_simple)
+
+```
+
+#Casos especificos
+
+```{r}
+
+autores <-c(
+  "Manuel-Escobedo, J." = "Escobedo, J.M.",
+  "Agustin-Jose, A.S." = "San Agustin, A.J.",
+  "A. Rebolledo V." = "Rebolledo-V, A.",
+  "Carlos Zolla" = "Zolla, C.",
+  "Salvador Arias" = "Arias, S.",
+  "Javier Salvador Robles del Valle" = "Robles del Valle, J.S.",
+  "Enrique Estrada L." = "Estrada-L, E.",
+  "Maria de la Luz Arreguin Sanchez" = "Arreguin-Sanchez, M.L.",
+  "Lombardo Gomez V." = "Gomez-V, L.",
+  "Victor W. Steinmann" = "Steinmann-W, V.",
+  "A. Cervantes Gomez" = "Cervantes-Gomez, A."
+)
+
+text_ebum <- text_ebum %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores)))
+
+```
+
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_ebum$recordedBy) & 
+                    !is.na(text_ebum$verbatimrecordedBy) &
+                    text_ebum$verbatimrecordedBy != text_ebum$recordedBy
+
+text_ebum$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_ebum$discardReason[filas_cambiadas],
+  "standardized author names in recordedBy"
+)
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_ebum %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+
+#Quitar tildes
+quitar_tildes2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUU",
+    texto
+  )
+  
+  texto
+}
+
+text_ebum$identifiedBy <- sapply(text_ebum$identifiedBy, quitar_tildes2)
+
+# Cambiar simbolo de separacion
+
+text_ebum <- text_ebum %>%
+  mutate(
+    identifiedBy = str_replace_all(identifiedBy, ";", " | ")
+  )
+
+#Aplicar formato autores
+
+
+estandarizar_nombre_completo2 <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  procesar_segmento <- function(segmento) {
+    segmento <- str_trim(segmento)
+    
+    if (!str_detect(segmento, "^[A-Za-zÁÉÍÓÚÑáéíóúñ]+(\\s+[A-Za-zÁÉÍÓÚÑáéíóúñ]+){2,3}$")) {
+      return(segmento)
+    }
+    
+    palabras <- str_split(segmento, "\\s+")[[1]]
+    n <- length(palabras)
+    
+    apellido <- paste0(palabras[n-1], "-", palabras[n])
+    nombres  <- palabras[1:(n-2)]
+    iniciales <- paste0(str_sub(nombres, 1, 1), ".", collapse = "")
+    
+    paste0(apellido, ", ", iniciales)
+  }
+  
+  segmentos <- str_split(texto, "\\|")[[1]]
+  segmentos <- str_trim(segmentos)
+  
+  resultado <- sapply(segmentos, procesar_segmento)
+  
+  paste(resultado, collapse = " | ")
+}
+
+text_ebum$identifiedBy <- sapply(text_ebum$identifiedBy, estandarizar_nombre_completo2)
+
+
+```
+
+#Casos especificos
+
+```{r}
+
+autores <-c(
+  "Valentin-Martinez, D." = "Martinez, D.V.",
+  "Eric Ragnar Wolko Hagsater Gartenberg" = "Hagsater-Gartenberg, E.R.W.",
+  "Elvia Lemus" = "Lemus, E.",
+  "Karen Cinthya Hernandez-Valdovinos" = "Hernandez-Valdovinos, K.C.",
+  "Javier Salvador Robles del Valle" = "Robles del Valle, J.S.",
+  "Maria de la Luz Arreguin Sanchez" = "Arreguin-Sanchez, M.L.",
+  "Lombardo Gomez V." = "Gomez-V, L."
+)
+
+text_ebum <- text_ebum %>%
+  mutate(identifiedBy = str_replace_all(identifiedBy, fixed(autores)))
+
+```
+
+#Especificar cambios en identifiedBy y guardar
+
+```{r}
+agregar_comentario2 <- function(discardReason, comentario_nuevo2) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo2)
+  } else {
+    return(paste(discardReason, comentario_nuevo2, sep = " / "))
+  }
+}
+
+filas_cambiadas2 <- !is.na(text_ebum$identifiedBy) & 
+                    !is.na(text_ebum$verbatimidentifiedBy) &
+                    text_ebum$verbatimidentifiedBy != text_ebum$identifiedBy
+
+text_ebum$discardReason[filas_cambiadas2] <- mapply(
+  agregar_comentario2,
+ text_ebum$discardReason[filas_cambiadas2],
+  "standardized author names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_ebum$discardReason <- sapply(text_ebum$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_ebum, file = "data/Text/2.Processed/text__EBUM2024.csv")
+
+```
+
+#19. text__ELE2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_ele <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__ELE2025.csv")
+
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_ele)) text_ele$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_ele$basisOfRecord)                       #No necesita cambios
+unique(text_ele$typeStatus)                          #No necesita cambios 
+unique(text_ele$associatedReferences)                #No necesita cambios
+unique(text_ele$institutionCode)                     #No necesita cambios
+unique(text_ele$taxonRank)                           #No necesita cambios
+unique(text_ele$collectionCode)                      #No necesita cambios
+unique(text_ele$recordedBy)                          #Necesita estandairación
+unique(text_ele$recordNumber)                        #No necesita cambios
+unique(text_ele$identifiedBy)                        #Necesita estandairación
+unique(text_ele$lifeForm)                            #No necesita cambios
+unique(text_ele$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#identifiedBy
+
+text_ele <- text_ele %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_ele <- text_ele %>%
   mutate(
     verbatimrecordedBy = recordedBy
   )
