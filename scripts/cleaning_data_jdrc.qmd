@@ -1892,8 +1892,8 @@ unique(text_amaz24$institutionCode)                     #No necesita cambios
 unique(text_amaz24$taxonRank)                           #No necesita cambios
 unique(text_amaz24$collectionCode)                      #No necesita cambios
 unique(text_amaz24$recordedBy)                          #Necesita estandarización
-unique(text_amaz24$recordNumber)                        #Necesita estandairación
-unique(text_amaz24$identifiedBy)                        #Necesita estandairación
+unique(text_amaz24$recordNumber)                        #Necesita estandarización
+unique(text_amaz24$identifiedBy)                        #Necesita estandarización
 unique(text_amaz24$lifeForm)                            #No necesita cambios
 unique(text_amaz24$eventDate)                           #No necesita cambios
 
@@ -2282,8 +2282,8 @@ unique(text_atrium$taxonRank)                           #No necesita cambios
 unique(text_atrium$collectionCode)                      #No necesita cambios
 unique(text_atrium$recordedBy)                          #Necesita estandarización
 unique(text_atrium$recordNumber)                        #No necesita cambios
-unique(text_atrium$identifiedBy)                        #Necesita estandairación
-unique(text_atrium$lifeForm)                            #Necesita estandairación
+unique(text_atrium$identifiedBy)                        #Necesita estandarización
+unique(text_atrium$lifeForm)                            #Necesita estandarización
 unique(text_atrium$eventDate)                           #No necesita cambios
 
 ```
@@ -3288,7 +3288,7 @@ unique(text_ba$taxonRank)                           #No necesita cambios
 unique(text_ba$collectionCode)                      #No necesita cambios
 unique(text_ba$recordedBy)                          #Necesita estandarización
 unique(text_ba$recordNumber)                        #No necesita cambios
-unique(text_ba$identifiedBy)                        #Necesita estandairación
+unique(text_ba$identifiedBy)                        #Necesita estandarización
 unique(text_ba$lifeForm)                            #No necesita cambios
 unique(text_ba$eventDate)                           #No necesita cambios
 
@@ -3696,7 +3696,7 @@ unique(text_bar$taxonRank)                           #Necesita estandarización
 unique(text_bar$collectionCode)                      #No necesita cambios
 unique(text_bar$recordedBy)                          #Necesita estandarización
 unique(text_bar$recordNumber)                        #No necesita cambios
-unique(text_bar$identifiedBy)                        #Necesita estandairación
+unique(text_bar$identifiedBy)                        #Necesita estandarización
 unique(text_bar$lifeForm)                            #Necesita estandarización
 unique(text_bar$eventDate)                           #No necesita cambios
 
@@ -4083,7 +4083,7 @@ unique(text_pecs$taxonRank)                           #No necesita cambios
 unique(text_pecs$collectionCode)                      #No necesita cambios
 unique(text_pecs$recordedBy)                          #No necesita cambios
 unique(text_pecs$recordNumber)                        #No necesita cambios
-unique(text_pecs$identifiedBy)                        #Necesita estandairación
+unique(text_pecs$identifiedBy)                        #Necesita estandarización
 unique(text_pecs$lifeForm)                            #No necesita cambios
 unique(text_pecs$eventDate)                           #No necesita cambios
 
@@ -4190,7 +4190,7 @@ unique(text_pere$taxonRank)                           #No necesita cambios
 unique(text_pere$collectionCode)                      #No necesita cambios
 unique(text_pere$recordedBy)                          #No necesita cambios
 unique(text_pere$recordNumber)                        #No necesita cambios
-unique(text_pere$identifiedBy)                        #Necesita estandairación
+unique(text_pere$identifiedBy)                        #Necesita estandarización
 unique(text_pere$lifeForm)                            #No necesita cambios
 unique(text_pere$eventDate)                           #No necesita cambios
 
@@ -4289,7 +4289,7 @@ unique(text_pete$taxonRank)                           #No necesita cambios
 unique(text_pete$collectionCode)                      #No necesita cambios
 unique(text_pete$recordedBy)                          #No necesita cambios
 unique(text_pete$recordNumber)                        #No necesita cambios
-unique(text_pete$identifiedBy)                        #Necesita estandairación
+unique(text_pete$identifiedBy)                        #Necesita estandarización
 unique(text_pete$lifeForm)                            #No necesita cambios
 unique(text_pete$eventDate)                           #No necesita cambios
 
@@ -4386,9 +4386,9 @@ unique(text_ca04$associatedReferences)                #No necesita cambios
 unique(text_ca04$institutionCode)                     #No necesita cambios
 unique(text_ca04$taxonRank)                           #No necesita cambios
 unique(text_ca04$collectionCode)                      #No necesita cambios
-unique(text_ca04$recordedBy)                          #Necesita estandairación
+unique(text_ca04$recordedBy)                          #Necesita estandarización
 unique(text_ca04$recordNumber)                        #No necesita cambios
-unique(text_ca04$identifiedBy)                        #Necesita estandairación
+unique(text_ca04$identifiedBy)                        #Necesita estandarización
 unique(text_ca04$lifeForm)                            #No necesita cambios
 unique(text_ca04$eventDate)                           #No necesita cambios
 
@@ -4553,9 +4553,9 @@ unique(text_ca23$associatedReferences)                #No necesita cambios
 unique(text_ca23$institutionCode)                     #No necesita cambios
 unique(text_ca23$taxonRank)                           #No necesita cambios
 unique(text_ca23$collectionCode)                      #No necesita cambios
-unique(text_ca23$recordedBy)                          #Necesita estandairación
+unique(text_ca23$recordedBy)                          #Necesita estandarización
 unique(text_ca23$recordNumber)                        #No necesita cambios
-unique(text_ca23$identifiedBy)                        #Necesita estandairación
+unique(text_ca23$identifiedBy)                        #Necesita estandarización
 unique(text_ca23$lifeForm)                            #No necesita cambios
 unique(text_ca23$eventDate)                           #No necesita cambios
 
@@ -4789,10 +4789,10 @@ unique(text_caup23$typeStatus)                          #No necesita cambios
 unique(text_caup23$associatedReferences)                #No necesita cambios
 unique(text_caup23$institutionCode)                     #No necesita cambios
 unique(text_caup23$taxonRank)                           #No necesita cambios
-unique(text_caup23$collectionCode)                      #Necesita estandairación
-unique(text_caup23$recordedBy)                          #Necesita estandairación
+unique(text_caup23$collectionCode)                      #Necesita estandarización
+unique(text_caup23$recordedBy)                          #Necesita estandarización
 unique(text_caup23$recordNumber)                        #No necesita cambios
-unique(text_caup23$identifiedBy)                        #Necesita estandairación
+unique(text_caup23$identifiedBy)                        #Necesita estandarización
 unique(text_caup23$lifeForm)                            #No necesita cambios
 unique(text_caup23$eventDate)                           #No necesita cambios
 
@@ -5099,12 +5099,12 @@ unique(text_cpun$basisOfRecord)                       #No necesita cambios
 unique(text_cpun$typeStatus)                          #No necesita cambios 
 unique(text_cpun$associatedReferences)                #No necesita cambios
 unique(text_cpun$institutionCode)                     #No necesita cambios
-unique(text_cpun$taxonRank)                           #Necesita estandairación
+unique(text_cpun$taxonRank)                           #Necesita estandarización
 unique(text_cpun$collectionCode)                      #No necesita cambios
-unique(text_cpun$recordedBy)                          #Necesita estandairación
+unique(text_cpun$recordedBy)                          #Necesita estandarización
 unique(text_cpun$recordNumber)                        #No necesita cambios
 unique(text_cpun$identifiedBy)                        #No necesita cambios
-unique(text_cpun$lifeForm)                            #Necesita estandairación
+unique(text_cpun$lifeForm)                            #Necesita estandarización
 unique(text_cpun$eventDate)                           #No necesita cambios
 
 ```
@@ -5684,9 +5684,9 @@ unique(text_cuz$associatedReferences)                #No necesita cambios
 unique(text_cuz$institutionCode)                     #No necesita cambios
 unique(text_cuz$taxonRank)                           #No necesita cambios
 unique(text_cuz$collectionCode)                      #No necesita cambios
-unique(text_cuz$recordedBy)                          #Necesita estandairación
+unique(text_cuz$recordedBy)                          #Necesita estandarización
 unique(text_cuz$recordNumber)                        #No necesita cambios
-unique(text_cuz$identifiedBy)                        #Necesita estandairación
+unique(text_cuz$identifiedBy)                        #Necesita estandarización
 unique(text_cuz$lifeForm)                            #No necesita cambios
 unique(text_cuz$eventDate)                           #No necesita cambios
 
@@ -6457,9 +6457,9 @@ unique(text_ebum$associatedReferences)                #No necesita cambios
 unique(text_ebum$institutionCode)                     #No necesita cambios
 unique(text_ebum$taxonRank)                           #No necesita cambios
 unique(text_ebum$collectionCode)                      #No necesita cambios
-unique(text_ebum$recordedBy)                          #Necesita estandairación
+unique(text_ebum$recordedBy)                          #Necesita estandarización
 unique(text_ebum$recordNumber)                        #No necesita cambios
-unique(text_ebum$identifiedBy)                        #Necesita estandairación
+unique(text_ebum$identifiedBy)                        #Necesita estandarización
 unique(text_ebum$lifeForm)                            #No necesita cambios
 unique(text_ebum$eventDate)                           #No necesita cambios
 
@@ -6773,7 +6773,6 @@ library(readxl)
 
 text_ele <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__ELE2025.csv")
 
-
 # Crear columna de comentarios
 
 if (!"discardReason" %in% names(text_ele)) text_ele$discardReason <- "" 
@@ -6788,9 +6787,9 @@ unique(text_ele$associatedReferences)                #No necesita cambios
 unique(text_ele$institutionCode)                     #No necesita cambios
 unique(text_ele$taxonRank)                           #No necesita cambios
 unique(text_ele$collectionCode)                      #No necesita cambios
-unique(text_ele$recordedBy)                          #Necesita estandairación
+unique(text_ele$recordedBy)                          #Necesita estandarización
 unique(text_ele$recordNumber)                        #No necesita cambios
-unique(text_ele$identifiedBy)                        #Necesita estandairación
+unique(text_ele$identifiedBy)                        #Necesita estandarización
 unique(text_ele$lifeForm)                            #No necesita cambios
 unique(text_ele$eventDate)                           #No necesita cambios
 
@@ -6810,6 +6809,685 @@ text_ele <- text_ele %>%
 #recordedBy
 
 text_ele <- text_ele %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_ele %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+
+#Quitar tildes
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_ele$recordedBy <- sapply(text_ele$recordedBy, quitar_tildes)
+
+# Cambiar simbolo de separacion
+
+text_ele <- text_ele %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ";", " | ")
+  )
+
+#Pegar las iniciales
+
+pegar_iniciales_tras_coma <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_ele$recordedBy <- sapply(text_ele$recordedBy, pegar_iniciales_tras_coma)
+
+#Poner punto a las iniciales
+
+puntuar_iniciales <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  partes <- str_split(texto, "\\|")[[1]]
+  partes <- str_trim(partes)
+  
+  procesar <- function(autor) {
+    autor <- str_trim(autor)
+    patron <- "^([A-Za-zÁÉÍÓÚÑáéíóúñ]+),\\s*([A-ZÁÉÍÓÚÑ.]+)$"
+    
+    if (str_detect(autor, patron)) {
+      m <- str_match(autor, patron)
+      apellido <- m[,2]
+      iniciales_raw <- m[,3]
+      
+      letras <- str_extract_all(iniciales_raw, "[A-ZÁÉÍÓÚÑ]")[[1]]
+      iniciales_formateadas <- paste0(letras, ".", collapse = "")
+      
+      paste0(apellido, ", ", iniciales_formateadas)
+    } else {
+      autor  
+    }
+  }
+  
+  partes_procesadas <- sapply(partes, procesar)
+  
+  paste(partes_procesadas, collapse = " | ")
+}
+
+
+text_ele$recordedBy <- sapply(text_ele$recordedBy, puntuar_iniciales)
+
+```
+
+#Casos especificos
+
+```{r}
+
+autores <-c(
+  "Torres-Torres | C." = "Torres-Torres, C.",
+  "L. Garcia" = "Garcia, L."
+)
+
+text_ele <- text_ele %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores)))
+
+text_ele <- text_ele %>%
+  mutate(
+    recordedBy = ifelse(occurrenceID == "ELE2025_15",
+                              " ", recordedBy),
+  )
+
+```
+
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_ele$recordedBy) & 
+                    !is.na(text_ele$verbatimrecordedBy) &
+                    text_ele$verbatimrecordedBy != text_ele$recordedBy
+
+text_ele$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_ele$discardReason[filas_cambiadas],
+  "standardized author names in recordedBy"
+)
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_ele %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+
+#Quitar tildes
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_ele$identifiedBy <- sapply(text_ele$identifiedBy, quitar_tildes)
+
+
+
+#Pegar las iniciales
+
+pegar_iniciales_tras_coma <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    ",\\s*([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(", ", paste0(letras, ".", collapse = ""))
+      })
+    }
+  )
+}
+
+text_ele$identifiedBy <- sapply(text_ele$identifiedBy, pegar_iniciales_tras_coma)
+
+
+
+```
+
+#Casos especificos
+
+```{r}
+
+autores <-c(
+  "Torres-Torres; C." = "Torres-Torres, C.",
+  "L. Garcia" = "Garcia, L."
+)
+
+text_ele <- text_ele %>%
+  mutate(identifiedBy = str_replace_all(identifiedBy, fixed(autores)))
+
+text_ele <- text_ele %>%
+  mutate(
+    identifiedBy = ifelse(occurrenceID == "ELE2025_15",
+                              " ", identifiedBy),
+  )
+
+```
+
+#Especificar cambios en identifiedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_ele$identifiedBy) & 
+                    !is.na(text_ele$verbatimidentifiedBy) &
+                    text_ele$verbatimidentifiedBy != text_ele$identifiedBy
+
+text_ele$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_ele$discardReason[filas_cambiadas],
+  "standardized author names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_ele$discardReason <- sapply(text_ele$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_ele, file = "data/Text/2.Processed/text__ELE2025.csv")
+
+```
+
+#20. text__gallego_s_2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_gallego <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__gallego_s_2025.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_gallego)) text_gallego$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_gallego$basisOfRecord)                       #No necesita cambios
+unique(text_gallego$typeStatus)                          #Necesita estandarización 
+unique(text_gallego$associatedReferences)                #No necesita cambios
+unique(text_gallego$institutionCode)                     #No necesita cambios
+unique(text_gallego$taxonRank)                           #No necesita cambios
+unique(text_gallego$collectionCode)                      #No necesita cambios
+unique(text_gallego$recordedBy)                          #Necesita estandarización 
+unique(text_gallego$recordNumber)                        #No necesita cambios
+unique(text_gallego$identifiedBy)                        #Necesita estandarización 
+unique(text_gallego$lifeForm)                            #No necesita cambios
+unique(text_gallego$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#typeStatus
+
+text_gallego <- text_gallego %>%
+  mutate(
+    verbatimtypeStatus = typeStatus
+  )
+
+#identifiedBy
+
+text_gallego <- text_gallego %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_gallego <- text_gallego %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-typeStatus: Corregir tildes
+
+```{r}
+
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_gallego$typeStatus <- sapply(text_gallego$typeStatus, quitar_tildes)
+
+```
+
+#Especificar cambios en typeStatus y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_gallego$typeStatus) & 
+                    !is.na(text_gallego$verbatimtypeStatus) &
+                    text_gallego$verbatimtypeStatus != text_gallego$typeStatus
+
+text_gallego$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_gallego$discardReason[filas_cambiadas],
+  "removed accents in typeStatus"
+)
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_gallego %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+
+#Quitar tildes
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_gallego$recordedBy <- sapply(text_gallego$recordedBy, quitar_tildes)
+
+
+```
+
+#Especificar cambios en recordedBy
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_gallego$recordedBy) & 
+                    !is.na(text_gallego$verbatimrecordedBy) &
+                    text_gallego$verbatimrecordedBy != text_gallego$recordedBy
+
+text_gallego$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_gallego$discardReason[filas_cambiadas],
+  "removed accents in recordedBy"
+)
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_gallego %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+
+#Estandarizar autores
+```{r}
+
+#Quitar tildes
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_gallego$identifiedBy <- sapply(text_gallego$identifiedBy, quitar_tildes)
+
+
+```
+
+#Especificar cambios en identifiedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_gallego$identifiedBy) & 
+                    !is.na(text_gallego$verbatimidentifiedBy) &
+                    text_gallego$verbatimidentifiedBy != text_gallego$identifiedBy
+
+text_gallego$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_gallego$discardReason[filas_cambiadas],
+  "removed accents in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_gallego$discardReason <- sapply(text_gallego$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_gallego, file = "data/Text/2.Processed/text__gallego_s_2025.csv")
+
+```
+
+#21. text__gerber_jp_2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_gerber <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__gerber_jp_2025.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_gerber)) text_gerber$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_gerber$basisOfRecord)                       #No necesita cambios
+unique(text_gerber$typeStatus)                          #No necesita cambios
+unique(text_gerber$associatedReferences)                #No necesita cambios
+unique(text_gerber$institutionCode)                     #No necesita cambios
+unique(text_gerber$taxonRank)                           #No necesita cambios
+unique(text_gerber$collectionCode)                      #No necesita cambios
+unique(text_gerber$recordedBy)                          #Necesita estandarización 
+unique(text_gerber$recordNumber)                        #No necesita cambios
+unique(text_gerber$identifiedBy)                        #Necesita estandarización 
+unique(text_gerber$lifeForm)                            #No necesita cambios
+unique(text_gerber$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+
+#identifiedBy
+
+text_gerber <- text_gerber %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_gerber <- text_gerber %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-recordedBy: Estandarizar autor
+
+```{r}
+text_gerber$recordedBy <- gsub("Gerber, Jan Philipp", "Gerber, J.P.", text_gerber$recordedBy)
+```
+
+#Especificar cambios en recordedBy
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_gerber$recordedBy) & 
+                    !is.na(text_gerber$verbatimrecordedBy) &
+                    text_gerber$verbatimrecordedBy != text_gerber$recordedBy
+
+text_gerber$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_gerber$discardReason[filas_cambiadas],
+  "standardized author name in recordedBy"
+)
+
+```
+
+#-identifiedBy: Estandarizar autor
+
+```{r}
+text_gerber$identifiedBy <- gsub("Gerber, Jan Philipp", "Gerber, J.P.", text_gerber$identifiedBy)
+```
+
+#Especificar cambios en identifiedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_gerber$identifiedBy) & 
+                    !is.na(text_gerber$verbatimidentifiedBy) &
+                    text_gerber$verbatimidentifiedBy != text_gerber$identifiedBy
+
+text_gerber$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_gerber$discardReason[filas_cambiadas],
+  "standardized author name in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_gerber$discardReason <- sapply(text_gerber$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_gerber, file = "data/Text/2.Processed/text__gerber_jp_2025.csv")
+
+```
+
+#22.text__GUYN2008.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_guyn <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__GUYN2008.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_guyn)) text_guyn$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_guyn$basisOfRecord)                       #No necesita cambios
+unique(text_guyn$typeStatus)                          #No necesita cambios
+unique(text_guyn$associatedReferences)                #No necesita cambios
+unique(text_guyn$institutionCode)                     #Necesita estandarización 
+unique(text_guyn$taxonRank)                           #No necesita cambios
+unique(text_guyn$collectionCode)                      #No necesita cambios
+unique(text_guyn$recordedBy)                          #Necesita estandarización 
+unique(text_guyn$recordNumber)                        #Necesita estandarización 
+unique(text_guyn$identifiedBy)                        #Necesita estandarización 
+unique(text_guyn$lifeForm)                            #No necesita cambios
+unique(text_guyn$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#institutionCode
+
+text_guyn <- text_guyn %>%
+  mutate(
+    verbatiminstitutionCode = institutionCode
+  )
+
+#recordNumber
+
+text_guyn <- text_guyn %>%
+  mutate(
+    verbatimrecordNumber = recordNumber
+  )
+
+
+#identifiedBy
+
+text_guyn <- text_guyn %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+#recordedBy
+
+text_guyn <- text_guyn %>%
   mutate(
     verbatimrecordedBy = recordedBy
   )
