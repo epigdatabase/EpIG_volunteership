@@ -7789,7 +7789,7 @@ filas_cambiadas <- !is.na(text_guyn$identifiedBy) &
 text_guyn$discardReason[filas_cambiadas] <- mapply(
   agregar_comentario,
  text_guyn$discardReason[filas_cambiadas],
-  "standardized authorS nameS in identifiedBy"
+  "standardized authors names in identifiedBy"
 )
 
 #Convertir columna creada de lista a caracter y guardar
@@ -7804,7 +7804,7 @@ write.csv(text_guyn, file = "data/Text/2.Processed/text__GUYN2008.csv")
 
 ```
 
-#21.text__HCCL2025.csv
+#23.text__HCCL2025.csv
 
 ```{r}
 
@@ -7902,3 +7902,229 @@ text_hccl <- text_hccl %>%
 
 ```
 
+#Especificar cambios en identifiedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hccl$lifeForm) & 
+                    !is.na(text_hccl$verbatimlifeForm) &
+                    text_hccl$verbatimlifeForm != text_hccl$lifeForm
+
+text_hccl$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hccl$discardReason[filas_cambiadas],
+  "standardized lifeForm"
+)
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_hccl %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+#Quitar tildes y simbolos
+
+quitar_tildes2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_hccl$recordedBy <- sapply(text_hccl$recordedBy, quitar_tildes2)
+
+#cambiar simbolo de separación
+
+text_hccl <- text_hccl %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, "-", " | ")
+  )
+
+text_hccl <- text_hccl %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ",", " | ")
+  )
+
+text_hccl <- text_hccl %>%
+  mutate(recordedBy = str_replace(recordedBy, "^\\s*\\|\\s*$", ""))
+
+#Organizar autores con tres palabras
+
+text_hccl <- text_hccl %>%
+  mutate(
+    recordedBy = if_else(str_detect(recordedBy, "^[\\s.|]+$"), "", recordedBy),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+text_hccl <- text_hccl %>%
+  mutate(recordedBy = str_replace_all(
+    recordedBy,
+    "(^|\\|\\s*)([A-Za-zÁ-ÿ])[a-zá-ÿ]{1,}\\s+([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\||$)",
+    "\\1\\3-\\4, \\2."
+  ))
+
+#Organizar autores con cuatro palabras
+
+text_hccl <- text_hccl %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])[a-zá-ÿ]{1,}\\s+([A-Za-zÁ-ÿ])[a-zá-ÿ]{1,}\\s+([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\||$)",
+      "\\1\\4-\\5, \\2.\\3."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Organizar autores tipo Doris K. Alfaro Silva
+
+text_hccl <- text_hccl %>%
+  mutate(recordedBy = str_replace_all(
+    recordedBy,
+    "(^|\\|\\s*)([A-Za-zÁ-ÿ])[a-zá-ÿ]{1,}\\s+([A-Za-zÁ-ÿ])\\.?\\s+([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\||$)",
+    "\\1\\4-\\5, \\2.\\3."
+  ))
+
+```
+
+#Casos especificos
+
+```{r}
+autores2 <-c(
+  "Q. Chavez" = "Chavez, Q.",
+  "Q. Diaz" = "Diaz, Q.",
+  "Cohayla Chavez" = "Chavez, C.",
+  "Jambo Cueva" = "Cueva, J.",
+  "Chuquimango Fuentes" = "Chuquimango-Fuentes, M.Y.",
+  "Munoz Estela" = "Munoz, E.",
+  "Munoz Manosalva" = "Munoz-Manosalva, L.A.",
+  "Lilian-Araceli, M.M." = "Munoz-Manosalva, L.A.",
+  "Herly R.Gutierrez Salazar" = "Gutierrez-Salazar, H.R.",
+  "Jakeline. R. Salazar Rojas" = "Salazar-Rojas, J.R.",
+  "Cortegana-Murga, T." = "Cortegana-Murga, T.J.",
+  "Karito Tello tejada – Bruno Sanchez Marquez." = "Tello-Tejada, K. | Sanchez-Marquez, B.",
+  "Teresita de Jesus Cortegana Murga | Machuca-Huingo, V.D." = "Cortegana-Murga, T.J. | Machuca-Huingo, V.D.",
+  "Machuca-Huingo, V.D. | Teresita de Jesus Cortegana Murga." = "Machuca-Huingo, V.D. | Cortegana-Murga, T.J. ",
+  "Pereyra Chavez" = "Pereyra-Chavez"
+)
+
+text_hccl <- text_hccl %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores2)))
+
+```
+
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hccl$recordedBy) & 
+                    !is.na(text_hccl$verbatimrecordedBy) &
+                    text_hccl$verbatimrecordedBy != text_hccl$recordedBy
+
+text_hccl$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hccl$discardReason[filas_cambiadas],
+  "standardized authors names in recordedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_hccl$discardReason <- sapply(text_hccl$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_hccl, file = "data/Text/2.Processed/text__HCCL2025.csv")
+
+```
+
+#24. text__HEM2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_hem <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__HEM2025.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_hem)) text_hem$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_hem$basisOfRecord)                       #No necesita cambios
+unique(text_hem$typeStatus)                          #Necesita estandarización
+unique(text_hem$associatedReferences)                #No necesita cambios
+unique(text_hem$institutionCode)                     #No necesita cambios 
+unique(text_hem$taxonRank)                           #No necesita cambios
+unique(text_hem$collectionCode)                      #No necesita cambios
+unique(text_hem$recordedBy)                          #Necesita estandarización 
+unique(text_hem$recordNumber)                        #No necesita cambios
+unique(text_hem$identifiedBy)                        #Necesita estandarización 
+unique(text_hem$lifeForm)                            #No necesita cambios
+unique(text_hem$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#lifeForm
+
+text_hem <- text_hem %>%
+  mutate(
+    verbatimlifeForm = lifeForm
+  )
+
+#recordedBy
+
+text_hem <- text_hem %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
