@@ -354,8 +354,44 @@ idx <- which(voluntarios$dataset == "EBUM2024")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "16/08/26"
-    #voluntarios$finishingDateDC[idx] <- "10/09/26"
+    voluntarios$finishingDateDC[idx] <- "16/09/26"
 }
+
+
+
+idx <- which(voluntarios$dataset == "ELE2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "16/09/26"
+    voluntarios$finishingDateDC[idx] <- "23/09/26"
+}
+
+idx <- which(voluntarios$dataset == "gallego_s_2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "23/09/26"
+    voluntarios$finishingDateDC[idx] <- "23/09/26"
+}
+
+idx <- which(voluntarios$dataset == "gerber_jp_2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "23/09/26"
+    voluntarios$finishingDateDC[idx] <- "24/09/26"
+}
+
+
+idx <- which(voluntarios$dataset == "GUYN2008")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "24/09/26"
+    #voluntarios$finishingDateDC[idx] <- "24/09/26"
+}
+
+
+
+
+
 
 
 
@@ -386,7 +422,7 @@ idx <- which(voluntarios$dataset == "USD2025")
 if (length(idx)) {
     voluntarios$voluntarios[idx] <- "Camilo"
     voluntarios$startingDate[idx] <- "17/09/26"
-    #voluntarios$finishingDate[idx] <- "17/09/2026"
+    voluntarios$finishingDate[idx] <- "21/09/2026"
 }
 
 
@@ -413,14 +449,14 @@ idx <- which(voluntarios$dataset == "zuluaga_a_2021")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Kelly"
     voluntarios$startingDateDC[idx] <- "25/07/26"
-    #voluntarios$finishingDateDC[idx] <- "/07/26"
+    voluntarios$finishingDateDC[idx] <- "21/09/26"
 }
 
 idx <- which(voluntarios$dataset == "kroemer_t_2024")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Kelly"
-    voluntarios$startingDateDC[idx] <- "27/06/26"
-    #voluntarios$finishingDateDC[idx] <- "27/07/26"
+    voluntarios$startingDateDC[idx] <- "27/07/26"
+    voluntarios$finishingDateDC[idx] <- "21/09/26"
 }
 
 
@@ -828,6 +864,29 @@ print(resultado_final, n = Inf)
 
 
 saveRDS(CR, file = "../EpIG_volunteership/data/Georreferencing/2.Processed/georef__CR2024.rds")
+
+
+
+#USD2025
+
+dfUSD <- read.csv2("C:/Users/Usuario/Documents/coordenadas_continent/dfUSD2025.csv",sep = ";")
+
+str(dfUSD)
+
+dfUSD$OK.2 <- T
+dfUSD$discardReason <- "Corrected according coordinates"
+
+
+idx <- which(dfUSD$decimalLatitude == 0)
+idx
+if (length(idx)) {
+  dfUSD$OK.2[idx] <- F
+  dfUSD$discardReason[idx] <- "Impossible to correct"
+}
+
+write.csv(dfUSD, file = "data/Georreferencing/2.Processed/georef__USD2025.csv")
+
+
 
 ```
 
