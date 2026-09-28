@@ -8379,3 +8379,366 @@ text_hem$discardReason <- sapply(text_hem$discardReason, function(x) {
 write.csv(text_hem, file = "data/Text/2.Processed/text__HEM2025.csv")
 
 ```
+
+#25. text__HFCF2019.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_hfcf <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__HFCF2019.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_hfcf)) text_hfcf$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_hfcf$basisOfRecord)                       #No necesita cambios
+unique(text_hfcf$typeStatus)                          #No necesita cambios
+unique(text_hfcf$associatedReferences)                #No necesita cambios
+unique(text_hfcf$institutionCode)                     #No necesita cambios 
+unique(text_hfcf$taxonRank)                           #No necesita cambios
+unique(text_hfcf$collectionCode)                      #No necesita cambios
+unique(text_hfcf$recordedBy)                          #Necesita estandarización 
+unique(text_hfcf$recordNumber)                        #No necesita cambios
+unique(text_hfcf$identifiedBy)                        #No necesita cambios
+unique(text_hfcf$lifeForm)                            #No necesita cambios
+unique(text_hfcf$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#recordedBy
+
+text_hfcf <- text_hfcf %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_hfcf %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+#Quitar tildes
+
+quitar_tildes_simbolos <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜñÑçÇ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUUUnNcC",
+    texto
+  )
+  
+  texto
+}
+
+text_hfcf$recordedBy <- sapply(text_hfcf$recordedBy, quitar_tildes_simbolos)
+
+# Cambiar simbolo de separacion
+
+text_hfcf <- text_hfcf %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, "-", " | ")
+  )
+
+#Autores tipo A.L. Carlson
+
+text_hfcf <- text_hfcf %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\4, \\2.\\3."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Autores tipo A. Carlson
+
+text_hfcf <- text_hfcf %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\3, \\2."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Estandarizar autores tipo Nombre Apellido
+
+text_hfcf <- text_hfcf %>%
+  mutate(recordedBy = str_replace_all(
+    recordedBy,
+    "(^|\\|\\s*)([A-Za-zÁ-ÿ])[a-zá-ÿ]+\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\||$)",
+    "\\1\\3, \\2."
+  )) 
+
+
+#Eliminar palabras especificas
+
+valores_a_vaciar <- c(
+  "blanco y negro",
+  "foto de colores",
+  "MOL ()",
+  "MOL",
+  "Mol",
+  "Ing. Pesantes"
+)
+
+text_hfcf$recordedBy[str_squish(text_hfcf$recordedBy) %in% valores_a_vaciar] <- ""
+
+#Varis iniciales y apellido
+
+text_hfcf <- text_hfcf %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s+([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\5-\\6, \\2.\\3.\\4."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\5, \\2.\\3.\\4."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s+([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\4-\\5, \\2.\\3."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\4, \\2.\\3."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\3-\\4, \\2."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\3, \\2."
+    ),
+    recordedBy = if_else(str_detect(recordedBy, "^[\\s.|]+$"), "", recordedBy),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+```
+
+#Casos especificos
+
+```{r}
+autores <-c(
+#van der werff
+  "H. van der werff" = "van der Werff, H.",
+  "H. Van der Werff" = "van der Werff, H.",
+  "H. van der Werff" = "van der Werff, H.",
+  "H. van der werff (P.N.)" = "van der Werff, H.",
+  "H.Van der Werff" = "van der Werff, H.",
+#del carpio
+  "Del-Carpio, C." = "del Carpio, C.",
+  "del-Carpio, C." = "del Carpio, C.",
+#de la Torre
+  "la-Torre, A.D.e." = "de la Torre, A.",
+  "Torre, M.L.a." = "la Torre, M.",
+  "Dela-Torre, A." = "de la Torre, A.",
+  "la-Torre, D.e." = "de la Torre.",
+  "De la Torre, A." = "de la Torre, A.",
+#de los Angeles
+  "M.de los angeles la torre" = "de los Angeles, M. | la Torre.",
+  "M de los Angeles Latorre Cuadros" = "de los Angeles, M. | la Torre-Cuadros.",
+  "M. de los Angeles" = "de los Angeles, M.",
+#Otros
+  "Al. Gentry" = "Gentry, A.L.",
+  "Al Gentry" = "Gentry, A.L.",
+  "S M" = "S.M.",
+  "soria, M." = "Soria, M.",
+  "J.C. de la Cruz" = "de la Cruz, J.C.",
+  "D. R Simpson" = "Simpson, D.R.",
+  "Van-Eynde, K." = "van Eynde, K.",
+  "Van, K." = "van Eynde, K.",
+  "CDC | Peru" = "National Center for Epidemiology, Disease Prevention and Control (CDC Peru)",
+  "C . Diaz" = "Diaz, C.",
+  "R . Vasquez" = "Vasquez, R.",
+  "Luis A." = "L.A.",
+  "Gendric, A.l." = "Gendric, A.L.",
+  "B: Grandez" = "Grandez, B.",
+  "Jose Schunke V." = "Schunke-Vigo, J.",
+  "Robin B. Foster" = "Foster, R.B.",
+  "Donald R. Simpson" = "Simpson, D.R."
+)
+
+text_hfcf <- text_hfcf %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores)))
+
+#Punto final a la ultima letra
+agregar_punto_final <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  if (!str_detect(texto, "\\.$")) {
+    texto <- paste0(texto, ".")
+  }
+  
+  texto
+}
+
+text_hfcf$recordedBy <- sapply(text_hfcf$recordedBy, agregar_punto_final)
+
+#Pegar iniciales
+
+pegar_iniciales <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  str_replace_all(
+    texto,
+    "([A-ZÁÉÍÓÚÑ]\\.(?:\\s+[A-ZÁÉÍÓÚÑ]\\.)+)",
+    function(m) {
+      sapply(m, function(x) {
+        letras <- str_extract_all(x, "[A-ZÁÉÍÓÚÑ]")[[1]]
+        paste0(letras, ".", collapse = "")
+      })
+    }
+  )
+}
+
+text_hfcf$recordedBy <- sapply(text_hfcf$recordedBy, pegar_iniciales)
+
+#Otros casos especificos
+
+autores2 <-c(
+  "DIaz, C." = "Diaz, C",
+  "Eynde, K.V." = "van Eynde, K.",
+  "los-Angeles, M.d.e." = "de los Angeles, M.",
+  "J.C. de la Cruz." = "de la Cruz, J.C.",
+  "DEFORPAM, P. | INRENA." = "Proyecto DEFORPAM. | INRENA.",
+  "van der Werff, H. (P.N.)." = "van der Werff, H.",
+  "kahapp, N." = "Kahapp, N."
+)
+
+text_hfcf <- text_hfcf %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores2)))
+
+```
+
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hfcf$recordedBy) & 
+                    !is.na(text_hfcf$verbatimrecordedBy) &
+                    text_hfcf$verbatimrecordedBy != text_hfcf$recordedBy
+
+text_hfcf$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hfcf$discardReason[filas_cambiadas],
+  "standardized authors names in recordedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_hfcf$discardReason <- sapply(text_hfcf$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_hfcf, file = "data/Text/2.Processed/text__HFCF2019.csv")
+
+```
+
+#26. text__HGOM2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_hgom <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__HGOM2025.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_hgom)) text_hgom$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_hgom$basisOfRecord)                       #No necesita cambios
+unique(text_hgom$typeStatus)                          #No necesita cambios
+unique(text_hgom$associatedReferences)                #No necesita cambios
+unique(text_hgom$institutionCode)                     #No necesita cambios 
+unique(text_hgom$taxonRank)                           #No necesita cambios
+unique(text_hgom$collectionCode)                      #No necesita cambios
+unique(text_hgom$recordedBy)                          #Necesita estandarización 
+unique(text_hgom$recordNumber)                        #No necesita cambios
+unique(text_hgom$identifiedBy)                        #Necesita estandarización 
+unique(text_hgom$lifeForm)                            #No necesita cambios
+unique(text_hgom$eventDate)                           #No necesita cambios
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#recordedBy
+
+text_hgom <- text_hgom %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+```
