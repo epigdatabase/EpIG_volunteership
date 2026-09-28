@@ -8113,11 +8113,11 @@ unique(text_hem$eventDate)                           #No necesita cambios
 
 ```{r}
 
-#lifeForm
+#typeStatus
 
 text_hem <- text_hem %>%
   mutate(
-    verbatimlifeForm = lifeForm
+    verbatimtypeStatus = typeStatus
   )
 
 #recordedBy
@@ -8126,5 +8126,256 @@ text_hem <- text_hem %>%
   mutate(
     verbatimrecordedBy = recordedBy
   )
+
+#identifiedBy
+
+text_hem <- text_hem %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+```
+
+#-typeStatus: Quitar tildes
+
+```{r}
+
+#Quitar tildes
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_hem$typeStatus <- sapply(text_hem$typeStatus, quitar_tildes)
+
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_hem %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+# Cambiar simbolo de separacion
+
+text_hem <- text_hem %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, "&", " | ")
+  )
+
+#Quitar tildes
+
+quitar_tildes_simbolos <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜñÑçÇ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUUUnNcC",
+    texto
+  )
+  
+  texto
+}
+
+text_hem$recordedBy <- sapply(text_hem$recordedBy, quitar_tildes_simbolos)
+
+#Autores tipo A.L. Carlson
+
+text_hem <- text_hem %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\4, \\2.\\3."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Autores tipo A. Carlson
+
+text_hem <- text_hem %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\3, \\2."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Casos especificos
+
+autores <-c(
+  "M.A. Perez-Farrera" = "Perez-Farrera, M.A.",
+  "J. Guzman. H." = "Guzman-H, J.",
+  "D.C.Daly, M.Ricker, J. Martinez M, H.Garcia M." = "Daly, D.C. | Ricker, M. | Martinez-M, J. | Garcia-M, H.",
+  "ND" = "N.D."
+)
+
+text_hem <- text_hem %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores)))
+
+#Punto final a la ultima letra
+agregar_punto_final <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- str_trim(texto)
+  
+  if (!str_detect(texto, "\\.$")) {
+    texto <- paste0(texto, ".")
+  }
+  
+  texto
+}
+
+text_hem$recordedBy <- sapply(text_hem$recordedBy, agregar_punto_final)
+
+```
+
+#Especificar cambios en recordedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hem$recordedBy) & 
+                    !is.na(text_hem$verbatimrecordedBy) &
+                    text_hem$verbatimrecordedBy != text_hem$recordedBy
+
+text_hem$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hem$discardReason[filas_cambiadas],
+  "standardized authors names in recordedBy"
+)
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_hem %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+# Cambiar simbolo de separacion
+
+text_hem <- text_hem %>%
+  mutate(
+    identifiedBy = str_replace_all(identifiedBy, "&", " | ")
+  )
+
+#Quitar tildes
+
+quitar_tildes_simbolos <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÛÜñÑçÇ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUUUnNcC",
+    texto
+  )
+  
+  texto
+}
+
+text_hem$identifiedBy <- sapply(text_hem$identifiedBy, quitar_tildes_simbolos)
+
+#Autores tipo A.L. Carlson
+
+text_hem <- text_hem %>%
+  mutate(
+    identifiedBy = str_replace_all(
+      identifiedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\4, \\2.\\3."
+    ),
+    identifiedBy = str_replace_all(identifiedBy, "\\s*\\|\\s*", " | "),
+    identifiedBy = str_trim(identifiedBy)
+  )
+
+#Autores tipo A. Carlson
+
+text_hem <- text_hem %>%
+  mutate(
+    identifiedBy = str_replace_all(
+      identifiedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])\\.\\s*([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\3, \\2."
+    ),
+    identifiedBy = str_replace_all(identifiedBy, "\\s*\\|\\s*", " | "),
+    identifiedBy = str_trim(identifiedBy)
+  )
+
+#Casos especificos
+
+autores <-c(
+  "M.A. Perez-Farrera" = "Perez-Farrera, M.A.",
+  " O. F. S." = " O.F.S."
+)
+
+text_hem <- text_hem %>%
+  mutate(identifiedBy = str_replace_all(identifiedBy, fixed(autores)))
+
+```
+
+#Especificar cambios en identifiedBy y guardar
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hem$identifiedBy) & 
+                    !is.na(text_hem$verbatimidentifiedBy) &
+                    text_hem$verbatimidentifiedBy != text_hem$identifiedBy
+
+text_hem$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hem$discardReason[filas_cambiadas],
+  "standardized authors names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_hem$discardReason <- sapply(text_hem$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_hem, file = "data/Text/2.Processed/text__HEM2025.csv")
 
 ```
