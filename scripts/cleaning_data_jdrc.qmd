@@ -8741,4 +8741,403 @@ text_hgom <- text_hgom %>%
     verbatimrecordedBy = recordedBy
   )
 
+#identifiedBy
+
+text_hgom <- text_hgom %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
 ```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_hgom %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+autores <-c(
+  "Ramirez, Said Cruz" = "Ramirez-Cruz, S.",
+  "Sanchez, Arturo Gonzales" = "Sanchez-Gonzales, A.",
+  "Perez, Arlen Cervantes" = "Perez-Cervantes, A.",
+  "Gutierrez, Marisol Lozano" = "Gutierrez-Lozano, M.",
+  "Zuñiga, Jose Ramon Salvatierra" = "Zuniga-Salvatierra, J.R.",
+  "Hernandez, Adriana G. Alvarez" = "Hernandez-Alvarez, A.G.",
+  "Perez, Yarely Atilano" = "Perez-Atilano, Y.",
+  "Hornung- Leoni, C. T." = "Hornung-Leoni, C.T.",
+  "Reyes, Felipe Aguilar" = "Reyes-Aguilar, F.",
+  "Roqueiro, Mariana" = "Roqueiro, M.",
+  "Serrano, Hector Martinez" = "Serrano-Martinez, H."
+)
+
+text_hgom <- text_hgom %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores)))
+```
+
+#Especificar cambios en recordedBy
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hgom$recordedBy) & 
+                    !is.na(text_hgom$verbatimrecordedBy) &
+                    text_hgom$verbatimrecordedBy != text_hgom$recordedBy
+
+text_hgom$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hgom$discardReason[filas_cambiadas],
+  "standardized authors names in recordedBy"
+)
+
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_hgom %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+```{r}
+autores2 <-c(
+  "Ramirez, Said Cruz" = "Ramirez-Cruz, S.",
+  "Sanchez, Arturo Gonzales" = "Sanchez-Gonzales, A.",
+  "Perez, Arlen Cervantes" = "Perez-Cervantes, A.",
+  "Gutierrez, Marisol Lozano" = "Gutierrez-Lozano, M.",
+  "Zuñiga, Jose Ramon Salvatierra" = "Zuniga-Salvatierra, J.R.",
+  "Hernandez, Adriana G. Alvarez" = "Hernandez-Alvarez, A.G.",
+  "Perez, Yarely Atilano" = "Perez-Atilano, Y.",
+  "Hornung- Leoni, C. T." = "Hornung-Leoni, C.T.",
+  "Perez, Arlen Perez" = "Perez-Perez, A.",
+  "Hornung-Leoni, C. T." = "Hornung-Leoni, C.T.",
+  "Serrano, Hector Martinez" = "Serrano-Martinez, H.",
+  "Tejero, Daniel Díez" = "Tejero-Diez, D.",
+  "Tejero, Daniel Diez" = "Tejero-Diez, D."
+)
+
+text_hgom <- text_hgom %>%
+  mutate(identifiedBy = str_replace_all(identifiedBy, fixed(autores2)))
+```
+
+#Especificar cambios en identifiedBy
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hgom$identifiedBy) & 
+                    !is.na(text_hgom$verbatimidentifiedBy) &
+                    text_hgom$verbatimidentifiedBy != text_hgom$identifiedBy
+
+text_hgom$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hgom$discardReason[filas_cambiadas],
+  "standardized authors names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_hgom$discardReason <- sapply(text_hgom$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_hgom, file = "data/Text/2.Processed/text__HGOM2025.csv")
+
+```
+
+#27. text__HIP2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_hip <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__HIP2025.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_hip)) text_hip$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_hip$basisOfRecord)                       #No necesita cambios
+unique(text_hip$typeStatus)                          #No necesita cambios
+unique(text_hip$associatedReferences)                #No necesita cambios
+unique(text_hip$institutionCode)                     #No necesita cambios 
+unique(text_hip$taxonRank)                           #No necesita cambios
+unique(text_hip$collectionCode)                      #No necesita cambios
+unique(text_hip$recordedBy)                          #Necesita estandarización 
+unique(text_hip$recordNumber)                        #No necesita cambios
+unique(text_hip$identifiedBy)                        #Necesita estandarización 
+unique(text_hip$lifeForm)                            #No necesita cambios
+unique(text_hip$eventDate)                           #Necesita estandarización 
+
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#eventDate
+
+text_hip <- text_hip %>%
+  mutate(
+    verbatimeventDate = eventDate
+  )
+
+#recordedBy
+
+text_hip <- text_hip %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+#identifiedBy
+
+text_hip <- text_hip %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+```
+
+#-eventDate: Identificar y corregir
+```{r}
+
+#Crear columna year y extraer solo los años
+
+text_hip <- text_hip %>%
+  mutate(
+    year = if_else(
+      str_detect(eventDate, "/"),
+      str_extract(eventDate, "(18|19|20)\\d{2}"),
+      ""
+    ),
+    year = coalesce(year, "")
+  )
+
+#Eliminar numeros en columna original
+
+text_hip <- text_hip %>%
+  mutate(
+    eventDate = if_else(str_detect(eventDate, "^\\d+$"), "", eventDate)
+  )
+
+```
+
+#Especificar cambios en eventDate
+
+```{r}
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hip$eventDate) & 
+                    !is.na(text_hip$verbatimeventDate) &
+                    text_hip$verbatimeventDate != text_hip$eventDate
+
+text_hip$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hip$discardReason[filas_cambiadas],
+  "a new year column was generated by extracting the year from eventDate. In addition, numeric values appearing in the eventDate column were removed"
+)
+
+```
+
+#-identifiedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_identifiedBy <- text_hip %>%
+  count(identifiedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+autores3 <-c(
+  "Edmundo Pisano" = "Pisano, E.",
+  "Transecta BotÃ¡nica de la Patagonia Austral" = "Transecta Botanica de la Patagonia Austral.",
+  "Orlando Dollenz" = "Dollenz, O.",
+  "C. Marticorena" = "Marticorena, C.",
+  "RuÃ­z de Ciolfi, E" = "Ruiz de Ciolfi, E.",
+  "DomÃ­nguez, E" = "DomInguez, E.",
+  "Edgardo N. Orfila" = "Orfila, E.N.",
+  "T.R. Dudley" = "Dudley, T.R.",
+  "CÃ¡rdenas, R" = "Cardenas, R.",
+  "Gunckel, H" = "Gunckel, H.",
+  "Moore, D.M" = "Moore, D.M.",
+  "R.N.P. Goodall" = "Goodall, R.N.P",
+  "Goodall, R.N.P" = "Goodall, R.N.P."
+)
+
+text_hip <- text_hip %>%
+  mutate(identifiedBy = str_replace_all(identifiedBy, fixed(autores3)))
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_hip %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+# Cambiar simbolo de separacion
+
+text_hip <- text_hip %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ";", " | ")
+  )
+
+#Corregir simbolos raros
+
+autores4 <-c(
+  "HenrÃ­quez" = "Henriquez",
+  "Transecta BotÃ¡nica de la Patagonia Austral" = "Transecta Botanica de la Patagonia Austral.",
+  "DomÃ­nguez" = "Dominguez",
+  "CÃ¡rdenas" = "Cardenas",
+  "HernÃ¡ndez" = "Hernandez",
+  "LÃ³pez" = "Lopez"
+)
+
+text_hip <- text_hip %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores4)))
+
+#Autores tipo Nombre Apellido
+
+text_hip <- text_hip %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ])[a-zá-ÿ]+\\s+([A-Za-zÁ-ÿ]{2,})\\.?\\s*(?=\\||$)",
+      "\\1\\3, \\2."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Casos especificos
+
+autores5 <-c(
+  "T.R. Dudley | R.N.P. Goodall | G. Crow" = "Dudley, T.R. | Goodall, R.N.P. | Crow, G.",
+  "Rae Natalie P. Goodall" = "Goodal, R.N.P.",
+  "Henriquez, J. T." = "Henriquez, J.T."
+)
+
+text_hip <- text_hip %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores5)))
+
+#Agregar punto a la ultima inicial
+
+text_hip <- text_hip %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "([A-Za-zÁ-ÿ])(?=\\s*(\\||$))",
+      "\\1."
+    ),
+    # Asegura espacios consistentes en los separadores
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+```
+
+#Especificar cambios y guardar
+
+```{r}
+
+#recordedBy
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hip$recordedBy) & 
+                    !is.na(text_hip$verbatimrecordedBy) &
+                    text_hip$verbatimrecordedBy != text_hip$recordedBy
+
+text_hip$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hip$discardReason[filas_cambiadas],
+  "standardized authors names in recordedBy"
+)
+
+#identifiedBy
+
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
+}
+
+filas_cambiadas <- !is.na(text_hip$identifiedBy) & 
+                    !is.na(text_hip$verbatimidentifiedBy) &
+                    text_hip$verbatimidentifiedBy != text_hip$identifiedBy
+
+text_hip$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hip$discardReason[filas_cambiadas],
+  "standardized authors names in identifiedBy"
+)
+
+#Convertir columna creada de lista a caracter y guardar
+
+text_hip$discardReason <- sapply(text_hip$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_hip, file = "data/Text/2.Processed/text__HIP2025.csv")
+
+
+```
+
