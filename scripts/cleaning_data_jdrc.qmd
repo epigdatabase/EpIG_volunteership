@@ -9141,3 +9141,451 @@ write.csv(text_hip, file = "data/Text/2.Processed/text__HIP2025.csv")
 
 ```
 
+#28. text__HUA2025.csv
+
+```{r}
+
+# Cargar librerias y revisar información
+
+library(dplyr)
+library(tidyverse)
+library(stringr)
+library(readr)
+library(sf)
+library(CoordinateCleaner)
+library(ggplot2)
+library(stringi)
+library(readxl)
+
+text_hua <- read.csv("C:/VOLUNTARIADO/EpIG/EpIG_volunteership/data/Text/1_Raw/text__HUA2025.csv")
+
+# Crear columna de comentarios
+
+if (!"discardReason" %in% names(text_hua)) text_hua$discardReason <- "" 
+```
+
+# Revisar cada una de las columnas
+
+```{r}
+unique(text_hua$basisOfRecord)                       #No necesita cambios
+unique(text_hua$typeStatus)                          #No necesita cambios
+unique(text_hua$associatedReferences)                #No necesita cambios
+unique(text_hua$institutionCode)                     #Necesita estandarización 
+unique(text_hua$taxonRank)                           #No necesita cambios
+unique(text_hua$collectionCode)                      #No necesita cambios
+unique(text_hua$recordedBy)                          #Necesita estandarización 
+unique(text_hua$recordNumber)                        #No necesita cambios
+unique(text_hua$identifiedBy)                        #Necesita estandarización 
+unique(text_hua$lifeForm)                            #No necesita cambios
+unique(text_hua$eventDate)                           #No necesita cambios
+```
+
+#Crear columna de verbatim
+
+```{r}
+
+#institutionCode
+
+text_hua <- text_hua %>%
+  mutate(
+    verbatiminstitutionCode = institutionCode
+  )
+
+#recordedBy
+
+text_hua <- text_hua %>%
+  mutate(
+    verbatimrecordedBy = recordedBy
+  )
+
+#identifiedBy
+
+text_hua <- text_hua %>%
+  mutate(
+    verbatimidentifiedBy = identifiedBy
+  )
+
+```
+
+#-institutionCode: Revisar información y corregir
+
+```{r}
+conteo_institutionCode <- text_hua %>%
+  count(institutionCode, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+eliminar <- c(
+  "Costa M.",
+  "Cid C.",
+  "Enrique M. Vargas",
+  "Enrique Méndez",
+  "Baker W.",
+  "Jangoux J.",
+  "Barfod A.",
+  "Calzada J.",
+  "D. Calderón",
+  "E. Méndez",
+  "Grimes J.",
+  "Harley R.",
+  "Madsen J.",
+  "Ribas O.",
+  "Ribeiro J.",
+  "Sanz J.",
+  "Schunke J.",
+  "Ståhl B.",
+  "Pujupet J.",
+  "V. Zak",
+  "do Amaral I.",
+  "maría Alejandra Jaramillo",
+  "María Alejandra Jaramillo.",
+  "Marín G.",
+  "Milliken W.",
+  "Morales L.",
+  "Jaime O. Pujupet",
+  "Luis Roberto Sánchez.",
+  "Brummer K.",
+  "Coêlho D.",
+  "Humberto Mendoza",
+  "Carolina Murcia.",
+  "Amaral I.",
+  "do Amaral I.",
+  "Thomas H.",
+  "Robert L. Dressler",
+  "William Vargas",
+  "Jens Bittner",
+  "María Alejandra Jaramillo",
+  "William Vargas.",
+  "William G. Vargas",
+  "Harling G.",
+  "Méndez E.",
+  "Alejandra Jaramillo",
+  "Vargas E.",
+  "Jaramillo J.",
+  "Marín R.",
+  "Hatschbach G.",
+  "Assunção P.",
+  "Pablo Stevenson"
+)
+
+text_hua$institutionCode[str_squish(text_hua$institutionCode) %in% eliminar] <- ""
+
+
+#Quitar tildes
+
+quitar_tildes <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_hua$institutionCode <- sapply(text_hua$institutionCode, quitar_tildes)
+
+#Caso especifico
+
+text_hua$institutionCode <- gsub("Tucker J.M. Herbarium", "Herbarium", text_hua$institutionCode)
+
+
+#Punto final a la ultima letra
+text_hua <- text_hua %>%
+  mutate(
+    institutionCode = str_trim(institutionCode),
+    institutionCode = if_else(
+      !is.na(institutionCode) & institutionCode != "" & !str_ends(institutionCode, "\\."),
+      paste0(institutionCode, "."),
+      institutionCode
+    )
+  )
+```
+
+#-recordedBy: Detectar información dañada y corregir
+
+```{r}
+conteo_recordedBy <- text_hua %>%
+  count(recordedBy, sort = TRUE)
+
+```
+
+#Estandarizar autores
+
+```{r}
+
+#Quitar tildes
+quitar_tildes2 <- function(texto) {
+  
+  if (is.na(texto) || str_trim(texto) == "") return(texto)
+  
+  texto <- chartr(
+    "áàâãäéèêëíìîïóòôõöúùûüÁÀÂÃÄÉÈÊËÍÌÎÏÓÒÔÕÖÚÙÑñ",
+    "aaaaaeeeeiiiiooooouuuuAAAAAEEEEIIIIOOOOOUUNn",
+    texto
+  )
+  
+  texto
+}
+
+text_hua$recordedBy <- sapply(text_hua$recordedBy, quitar_tildes2)
+
+# Cambiar simbolo de separacion
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ";", " | ")
+  )
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, ",", " | ")
+  )
+
+#Autores tipo Apellido I. o Apellido JC.
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\2, \\3.\\4."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ])\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\2, \\3."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Autores tipo Apellido-Apellido J.
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ]+(?:-[A-Za-zÁ-ÿ]+)?)\\s+([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\2, \\3.\\4."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ]+(?:-[A-Za-zÁ-ÿ]+)?)\\s+([A-Za-zÁ-ÿ])\\.?\\s*(?=\\s*(\\||$))",
+      "\\1\\2, \\3."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Autores tipo de o van
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(?<!,)\\s+([A-Za-zÁ-ÿ])\\.?\\s*([A-Za-zÁ-ÿ])\\.?\\s*(?=\\s*(\\||$))",
+      ", \\1.\\2."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(?<!,)\\s+([A-Za-zÁ-ÿ])\\.?\\s*(?=\\s*(\\||$))",
+      ", \\1."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Quitar frases que no son autores
+
+patron_eliminar <- paste(
+  "Curso", "Programa", "Comunidad", "Laboratorios?", 
+  "Grupo", "Estudiantes", "Asociación", "Asociacion", 
+  "Alumnos", "IDEM", "Club", "Abuelo", "Medical",
+  "Hernan El Diablo.", "QCNE", " IV Curso", "biologia",
+  "the School", "seccional", "Equipo", "Fitoprocesados.",
+  "Quinto", "Distribuciones", "Expedicion", "Fito",
+  "y Grupos", "semestre", "Excursionistas", "Productos",
+  "Class", "Cooperativa", "Universidad", "indigenas",
+  "Ingenieria", "primer", "Ingenieria", 
+  sep = "|"
+)
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_remove_all(
+      recordedBy,
+      regex(paste0("\\|\\s*(?:", patron_eliminar, ")[^|]*"), ignore_case = TRUE)
+    ),
+    recordedBy = str_remove(
+      recordedBy,
+      regex(paste0("^(?:", patron_eliminar, ")[^|]*(\\||$)"), ignore_case = TRUE)
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_replace(recordedBy, "^\\s*\\|\\s*", ""), 
+    recordedBy = str_replace(recordedBy, "\\s*\\|\\s*$", ""),   
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Et al y Otros
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "\\|\\s*(?:et,\\s*a\\.l\\.?|Otros\\.)",
+      "et al."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Eliminar ciertas palabras
+
+eliminar <- c(
+  "3C.",
+  "3C",
+  "Sin colector",
+  "sd",
+  "Hermano Daniel.",
+  "Hermano Daniel",
+  "Daniel Hermano.",
+  "Hno Daniel",
+  "Excurs Caracas.",
+  "Excurs Caracas",
+  "Biosabila EAT.",
+  "Biosabila EAT",
+  "II INBio.",
+  "II INBio",
+  "Cooperativa Coomun.",
+  "Cooperativa Naturagro.",
+  "Cooperativa Coomun",
+  "sede suroeste.",
+  "Al Bosque.",
+  "sede suroeste",
+  "Don Alberto",
+  "Park Guard.",
+  "Park Guard",
+  "Forest ranger.",
+  "Forest ranger",
+  "Universidad CES.",
+  "indigenas Embera",
+  "SFS Students.",
+  "SFS Students"
+)
+
+patron_eliminar <- eliminar %>%
+  str_replace_all("([.|()\\^\\$*+?{}\\[\\]\\\\])", "\\\\\\1") %>%
+  unique() %>%
+  .[order(-nchar(.))] %>%
+  paste(collapse = "|")
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      regex(paste0("(?:^|\\|\\s*)(?:", patron_eliminar, ")(?=\\s*(\\||$))"), ignore_case = TRUE),
+      ""
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\|(\\s*\\|)+", "|"),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_replace(recordedBy, "^\\s*\\|\\s*", ""),
+    recordedBy = str_replace(recordedBy, "\\s*\\|\\s*$", ""),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Autores de dos palabras
+autores_map <- c(
+  "Maria Luisa." = "M.L.",
+  "Jose Manuel." = "J.M.",
+  "Cesar Augusto." = "C.A.",
+  "Andres Felipe" = "A.F.",
+  "Alvarez Gallego" = "Alvarez-Gallego.",
+  "Alirio Maria." = "A.M.",
+  "Juana Martina." = "J.M.",
+  "Padilla Dra." = "Padilla.",
+  "Garcia Alvarez." = "Garcia-Alvarez.",
+  "Sagcal Alvarez." = "Sagcal-Alvarez.",
+  "Reynoso Agoo." = "Reynoso-Agoo.",
+  "Sagcal Romero." = "Sagcal-Romero.",
+  "Reynoso Sagcal." = "Reynoso-Sagcal.",
+  "Fuentes Romero." = "Fuentes-Romero.",
+  "Cortes Vazquez" = "Cortes-Vazquez",
+  "Greg Wahlert" = "Wahlert, G.",
+  "Rodriguez Jairo" = "Rodriguez, J.",
+  "Tom Croat" = "Croat, T.B.",
+  "Humberto Gregorio." = "Gregorio, H.",
+  "Hoyos Saul" = "Hoyos, S.",
+  "Sagcal Fernando." = "Sagcal, F.",
+  "Gallego Alvarez." = "Gallego-Alvarez.",
+  "Guanghua Zhu." = "Guanghua,Z.",
+  "Cortes Luis" = "Cortes, L.",
+  "Luis Carlos." = "L.C.",
+  "Aicardo Raul." = "A.R.",
+  "Diana Teresa." = "D.T.",
+  "Jhon Jairo." = "J.J.",
+  "Victor Caycedo" = "Caycedo, V.",
+  "Cabrera Jorge" = "Cabrera, J.",
+  "Caizano Elario" = "Caizano, E.",
+  "Tapi Bernelio" = "Tapi, B.",
+  "Tapi Francisco" = "Tapi, F."
+)
+
+text_hua <- text_hua %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores_map)))
+```
+
+```{r}
+SURNAME_CORE <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?(?:\\s[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?"
+INITIALS     <- "(?:[A-ZÁÉÍÓÚÑ]\\.){1,6}"
+
+patron_autor_valido <- paste0("^", SURNAME_CORE, ",\\s*", INITIALS, "$")
+
+es_autor_valido <- function(autor) {
+  autor <- str_trim(autor)
+  str_detect(autor, patron_autor_valido)
+}
+
+cumple_estructura <- function(texto) {
+  if (is.na(texto) || str_trim(texto) == "") return(NA)
+  
+  texto <- str_trim(texto)
+  partes <- str_split(texto, "\\|")[[1]]
+  partes <- str_trim(partes)
+  
+  all(sapply(partes, es_autor_valido))
+}
+
+text_hua$cumple_formato <- sapply(text_hua$recordedBy, cumple_estructura)
+
+sum(text_hua$cumple_formato == FALSE, na.rm = TRUE)
+
+revisar_formato <- text_hua %>%
+  filter(cumple_formato == FALSE) %>%
+  count(recordedBy, sort = TRUE)
+
+View(revisar_formato)
+
+#Dos palabras
+
+patron_dos_palabras <- "(^|\\|\\s*)[A-Za-zÁ-ÿ]{2,}\\s+[A-Za-zÁ-ÿ]{2,}\\.?\\s*(?=\\||$)"
+
+# Filtra las filas de text_hua donde recordedBy cumple el patrón
+filas_dos_palabras <- text_hua %>%
+  filter(str_detect(recordedBy, patron_dos_palabras))
+
+View(filas_dos_palabras)
+
+
+solo_columna_df <- text_hua %>%
+  filter(str_detect(recordedBy, patron_dos_palabras)) %>%
+  select(recordedBy)
+
+View(solo_columna_df)
+```
+
