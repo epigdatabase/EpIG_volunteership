@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francisco Riaño">
-<meta name="dcterms.date" content="2026-09-21">
+<meta name="dcterms.date" content="2026-10-01">
 
 <title>Occurrence Maps</title>
 <style>
@@ -75,6 +75,8 @@ ul.task-list li input[type="checkbox"] {
   <ul class="collapse">
   <li><a href="#stage-1-province-layer-audit" id="toc-stage-1-province-layer-audit" class="nav-link" data-scroll-target="#stage-1-province-layer-audit">Stage 1: Province Layer Audit</a></li>
   <li><a href="#stage-1b-province-layer-exceptions" id="toc-stage-1b-province-layer-exceptions" class="nav-link" data-scroll-target="#stage-1b-province-layer-exceptions">Stage 1b: Province-Layer Exceptions</a></li>
+  <li><a href="#stage-1c-check-occurrences-matches" id="toc-stage-1c-check-occurrences-matches" class="nav-link" data-scroll-target="#stage-1c-check-occurrences-matches">Stage 1c: Check Occurrences Matches</a></li>
+  <li><a href="#stage-2-define-records-for-species-richness" id="toc-stage-2-define-records-for-species-richness" class="nav-link" data-scroll-target="#stage-2-define-records-for-species-richness">Stage 2: Define Records for Species Richness</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -100,7 +102,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">September 21, 2026</p>
+      <p class="date">October 1, 2026</p>
     </div>
   </div>
   
@@ -671,6 +673,106 @@ Table&nbsp;7: Pairs of biogeographic-province features with overlapping interior
 </div>
 </div>
 </section>
+</section>
+<section id="stage-1c-check-occurrences-matches" class="level3">
+<h3 class="anchored" data-anchor-id="stage-1c-check-occurrences-matches">Stage 1c: Check Occurrences Matches</h3>
+<p><code>st_intersects()</code> returns the polygon row numbers matching each point, including boundary contacts. A point on a shared boundary may therefore match more than one province.</p>
+<div class="cell">
+<div id="tbl-province-match-check" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-province-match-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;8: Province matches for coordinate-valid occurrence records within the Neotropical boundary
+</figcaption>
+<div aria-describedby="tbl-province-match-check-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Status</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Records</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">One named province only</td>
+<td style="text-align: right;">1,369,441</td>
+<td style="text-align: right;">100.00%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">One named province plus unnamed feature(s)</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Multiple named provinces</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Unnamed feature(s) only</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">No province match</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.00%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="stage-2-define-records-for-species-richness" class="level3">
+<h3 class="anchored" data-anchor-id="stage-2-define-records-for-species-richness">Stage 2: Define Records for Species Richness</h3>
+<p>Formally named species richness will be calculated from distinct cleaned <code>scientificName</code> values. Species, subspecies, varieties, and forms are included, following the species-level name structure established in the taxonomy audit (<strong>Section 3.2</strong> from <code>ExploratoryData_FR.qmd</code>). Morphospecies and hybrids are reported separately from this count.</p>
+<div class="cell">
+<div id="tbl-province-taxonomy" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-province-taxonomy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;9: Taxonomic composition of accurrence records with a unique named-province match.
+</figcaption>
+<div aria-describedby="tbl-province-taxonomy-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Taxonomic group</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Records</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Percentage</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Formally named species-level records</td>
+<td style="text-align: right;">1,360,944</td>
+<td style="text-align: right;">99.38%</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Morphospecies records</td>
+<td style="text-align: right;">8,483</td>
+<td style="text-align: right;">0.62%</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hybrid records</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0.00%</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
 </section>
 </section>
 

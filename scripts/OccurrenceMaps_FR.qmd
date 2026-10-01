@@ -1089,3 +1089,168 @@ province_overlap_summary |>
     full_width = FALSE
   )
 ```
+
+### Stage 1c: Check Occurrences Matches 
+
+`st_intersects()` returns the polygon row numbers matching each point, including boundary contacts. A point on a shared boundary may therefore match more than one province. 
+
+```{r}
+#| label: tbl-province-match-check
+#| echo: false
+#| tbl-cap: "Province matches for coordinate-valid occurrence records within the Neotropical boundary"
+
+# Check all 60 features, including the three unnamed polygons.
+# Each list element contains the province rows matching one record. 
+province_point_matches <- sf::st_intersects(
+  occurrence_neotropics, 
+  provinces_equal
+)
+
+# identify which province rows have a usable name.
+province_has_name <- !is.na(province_lookup$province_name)
+
+# Count named and unnamed matches without displaying coordinates.
+# | Code | What it does |
+# |---|---|
+# | `tibble(...)` | Creates a table from the columns defined inside it. |
+# | `record_index = occurrence_neotropics$record_index` | Copies the existing record identifier. `$` extracts a column. |
+# | `vapply(...)` | Processes each occurrence’s list of matching polygon rows and returns one named-match count per occurrence. |
+# | `lengths(province_point_matches)` | Counts **all** matching polygons for each occurrence. |
+# | `\|>` | Passes the table to the next operation. |
+# | `mutate(...)` | Adds the unnamed-match count and the status column. |
+# | `case_when(...)` | Tests conditions in order and assigns the label from the **first true condition**. |
+# | `TRUE ~ "No province match"` | Supplies the fallback label when none of the earlier conditions applies. |
+
+province_match_audit <- tibble(
+  record_index = occurrence_neotropics$record_index,
+  named_matches = vapply(
+    province_point_matches,
+    function(rows) sum(province_has_name[rows]),
+    integer(1)
+  ),
+  total_matches = lengths(province_point_matches)
+) |>
+  mutate(
+    unnamed_matches = total_matches - named_matches,
+    Status = case_when(
+      named_matches > 1 ~ "Multiple named provinces",
+      named_matches == 1 & unnamed_matches > 0 ~
+        "One named province plus unnamed feature(s)",
+      named_matches == 1 ~ "One named province only",
+      unnamed_matches > 0 ~ "Unnamed feature(s) only",
+      TRUE ~ "No province match"
+    )
+  )
+
+# Keep all diagnostic categories visible, including zero counts.
+match_status_levels <- c(
+  "One named province only", 
+  "One named province plus unnamed feature(s)", 
+  "Multiple named provinces", 
+  "Unnamed feature(s) only", 
+  "No province match"
+)
+
+province_match_summary <- province_match_audit |>
+  mutate(Status = factor(Status, levels = match_status_levels)) |>
+  count(Status, name = "Records", .drop = FALSE) |>
+  mutate(
+    Percentage = scales::percent(
+      Records / nrow(occurrence_neotropics),
+      accuracy = 0.01
+    )
+  )
+
+# Verify that every retained record is counted exactly once. 
+stopifnot(
+  sum(province_match_summary$Records) == 
+    nrow(occurrence_neotropics)
+)
+
+province_match_summary |>
+  knitr::kable(
+    format = "html",
+    align = c("l", "r", "r"),
+    format.args = list(big.mark = ",")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c(
+      "striped", "hover", "condensed", "responsive"
+    ),
+    full_width = FALSE
+  )
+```
+
+### Stage 2: Define Records for Species Richness
+
+Formally named species richness will be calculated from distinct cleaned `scientificName` values. Species, subspecies, varieties, and forms are included, following the species-level name structure established in the taxonomy audit (**Section 3.2** from `ExploratoryData_FR.qmd`). Morphospecies and hybrids are reported separately from this count. 
+
+```{r}
+#| label: prepare-province-species-records
+#| echo: false
+
+# Create a small table with the record identifier and taxonomic fields. 
+# Coordinates and geometry are not needed for this step.
+# Retain the original record identifier alongside the cleaned taxonomy.
+province_taxonomy <- occurrence_neotropics |>
+  sf::st_drop_geometry() |>
+  dplyr::transmute(
+    record_index = .data$record_index,
+    taxon_rank = stringr::str_to_lower(
+      stringr::str_squish(as.character(.data$taxonRank))
+    ),
+    species_name = stringr::str_to_lower(
+      stringr::str_squish(as.character(.data$scientificName))
+    ),
+    species_name = dplyr::na_if(species_name, "")
+  ) |>
+  dplyr::mutate(
+    taxonomic_group = dplyr::case_when(
+      taxon_rank %in% c("species", "subspecies", "variety", "form") &
+        !is.na(species_name) ~ "Formally named species-level records",
+      taxon_rank == "morphospecies" ~ "Morphospecies records",
+      taxon_rank == "hybrid" ~ "Hybrid records",
+      TRUE ~ "Other ranks or missing species name"
+    )
+  )
+
+# Retain the records eligible for the formally named richness map. 
+# Keep record_index so their province matches can be attached next. 
+province_species_records <- province_taxonomy |>
+  dplyr::filter(
+    taxonomic_group == "Formally named species-level records"
+  ) |>
+  dplyr::select(record_index, species_name)
+
+# Summarize the taxonomic composition of the spatial subset. 
+province_taxonomy_summary <- province_taxonomy |>
+  count(taxonomic_group, name = "Records") |>
+  mutate(
+    Percentage = scales::percent(
+      Records / nrow(province_taxonomy),
+      accuracy = 0.01
+    )
+  ) |>
+  arrange(desc(Records))
+```
+
+```{r}
+#| label: tbl-province-taxonomy
+#| echo:  false
+#| tbl-cap: "Taxonomic composition of accurrence records with a unique named-province match."
+
+
+province_taxonomy_summary |>
+  knitr::kable(
+    format = "html",
+    col.names = c("Taxonomic group", "Records", "Percentage"),
+    align = c("l", "r", "r"),
+    format.args = list(big.mark = ",")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c(
+      "striped", "hover", "condensed", "responsive"
+    ),
+    full_width = FALSE
+  )
+```
