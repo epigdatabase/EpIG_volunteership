@@ -883,6 +883,65 @@ if (length(idx)) {
   dfUSD$OK.2[idx] <- F
   dfUSD$discardReason[idx] <- "Impossible to correct"
 }
+View(dfUSD)
+
+unique(dfUSD$decimalLatitude)
+unique(dfUSD$decimalLongitude)
+
+str(dfUSD)
+
+
+
+dfUSD <- dfUSD %>%
+  mutate(
+    lat_num = suppressWarnings(as.numeric(decimalLatitude)),
+    lon_num = suppressWarnings(as.numeric(decimalLongitude))
+  )
+
+
+valid_idx <- which(
+  !is.na(dfUSD$lat_num) & !is.na(dfUSD$lon_num) &
+  dfUSD$lat_num != 0 & dfUSD$lon_num != 0 &
+  dplyr::between(dfUSD$lat_num, -90, 90) &
+  dplyr::between(dfUSD$lon_num, -180, 180)
+)
+
+
+cat("Registros válidos:", length(valid_idx), "/", nrow(dfUSD), "\n")
+cat("Registros descartados:", nrow(dfUSD) - length(valid_idx), "\n")
+
+
+pts <- st_as_sf(
+  dfUSD[valid_idx, ],
+  coords = c("lon_num", "lat_num"),
+  crs    = 4326,
+  remove = FALSE
+)
+
+
+do1 <- gadm(country = "DOM", level = 1, path = tempdir()) |>
+  st_as_sf() |>
+  st_transform(4326)
+
+
+names(do1)   
+
+
+joined <- st_join(pts, do1[, "NAME_1"], left = TRUE)
+
+
+dfUSD$stateProvince <- NA_character_
+dfUSD$stateProvince[valid_idx] <- joined$NAME_1
+
+
+table(dfUSD$stateProvince, useNA = "ifany")
+
+
+
+unique(dfUSD$stateProvince)
+
+
+
 
 write.csv(dfUSD, file = "data/Georreferencing/2.Processed/georef__USD2025.csv")
 
