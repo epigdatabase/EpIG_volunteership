@@ -385,9 +385,56 @@ idx <- which(voluntarios$dataset == "GUYN2008")
 if (length(idx)) {
     voluntarios$voluntariosDC[idx] <- "Juana"
     voluntarios$startingDateDC[idx] <- "24/09/26"
-    #voluntarios$finishingDateDC[idx] <- "24/09/26"
+    voluntarios$finishingDateDC[idx] <- "25/09/26"
 }
 
+
+idx <- which(voluntarios$dataset == "HCCL2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "24/09/26"
+    voluntarios$finishingDateDC[idx] <- "25/09/26"
+}
+
+
+
+idx <- which(voluntarios$dataset == "HEM2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "25/09/26"
+    voluntarios$finishingDateDC[idx] <- "28/09/26"
+}
+
+
+idx <- which(voluntarios$dataset == "HFCF2019")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "27/09/26"
+    voluntarios$finishingDateDC[idx] <- "28/09/26"
+}
+
+
+idx <- which(voluntarios$dataset == "HGOM2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "28/09/26"
+    voluntarios$finishingDateDC[idx] <- "28/09/26"
+}
+
+
+idx <- which(voluntarios$dataset == "HIP2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "28/09/26"
+    voluntarios$finishingDateDC[idx] <- "29/09/26"
+}
+
+idx <- which(voluntarios$dataset == "HUA2025")
+if (length(idx)) {
+    voluntarios$voluntariosDC[idx] <- "Juana"
+    voluntarios$startingDateDC[idx] <- "28/09/26"
+    #voluntarios$finishingDateDC[idx] <- "24/09/26"
+}
 
 
 
@@ -599,7 +646,7 @@ location_mapping <- list(
   "AMAZ_208" = list(
     country = "Peru",
     countryCode = "PE",
-    stateProvince = "Loreto"  # Iquitos está en Loreto
+    stateProvince = "Loreto"  
   ),
   "AMAZ_222" = list(
     country = "Peru",
