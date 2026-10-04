@@ -1166,3 +1166,287 @@ processed_peperomia_data <- impute_state_province(processed_peperomia_data)
 write.csv(processed_peperomia_data, file = "../data/Georreferencing/2.Processed/georef__peperomia_net2025.csv")
 ```
 
+```{r}
+unique(peperomia_data$stateProvince[peperomia_data$country == "Peru"])
+```
+# DataFrame Literature2024
+
+```{r}
+literature2024_data <- read.csv("../data/Georreferencing/1.Raw/georef__literature2024.csv", stringsAsFactors = FALSE)
+```
+
+# Clean the data (there are many rows with empty coordinates)
+
+```{r}
+library(dplyr)
+library(stringr)
+
+literature2024_data <- literature2024_data %>%
+  mutate(
+    is_uncorrectable = (is.na(stateProvince) | str_trim(as.character(stateProvince)) == "") &
+                       (is.na(decimalLatitude) | str_trim(as.character(decimalLatitude)) == "") &
+                       (is.na(decimalLongitude) | str_trim(as.character(decimalLongitude)) == "") &
+                       (is.na(locality) | str_trim(as.character(locality)) == ""),
+    
+
+    ok.2 = if_else(is_uncorrectable, FALSE, TRUE),
+
+    discardReason = if_else(is_uncorrectable, "Impossible to correct!", NA_character_),
+    
+    georef_class = NA_character_
+  ) %>%
+  select(-is_uncorrectable)
+```
+
+
+```{r}
+library(dplyr)
+library(stringr)
+library(tidygeocoder)
+library(purrr)
+library(stringi)
+
+# String normalization function to convert Latin diacritics to ASCII and clean special characters
+remove_accents_and_clean <- function(x) {
+  if (all(is.na(x))) return(x)
+  x %>%
+    stringi::stri_trans_general(id = "Latin-ASCII") %>%
+    str_replace_all("[^a-zA-Z0-9\\s,\\.-]", "") %>%
+    str_squish()
+}
+
+# Function to sanitize and filter non-geographic locality noise
+sanitize_locality <- function(x) {
+  if (all(is.na(x))) return(x)
+  x_clean <- remove_accents_and_clean(as.character(x))
+  
+  junk_pattern <- regex(
+    "\\b(no data|sin datos|desconocid[oa]|unknown|n/a|null|no registrado|unspecified|not recorded|sin localidad|no location|sin informacion)\\b", 
+    ignore_case = TRUE
+  )
+  
+  is_junk <- str_detect(x_clean, junk_pattern) & str_count(x_clean, "\\S+") < 5
+  x_clean[is_junk] <- NA_character_
+  
+  too_long <- !is.na(x_clean) & (nchar(x_clean) > 120 | str_count(x_clean, "\\S+") > 12)
+  x_clean[too_long] <- str_extract(x_clean[too_long], "^(\\S+\\s+){0,9}\\S+") %>% str_squish()
+  
+  return(x_clean)
+}
+
+# Helper function to coalesce administrative division (State/Province) fields from ArcGIS output
+extract_arcgis_state <- function(df_res) {
+  candidate_cols <- c("Region", "region", "Subregion", "subregion", "State", "state", "admin1", "Territory", "District")
+  found_cols <- intersect(candidate_cols, names(df_res))
+  if (length(found_cols) > 0) {
+    dplyr::coalesce(!!!df_res[found_cols])
+  } else {
+    rep(NA_character_, nrow(df_res))
+  }
+}
+
+# Helper function to coalesce granular locality fields from ArcGIS output
+extract_arcgis_locality <- function(df_res) {
+  candidate_cols <- c("PlaceName", "Neighborhood", "City", "Subregion", "Address", "Match_addr")
+  found_cols <- intersect(candidate_cols, names(df_res))
+  if (length(found_cols) > 0) {
+    dplyr::coalesce(!!!df_res[found_cols])
+  } else {
+    rep(NA_character_, nrow(df_res))
+  }
+}
+
+# 1. Preserve original column schema and row index
+columnas_originales <- names(literature2024_data)
+columnas_objetivo <- union(columnas_originales, c("ok.2", "discardReason", "georef_class"))
+
+processed_literature2024 <- literature2024_data %>%
+  mutate(.row_id = row_number()) %>%
+  mutate(
+    ok.2 = if ("ok.2" %in% names(.)) as.logical(ok.2) else TRUE,
+    discardReason = NA_character_,
+    georef_class = if ("georef_class" %in% names(.)) as.character(georef_class) else NA_character_
+  ) %>%
+  mutate(
+    locality = sanitize_locality(locality),
+    stateProvince = remove_accents_and_clean(as.character(stateProvince)),
+    country = remove_accents_and_clean(as.character(country))
+  )
+
+# 2. Categorize each record based on available spatial and textual data
+processed_literature2024 <- processed_literature2024 %>%
+  mutate(
+    lat_num = as.numeric(decimalLatitude),
+    lon_num = as.numeric(decimalLongitude),
+    
+    has_text = (!is.na(country) & str_trim(country) != "") & 
+               (!is.na(stateProvince) & str_trim(stateProvince) != "") & 
+               (!is.na(locality) & str_trim(locality) != ""),
+               
+    has_coords = !is.na(lat_num) & !is.na(lon_num) & !(lat_num == 0 & lon_num == 0),
+    
+    is_uncorrectable = !has_coords & 
+                      (is.na(locality) | str_trim(locality) == "") & 
+                      (is.na(stateProvince) | str_trim(stateProvince) == ""),
+    
+    escenario = case_when(
+      is_uncorrectable ~ "uncorrectable",
+      has_text & has_coords ~ "validar",     
+      has_text & !has_coords ~ "solo_texto", 
+      !has_text & has_coords ~ "solo_coords",
+      TRUE ~ "solo_texto"
+    )
+  )
+
+# ==============================================================================
+# CASE 1: TEXT ONLY (Missing coordinates)
+# ==============================================================================
+df_solo_texto <- processed_literature2024 %>% filter(escenario == "solo_texto")
+
+if (nrow(df_solo_texto) > 0) {
+  message(sprintf("Processing %s rows in 'solo_texto' scenario...", nrow(df_solo_texto)))
+  
+  df_solo_texto <- df_solo_texto %>%
+    mutate(busqueda = pmap_chr(list(locality, stateProvince, country), function(loc, st, ctry) {
+      parts <- c(loc, st, ctry)
+      parts <- parts[!is.na(parts) & str_squish(parts) != ""]
+      paste(parts, collapse = ", ")
+    })) %>%
+    geocode(address = busqueda, method = "arcgis", lat = lat_nueva, long = lon_nueva, full_results = TRUE, quiet = TRUE) %>%
+    mutate(
+      state_extracted = remove_accents_and_clean(extract_arcgis_state(.)),
+      loc_extracted = sanitize_locality(extract_arcgis_locality(.)),
+      
+      stateProvince = if_else(is.na(stateProvince) | str_trim(stateProvince) == "", state_extracted, stateProvince),
+      locality = if_else(is.na(locality) | str_trim(locality) == "", loc_extracted, locality),
+      
+      decimalLatitude = if_else(!is.na(lat_nueva), lat_nueva, lat_num),
+      decimalLongitude = if_else(!is.na(lon_nueva), lon_nueva, lon_num),
+      discardReason = NA_character_,
+      ok.2 = TRUE
+    )
+}
+
+# ==============================================================================
+# CASE 2: COORDINATES ONLY (Missing text)
+# ==============================================================================
+df_solo_coords <- processed_literature2024 %>% filter(escenario == "solo_coords")
+
+if (nrow(df_solo_coords) > 0) {
+  message(sprintf("Processing %s rows in 'solo_coords' scenario...", nrow(df_solo_coords)))
+  
+  df_solo_coords <- df_solo_coords %>%
+    reverse_geocode(lat = lat_num, long = lon_num, method = "arcgis", full_results = TRUE, quiet = TRUE) %>%
+    mutate(
+      state_extracted = remove_accents_and_clean(extract_arcgis_state(.)),
+      country_extracted = if ("CountryCode" %in% names(.)) remove_accents_and_clean(CountryCode) else NA_character_,
+      locality_extracted = sanitize_locality(extract_arcgis_locality(.)),
+      
+      country = if_else(is.na(country) | str_trim(country) == "", country_extracted, country),
+      stateProvince = if_else(is.na(stateProvince) | str_trim(stateProvince) == "", state_extracted, stateProvince),
+      locality = if_else(is.na(locality) | str_trim(locality) == "", locality_extracted, locality),
+      discardReason = NA_character_,
+      ok.2 = TRUE
+    )
+}
+
+# ==============================================================================
+# CASE 3: VALIDATE (All fields populated)
+# ==============================================================================
+df_validar <- processed_literature2024 %>% filter(escenario == "validar")
+
+if (nrow(df_validar) > 0) {
+  message(sprintf("Processing %s rows in 'validar' scenario...", nrow(df_validar)))
+  
+  df_validar <- df_validar %>%
+    reverse_geocode(lat = lat_num, long = lon_num, method = "arcgis", address = "dir_inversa", full_results = TRUE, quiet = TRUE)
+    
+  if (!"CountryCode" %in% names(df_validar)) df_validar$CountryCode <- NA_character_
+
+  df_validar <- df_validar %>%
+    mutate(
+      state_extracted = remove_accents_and_clean(extract_arcgis_state(.)),
+      CountryCode_clean = remove_accents_and_clean(as.character(CountryCode)),
+      
+      coincide_pais = map2_lgl(country, CountryCode_clean, function(ctry, code) {
+        if (is.na(ctry) || is.na(code) || str_trim(code) == "") return(FALSE)
+        str_detect(str_to_lower(ctry), str_to_lower(code))
+      }),
+      
+      stateProvince = if_else(is.na(stateProvince) | str_trim(stateProvince) == "", state_extracted, stateProvince),
+      busqueda = if_else(!coincide_pais, paste(locality, stateProvince, country, sep = ", "), NA_character_)
+    ) %>%
+    geocode(address = busqueda, method = "arcgis", lat = lat_nueva, long = lon_nueva, quiet = TRUE) %>%
+    mutate(
+      decimalLatitude = if_else(!is.na(lat_nueva), lat_nueva, lat_num),
+      decimalLongitude = if_else(!is.na(lon_nueva), lon_nueva, lon_num),
+      discardReason = NA_character_,
+      ok.2 = if_else(!is.na(lat_nueva), TRUE, ok.2)
+    )
+}
+
+# ==============================================================================
+# CASE 4: UNCORRECTABLE RECORDS
+# ==============================================================================
+df_uncorrectable <- processed_literature2024 %>% 
+  filter(escenario == "uncorrectable") %>%
+  mutate(
+    ok.2 = FALSE,
+    discardReason = NA_character_
+  )
+
+# ==============================================================================
+# FINAL ASSEMBLY, REORDERING, AND SCHEMA CLEANUP
+# ==============================================================================
+processed_literature2024 <- bind_rows(df_solo_texto, df_solo_coords, df_validar, df_uncorrectable) %>%
+  arrange(.row_id) %>%
+  mutate(
+    locality = sanitize_locality(locality),
+    stateProvince = remove_accents_and_clean(stateProvince),
+    discardReason = NA_character_
+  ) %>%
+  select(all_of(columnas_objetivo))
+
+# Remove temporary dataframes and reclaim memory
+rm(df_solo_texto, df_solo_coords, df_validar, df_uncorrectable, columnas_originales, columnas_objetivo)
+```
+
+```{r}
+unique(processed_literature2024$locality)
+```
+
+# Review DataFrame
+
+```{r}
+library(stringr)
+
+# Patrón para capturar descripciones de microhábitat o sustrato
+patron_habitat <- regex(
+  "flooded|savannas|wetlands|Mauritia|floating vegetation|marshy|Sphagnum|grassy fields|mangroves|aguajales|tepuis|Raphia|submersed",
+  ignore_case = TRUE
+)
+
+# Guardar los números de fila en un vector
+filas_habitat <- which(str_detect(processed_literature2024$locality, patron_habitat))
+
+# Imprimir las posiciones de fila en la consola
+print(filas_habitat)
+```
+
+
+```{r}
+filas_posiciones <- which(str_detect(processed_literature2024$locality, regex("Is a widely distributed species recorded from Africa, America, and", ignore_case = TRUE)))
+
+#processed_literature2024[filas_posiciones, "locality"] <- "Zongolica"
+print(filas_posiciones)
+```
+
+```{r}
+processed_literature2024[2149, "locality"] <- "Cap. Solari"
+```
+
+```{r}
+write.csv(processed_literature2024, file = "../data/Georreferencing/2.Processed/georef__literature2024.csv")
+```
+
+
