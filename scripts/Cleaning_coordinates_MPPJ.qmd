@@ -631,7 +631,7 @@ unique(AMAZ$stateProvince)
 #AMAZ_231= Country=Ecuador, countryCode=EC, stateProvince=Napo
 #AMAZ_369=Junin
 
-# Diccionario de occurrenceID -> ubicación
+
 location_mapping <- list(
   "AMAZ_199" = list(
     country = "Peru",
@@ -991,6 +991,68 @@ unique(dfUSD$stateProvince)
 
 
 write.csv(dfUSD, file = "data/Georreferencing/2.Processed/georef__USD2025.csv")
+
+#################################################################################
+#peperomia
+
+dfpeper <- read.csv2("./data/Georreferencing/2.Processed/georef__peperomia_net2025.csv",sep = ",")
+str(dfpeper)
+
+dfpeper <- dfpeper %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+      str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+
+
+
+unique(dfpeper$georef_class)
+
+
+
+##########################################################################
+
+#georef_literature
+dflit2024 <- read.csv2("./data/Georreferencing/2.Processed/georef__literature2024.csv",sep = ",")
+str(dflit2024)
+
+dflit2024 <- dflit2024 %>%
+  mutate(
+    georef_class = case_when(
+      is.na(locality) | str_squish(locality) == "" ~ "non_georef",
+      str_detect(locality, regex(
+        "\\d+\\s*km|carretera|road|highway|reserva|parque nacional|río|quebrada|cerro|vereda",
+        ignore_case = TRUE)) ~ "detailed",
+      TRUE ~ "simple"
+    )
+  )
+
+
+
+unique(dflit2024$georef_class)
+
+#literature2024_00392
+#literature2024_00393...
+#literature2024_00439
+
+
+# 1. Generar la lista de IDs del rango target
+target_ids <- paste0("literature2024_", sprintf("%05d", 392:439))
+
+# 2. Actualizar la columna discardReason en dflit2024
+dflit2024 <- dflit2024 %>%
+  mutate(
+    discardReason = if_else(
+      occurrenceID %in% target_ids,
+      "Georeferenced based on the coordinates rather than locality as the locality values is missing",
+      discardReason
+    )
+  )
 
 
 
