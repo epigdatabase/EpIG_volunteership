@@ -1449,4 +1449,199 @@ processed_literature2024[2149, "locality"] <- "Cap. Solari"
 write.csv(processed_literature2024, file = "../data/Georreferencing/2.Processed/georef__literature2024.csv")
 ```
 
+```{r}
+literature2024_data <- read.csv("../data/Georreferencing/2.Processed/georef__literature2024.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+unique(literature2024_data$locality)
+```
+```{r}
+library(dplyr)
+
+literature2024_data <-literature2024_data %>%
+  mutate(
+    # Evaluamos si ok.2 es FALSE (sirve para FALSE lógico o texto "FALSE")
+    es_falso = !is.na(ok.2) & (ok.2 == FALSE | ok.2 == "FALSE"),
+    
+    # Asignamos la razón de descarte en las filas donde ok.2 es FALSE
+    discardReason = if_else(
+      es_falso,
+      "Impossible to correct",
+      discardReason
+    )
+  ) %>%
+  select(-es_falso)
+```
+```{r}
+processed_literature2024 = literature2024_data
+```
+
+```{r}
+# ==============================================================================
+# GEOCODIFICACIÓN INVERSA Y ACTUALIZACIÓN CON FORMATO DE PAÍS / COUNTRYCODE
+# ==============================================================================
+
+# 1. Cargar librerías necesarias
+if (!requireNamespace("tidygeocoder", quietly = TRUE)) install.packages("tidygeocoder")
+if (!requireNamespace("countrycode", quietly = TRUE)) install.packages("countrycode")
+if (!requireNamespace("dplyr", quietly = TRUE)) install.packages("dplyr")
+if (!requireNamespace("stringr", quietly = TRUE)) install.packages("stringr")
+
+library(dplyr)
+library(stringr)
+library(tidygeocoder)
+library(countrycode)
+
+# Asegurar que la columna countryCode exista en el dataframe
+if (!"countryCode" %in% names(processed_literature2024)) {
+  processed_literature2024$countryCode <- NA_character_
+}
+
+# 2. Filtrar las filas del rango 3080:3143 que tengan coordenadas válidas
+filas_a_procesar <- processed_literature2024 %>%
+  mutate(fila_id = row_number()) %>%
+  filter(
+    fila_id >= 3080 & fila_id <= 3143,
+    !is.na(decimalLatitude) & !is.na(decimalLongitude),
+    str_trim(as.character(decimalLatitude)) != "",
+    str_trim(as.character(decimalLongitude)) != ""
+  ) %>%
+  mutate(
+    lat_num = as.numeric(as.character(decimalLatitude)),
+    lon_num = as.numeric(as.character(decimalLongitude))
+  )
+
+# 3. Realizar Geocodificación Inversa (Reverse Geocoding con OSM)
+filas_geocodificadas <- filas_a_procesar %>%
+  reverse_geocode(
+    lat = lat_num,
+    long = lon_num,
+    method = "osm",
+    full_results = TRUE
+  )
+
+# 4. Función auxiliar para extraer columnas de forma segura
+obtener_columna_segura <- function(df, nombres_posibles, por_defecto = NA_character_) {
+  cols_existentes <- intersect(nombres_posibles, names(df))
+  if (length(cols_existentes) == 0) return(rep(por_defecto, nrow(df)))
+  
+  res <- df[[cols_existentes[1]]]
+  if (length(cols_existentes) > 1) {
+    for (col in cols_existentes[-1]) {
+      res <- coalesce(res, df[[col]])
+    }
+  }
+  return(as.character(res))
+}
+
+# 5. Mapear y estandarizar nombres de país en inglés y countryCode en mayúsculas
+filas_corregidas <- filas_geocodificadas %>%
+  mutate(
+    # Código ISO2 bruto en mayúsculas (ej: "US", "BR")
+    code_raw = toupper(obtener_columna_segura(., c("country_code"))),
+    
+    # Asignar countryCode en mayúsculas
+    countryCode_nuevo = code_raw,
+    
+    # Convertir el código al nombre oficial del país en inglés (ej: "United States", "Brazil")
+    country_nuevo = countrycode(code_raw, origin = "iso2c", destination = "country.name"),
+    
+    # Estado / Provincia / Departamento
+    state_nuevo = obtener_columna_segura(., c("state", "region", "state_district", "county")),
+    
+    # Localidad cercana (parque, barrio, ciudad)
+    locality_nuevo = obtener_columna_segura(., c("park", "natural", "amenity", "suburb", "neighbourhood", "village", "town", "city", "municipality")),
+    
+    discardReason_nuevo = "Corrected according to registered location"
+  )
+
+# 6. Aplicar las correcciones en 'processed_literature2024'
+for (i in seq_len(nrow(filas_corregidas))) {
+  idx <- filas_corregidas$fila_id[i]
+  
+  # Asignar País en Inglés
+  if (!is.na(filas_corregidas$country_nuevo[i]) && filas_corregidas$country_nuevo[i] != "") {
+    processed_literature2024[idx, "country"] <- filas_corregidas$country_nuevo[i]
+  }
+  
+  # Asignar Código de País en Mayúsculas (US, BR, etc.)
+  if (!is.na(filas_corregidas$countryCode_nuevo[i]) && filas_corregidas$countryCode_nuevo[i] != "") {
+    processed_literature2024[idx, "countryCode"] <- filas_corregidas$countryCode_nuevo[i]
+  }
+  
+  # Asignar Estado/Provincia
+  if (!is.na(filas_corregidas$state_nuevo[i]) && filas_corregidas$state_nuevo[i] != "") {
+    processed_literature2024[idx, "stateProvince"] <- filas_corregidas$state_nuevo[i]
+  }
+  
+  # Asignar Localidad cercana
+  if (!is.na(filas_corregidas$locality_nuevo[i]) && filas_corregidas$locality_nuevo[i] != "") {
+    processed_literature2024[idx, "locality"] <- filas_corregidas$locality_nuevo[i]
+  }
+  
+  # Asignar la razón de corrección en inglés
+  processed_literature2024[idx, "discardReason"] <- "Corrected according to registered location"
+}
+
+# 7. Limpieza de variables temporales de memoria
+rm(filas_a_procesar, filas_geocodificadas, filas_corregidas, obtener_columna_segura)
+gc()
+
+# ==============================================================================
+# VERIFICACIÓN DE RESULTADOS
+# ==============================================================================
+processed_literature2024 %>%
+  slice(3080:3143) %>%
+  filter(!is.na(decimalLatitude) & !is.na(decimalLongitude)) %>%
+  select(country, countryCode, stateProvince, locality, discardReason) %>%
+  head(15)
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+
+processed_literature2024 <- processed_literature2024 %>%
+  mutate(
+    # Evaluamos si discardReason es NA o una cadena de texto vacía
+    esta_vacio = is.na(discardReason) | str_trim(as.character(discardReason)) == "",
+    
+    # Asignamos el mensaje en inglés únicamente en las filas vacías
+    discardReason = if_else(
+      esta_vacio,
+      "Minor adjustments or locality update",
+      discardReason
+    )
+  ) %>%
+  select(-esta_vacio)
+```
+
+```{r}
+library(dplyr)
+library(stringr)
+
+processed_literature2024 <- processed_literature2024 %>%
+  mutate(
+    # Limpiamos espacios extremos para un conteo exacto
+    loc_clean = str_trim(as.character(locality)),
+    loc_vacía = is.na(loc_clean) | loc_clean == "",
+    
+    # Condición de exclusión: locality está vacía Y ok.2 es FALSE
+    es_falso_y_vacio = loc_vacía & (!is.na(ok.2) & (ok.2 == FALSE | ok.2 == "FALSE")),
+    
+    # Asignación de georef_class respetando la regla
+    georef_class = case_when(
+      es_falso_y_vacio ~ georef_class,   # Se deja exactamente como estaba (sin tocar)
+      loc_vacía ~ NA_character_,         # Si está vacía sin esa condición particular, queda NA
+      nchar(loc_clean) < 15 ~ "simple",
+      TRUE ~ "detailed"
+    )
+  ) %>%
+  select(-loc_clean, -loc_vacía, -es_falso_y_vacio)
+```
+
+```{r}
+write.csv(processed_literature2024, file = "../data/Georreferencing/2.Processed/georef__literature2024.csv")
+```
 
