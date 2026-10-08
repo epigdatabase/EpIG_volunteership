@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Francisco Riaño">
-<meta name="dcterms.date" content="2026-10-01">
+<meta name="dcterms.date" content="2026-10-07">
 
 <title>Occurrence Maps</title>
 <style>
@@ -21,6 +21,41 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -77,6 +112,8 @@ ul.task-list li input[type="checkbox"] {
   <li><a href="#stage-1b-province-layer-exceptions" id="toc-stage-1b-province-layer-exceptions" class="nav-link" data-scroll-target="#stage-1b-province-layer-exceptions">Stage 1b: Province-Layer Exceptions</a></li>
   <li><a href="#stage-1c-check-occurrences-matches" id="toc-stage-1c-check-occurrences-matches" class="nav-link" data-scroll-target="#stage-1c-check-occurrences-matches">Stage 1c: Check Occurrences Matches</a></li>
   <li><a href="#stage-2-define-records-for-species-richness" id="toc-stage-2-define-records-for-species-richness" class="nav-link" data-scroll-target="#stage-2-define-records-for-species-richness">Stage 2: Define Records for Species Richness</a></li>
+  <li><a href="#stage-3-calculate-species-richness-by-province" id="toc-stage-3-calculate-species-richness-by-province" class="nav-link" data-scroll-target="#stage-3-calculate-species-richness-by-province">Stage 3: Calculate Species Richness by Province</a></li>
+  <li><a href="#stage-4-species-richness-map" id="toc-stage-4-species-richness-map" class="nav-link" data-scroll-target="#stage-4-species-richness-map">Stage 4: Species Richness Map</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -102,7 +139,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 1, 2026</p>
+      <p class="date">October 7, 2026</p>
     </div>
   </div>
   
@@ -771,6 +808,395 @@ Table&nbsp;9: Taxonomic composition of accurrence records with a unique named-pr
 </div>
 </div>
 </figure>
+</div>
+</div>
+</section>
+<section id="stage-3-calculate-species-richness-by-province" class="level3">
+<h3 class="anchored" data-anchor-id="stage-3-calculate-species-richness-by-province">Stage 3: Calculate Species Richness by Province</h3>
+<div class="cell">
+<div id="tbl-province-richness" class="cell quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-tbl figure">
+<figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-province-richness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;10: Observed formally named species by Morrone biogeographic province.
+</figcaption>
+<div aria-describedby="tbl-province-richness-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="cell-output-display">
+<div class="table-responsive">
+<table class="table table-striped table-hover table-condensed do-not-create-environment cell caption-top table-sm small">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">Province</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Formally named occurrence records</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Species richness</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Paramo province</td>
+<td style="text-align: right;">113,908</td>
+<td style="text-align: right;">5,374</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cauca province</td>
+<td style="text-align: right;">95,311</td>
+<td style="text-align: right;">4,438</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Guatuso-Talamanca province</td>
+<td style="text-align: right;">163,177</td>
+<td style="text-align: right;">3,345</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Yungas province</td>
+<td style="text-align: right;">82,999</td>
+<td style="text-align: right;">2,910</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Puntarenas-Chiriqui province</td>
+<td style="text-align: right;">60,277</td>
+<td style="text-align: right;">2,641</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Magdalena province</td>
+<td style="text-align: right;">30,566</td>
+<td style="text-align: right;">2,577</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Atlantic province</td>
+<td style="text-align: right;">136,736</td>
+<td style="text-align: right;">2,523</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Rondonia province</td>
+<td style="text-align: right;">20,411</td>
+<td style="text-align: right;">1,797</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Choco-Darien province</td>
+<td style="text-align: right;">22,456</td>
+<td style="text-align: right;">1,786</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Parana Forest province</td>
+<td style="text-align: right;">64,693</td>
+<td style="text-align: right;">1,739</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Chiapas Highlands province</td>
+<td style="text-align: right;">61,928</td>
+<td style="text-align: right;">1,711</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ucayali province</td>
+<td style="text-align: right;">12,832</td>
+<td style="text-align: right;">1,706</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Veracruzan province</td>
+<td style="text-align: right;">83,992</td>
+<td style="text-align: right;">1,642</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Pacific Lowlands province</td>
+<td style="text-align: right;">34,621</td>
+<td style="text-align: right;">1,619</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Napo province</td>
+<td style="text-align: right;">25,279</td>
+<td style="text-align: right;">1,452</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Western Ecuador province</td>
+<td style="text-align: right;">14,999</td>
+<td style="text-align: right;">1,425</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Guianan province</td>
+<td style="text-align: right;">21,389</td>
+<td style="text-align: right;">1,295</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sabana province</td>
+<td style="text-align: right;">5,721</td>
+<td style="text-align: right;">1,203</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Sierra Madre del Sur province</td>
+<td style="text-align: right;">16,987</td>
+<td style="text-align: right;">1,066</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cerrado province</td>
+<td style="text-align: right;">19,966</td>
+<td style="text-align: right;">1,053</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Araucaria Forest province</td>
+<td style="text-align: right;">44,180</td>
+<td style="text-align: right;">1,004</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Guajira province</td>
+<td style="text-align: right;">7,141</td>
+<td style="text-align: right;">959</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Mosquito province</td>
+<td style="text-align: right;">13,969</td>
+<td style="text-align: right;">958</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Imeri province</td>
+<td style="text-align: right;">14,410</td>
+<td style="text-align: right;">953</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Xingu-Tapajos province</td>
+<td style="text-align: right;">10,008</td>
+<td style="text-align: right;">935</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Puna province</td>
+<td style="text-align: right;">6,325</td>
+<td style="text-align: right;">911</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Transmexican Volcanic Belt province</td>
+<td style="text-align: right;">27,062</td>
+<td style="text-align: right;">899</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Guianan Lowlands province</td>
+<td style="text-align: right;">19,532</td>
+<td style="text-align: right;">836</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Madeira province</td>
+<td style="text-align: right;">10,099</td>
+<td style="text-align: right;">735</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Venezuelan province</td>
+<td style="text-align: right;">4,010</td>
+<td style="text-align: right;">712</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Caatinga province</td>
+<td style="text-align: right;">12,129</td>
+<td style="text-align: right;">632</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Southern Espinhaco province</td>
+<td style="text-align: right;">6,228</td>
+<td style="text-align: right;">610</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Roraima province</td>
+<td style="text-align: right;">9,328</td>
+<td style="text-align: right;">576</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sierra Madre Oriental province</td>
+<td style="text-align: right;">12,066</td>
+<td style="text-align: right;">568</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Hispaniola province</td>
+<td style="text-align: right;">7,346</td>
+<td style="text-align: right;">537</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Balsas Basin province</td>
+<td style="text-align: right;">4,367</td>
+<td style="text-align: right;">508</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Jamaica province</td>
+<td style="text-align: right;">5,454</td>
+<td style="text-align: right;">483</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cuban province</td>
+<td style="text-align: right;">7,538</td>
+<td style="text-align: right;">451</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Pampean province</td>
+<td style="text-align: right;">4,823</td>
+<td style="text-align: right;">434</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Chapada Diamantina province</td>
+<td style="text-align: right;">7,387</td>
+<td style="text-align: right;">424</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Chaco province</td>
+<td style="text-align: right;">11,725</td>
+<td style="text-align: right;">396</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Puerto Rico province</td>
+<td style="text-align: right;">4,584</td>
+<td style="text-align: right;">353</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Trinidad province</td>
+<td style="text-align: right;">2,464</td>
+<td style="text-align: right;">345</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Para province</td>
+<td style="text-align: right;">4,299</td>
+<td style="text-align: right;">331</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Lesser Antilles province</td>
+<td style="text-align: right;">1,827</td>
+<td style="text-align: right;">276</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Ecuadorian province</td>
+<td style="text-align: right;">544</td>
+<td style="text-align: right;">249</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Yucatan Peninsula Province</td>
+<td style="text-align: right;">7,503</td>
+<td style="text-align: right;">234</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Sierra Madre Occidental province</td>
+<td style="text-align: right;">1,622</td>
+<td style="text-align: right;">174</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Desert province</td>
+<td style="text-align: right;">742</td>
+<td style="text-align: right;">155</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Monte province</td>
+<td style="text-align: right;">738</td>
+<td style="text-align: right;">131</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Esteros del Ibera province</td>
+<td style="text-align: right;">707</td>
+<td style="text-align: right;">98</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Galapagos Islands province</td>
+<td style="text-align: right;">1,840</td>
+<td style="text-align: right;">69</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Bahama province</td>
+<td style="text-align: right;">413</td>
+<td style="text-align: right;">56</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Comechingones province</td>
+<td style="text-align: right;">77</td>
+<td style="text-align: right;">17</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Cayman Islands province</td>
+<td style="text-align: right;">19</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Cuyan High Andean province</td>
+<td style="text-align: right;">45</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Atacama province</td>
+<td style="text-align: right;">145</td>
+<td style="text-align: right;">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</figure>
+</div>
+</div>
+</section>
+<section id="stage-4-species-richness-map" class="level3">
+<h3 class="anchored" data-anchor-id="stage-4-species-richness-map">Stage 4: Species Richness Map</h3>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">#| label: fig-province-richness</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| echo: false</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-cap: "Observed formally named species richness across Morrone biogeographic provinces, based on coordinate-valid records within the Neotropical area."</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-width: 10</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-height: 8</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#| fig-format: png</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#| dpi: 300</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Attach the counts to the 57 named province polygons.</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>province_richness_map <span class="ot">&lt;-</span> provinces_equal <span class="sc">|&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">province_id =</span> OBJECTID) <span class="sc">|&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(province_id <span class="sc">%in%</span> province_richness<span class="sc">$</span>province_id) <span class="sc">|&gt;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(province_richness, <span class="at">by =</span> <span class="st">"province_id"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Keep the numerical zero, but display zero-richness provinces in grey.</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">richness_fill =</span> <span class="fu">na_if</span>(n_species, <span class="dv">0</span>L)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> province_richness_map,</span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">aes</span>(<span class="at">fill =</span> richness_fill),</span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"grey45"</span>,</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.15</span></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_sf</span>(</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">data =</span> neotropics_equal,</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">fill =</span> <span class="cn">NA</span>,</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">colour =</span> <span class="st">"black"</span>,</span>
+<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">linewidth =</span> <span class="fl">0.4</span></span>
+<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_viridis_c</span>(</span>
+<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>    <span class="at">name =</span> <span class="st">"Recorded</span><span class="sc">\n</span><span class="st">species"</span>,</span>
+<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>    <span class="at">option =</span> <span class="st">"viridis"</span>,</span>
+<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(<span class="at">big.mark =</span> <span class="st">","</span>),</span>
+<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>    <span class="at">na.value =</span> <span class="st">"grey92"</span></span>
+<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_sf</span>(</span>
+<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">crs =</span> sf<span class="sc">::</span><span class="fu">st_crs</span>(neotropics_equal),</span>
+<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">datum =</span> <span class="cn">NA</span>,</span>
+<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">expand =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Species richness by biogeographic province"</span>,</span>
+<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">"Distinct formally named species recorded in EpIG-DB"</span>,</span>
+<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>    <span class="at">caption =</span> <span class="fu">paste0</span>(</span>
+<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Morphospecies and hybrids are counted separately. "</span>,</span>
+<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Grey provinces have no eligible records.</span><span class="sc">\n</span><span class="st">"</span>,</span>
+<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Observed richness reflects both species occurrence and sampling effort."</span></span>
+<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb1-52"><a href="#cb1-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>(<span class="at">base_size =</span> <span class="dv">11</span>) <span class="sc">+</span></span>
+<span id="cb1-53"><a href="#cb1-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb1-54"><a href="#cb1-54" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.title =</span> <span class="fu">element_text</span>(<span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">size =</span> <span class="dv">14</span>),</span>
+<span id="cb1-55"><a href="#cb1-55" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.subtitle =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">11</span>),</span>
+<span id="cb1-56"><a href="#cb1-56" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.caption =</span> <span class="fu">element_text</span>(</span>
+<span id="cb1-57"><a href="#cb1-57" aria-hidden="true" tabindex="-1"></a>      <span class="at">size =</span> <span class="dv">8</span>, <span class="at">colour =</span> <span class="st">"grey35"</span>, <span class="at">hjust =</span> <span class="dv">0</span></span>
+<span id="cb1-58"><a href="#cb1-58" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb1-59"><a href="#cb1-59" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"right"</span></span>
+<span id="cb1-60"><a href="#cb1-60" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="OccurrenceMaps_FR_files/figure-html/unnamed-chunk-1-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
 </div>
 </div>
 </section>

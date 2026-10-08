@@ -1254,3 +1254,164 @@ province_taxonomy_summary |>
     full_width = FALSE
   )
 ```
+
+### Stage 3: Calculate Species Richness by Province
+
+```{r}
+#| label: calculate-province-richness
+#| echo: false
+
+## --- Attach provinces and count species ---
+
+# Confirm that every retained occurrence still has exactly one match.
+stopifnot(
+  length(province_point_matches) == nrow(occurrence_neotropics), 
+  all(lengths(province_point_matches) == 1L)
+)
+
+# Extract the matching polygon row for each occurrence.
+province_assignments <- tibble(
+  record_index = occurrence_neotropics$record_index, 
+  province_row = vapply(
+    province_point_matches, 
+    function(rows) rows[[1]], 
+    integer(1)
+  )
+) |>
+  left_join(province_lookup, by = "province_row")
+
+# Attach the province identifier to each eligible formal-species record.
+species_with_province <- province_species_records |>
+  left_join(
+    province_assignments |>
+      select(record_index, province_id), 
+     by = "record_index"
+  )
+
+# Verify that the join preserves records and assigns every one
+stopifnot(
+  nrow(species_with_province) == nrow(province_species_records), 
+  !anyNA(species_with_province$province_id)
+)
+
+# Count records and distinct species separately within each province.
+province_counts <- species_with_province |>
+  group_by(province_id) |>
+  summarise(
+    n_records = n(), 
+    n_species = n_distinct(species_name), 
+    .groups = "drop"
+  )
+
+# Start from all named provinces so provinces with zero records remain. 
+province_richness <- province_lookup |>
+  filter(!is.na(province_name)) |>
+  left_join(province_counts, by = "province_id") |>
+  mutate(
+    n_records = replace_na(n_records, 0L),
+    n_species = replace_na(n_species, 0L)
+  )
+
+# Confirm that the province totals account for all eligible records.
+stopifnot(
+  sum(province_richness$n_records) == nrow(province_species_records))
+
+
+# left_join() -> Links records to provinces using their identifiers. 
+# group_by(province_id) -> Performs the following calculations separately for each province. 
+# n() -> Counts occurrence records. 
+# n_distinct(species_name) -> Counts different species names: our richness measure. 
+# replace_na(..., 0L) -> Gives provinces without eligible records a count of zero.
+```
+
+```{r}
+#| label: tbl-province-richness
+#| echo: false
+#| tbl-cap: "Observed formally named species by Morrone biogeographic province."
+
+## --- Display richness table ---
+
+province_richness |>
+  arrange(desc(n_species), province_name) |>
+  select(province_name, n_records, n_species) |>
+  knitr::kable(
+    format = "html", 
+    col.names = c(
+      "Province", "Formally named occurrence records", "Species richness"
+    ), 
+    align = c("l", "r", "r"), 
+    format.args = list(big.mark = ",")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c(
+      "striped", "hover", "condensed", "responsive"
+    ), 
+    full_width = FALSE
+  )
+```
+
+### Stage 4: Species Richness Map
+
+```{r}
+
+#| label: fig-province-richness
+#| echo: false
+#| fig-cap: "Observed formally named species richness across Morrone biogeographic provinces, based on coordinate-valid records within the Neotropical area."
+#| fig-width: 10
+#| fig-height: 8
+#| fig-format: png
+#| dpi: 300
+
+# Attach the counts to the 57 named province polygons.
+province_richness_map <- provinces_equal |>
+  mutate(province_id = OBJECTID) |>
+  filter(province_id %in% province_richness$province_id) |>
+  left_join(province_richness, by = "province_id") |>
+  mutate(
+    # Keep the numerical zero, but display zero-richness provinces in grey.
+    richness_fill = na_if(n_species, 0L)
+  )
+
+ggplot() +
+  geom_sf(
+    data = province_richness_map,
+    aes(fill = richness_fill),
+    colour = "grey45",
+    linewidth = 0.15
+  ) +
+  geom_sf(
+    data = neotropics_equal,
+    fill = NA,
+    colour = "black",
+    linewidth = 0.4
+  ) +
+  scale_fill_viridis_c(
+    name = "Recorded\nspecies",
+    option = "viridis",
+    labels = scales::label_number(big.mark = ","),
+    na.value = "grey92"
+  ) +
+  coord_sf(
+    crs = sf::st_crs(neotropics_equal),
+    datum = NA,
+    expand = FALSE
+  ) +
+  labs(
+    title = "Species richness by biogeographic province",
+    subtitle = "Distinct formally named species recorded in EpIG-DB",
+    caption = paste0(
+      "Morphospecies and hybrids are counted separately. ",
+      "Grey provinces have no eligible records.\n",
+      "Observed richness reflects both species occurrence and sampling effort."
+    )
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.subtitle = element_text(size = 11),
+    plot.caption = element_text(
+      size = 8, colour = "grey35", hjust = 0
+    ),
+    legend.position = "right"
+  )
+```
