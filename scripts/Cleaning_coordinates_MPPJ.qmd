@@ -1013,7 +1013,18 @@ dfpeper <- dfpeper %>%
 
 unique(dfpeper$georef_class)
 
+#peperomia_net2025_00494
 
+idx <- which(dfpeper$occurrenceID == "peperomia_net2025_00494")
+if (length(idx)) {
+    dfpeper$country[idx] <- "Panama"
+    dfpeper$stateProvince[idx] <- "Panama"
+    dfpeper$countryCode[idx] <- "PA"
+    dfpeper$locality[idx] <- "Isla Barro Colorado"
+}
+
+
+write.csv(dfpeper, file = "data/Georreferencing/2.Processed/georef__peperomia_net2025.csv")
 
 ##########################################################################
 
@@ -1054,7 +1065,7 @@ dflit2024 <- dflit2024 %>%
     )
   )
 
-
+write.csv(dflit2024, file = "data/Georreferencing/2.Processed/georef__literature2024.csv")
 
 ```
 
