@@ -9503,7 +9503,6 @@ text_hua <- text_hua %>%
 autores_map <- c(
   "Maria Luisa." = "M.L.",
   "Jose Manuel." = "J.M.",
-  "Cesar Augusto." = "C.A.",
   "Andres Felipe" = "A.F.",
   "Alvarez Gallego" = "Alvarez-Gallego.",
   "Alirio Maria." = "A.M.",
@@ -9533,11 +9532,169 @@ autores_map <- c(
   "Cabrera Jorge" = "Cabrera, J.",
   "Caizano Elario" = "Caizano, E.",
   "Tapi Bernelio" = "Tapi, B.",
-  "Tapi Francisco" = "Tapi, F."
+  "Tapi Francisco" = "Tapi, F.",
+  "Cesar Augusto" = "C.A."
 )
 
 text_hua <- text_hua %>%
   mutate(recordedBy = str_replace_all(recordedBy, fixed(autores_map)))
+
+#Casos especificos
+
+autores_esp <- c(
+  "Cesar, R." = "C.R.",
+  "Cesar, P." = "C.P.",
+  "Corporacion Ambiental U de, A." = "Corporacion Ambiental U de A.",
+  "Cesar, L." = "C.L.",
+  "UNAM tropical botany class." = "UNAM Tropical Botany Class.",
+  "S. F. S. Med. Bot. Class." = "S.F.S. Medical Botany Class.",
+  "Øllgaard, B." = "Ollgaard, B.",
+  "Jørgensen, P." = "Jorgensen, P.",
+  "Gurpo de Taxonomia de Plantas Vasculares sem II/2003" = "Gurpo de Taxonomia de Plantas Vasculares.",
+  "Mendoça, R." = "Mendoca, R.",
+  "Assunçao, P." = "Assuncao, P.",
+  "França, P." = "Franca, P.",
+  "Arias-S., S." = "Arias-S, S.",
+  "Leider El Tigre." = "Leider.",
+  "y otros." = "et al.",
+  "Londono, E. | y otros" = "Londono, E. et al.",
+  "Arbelaez, A. | , L. " = "Arbelaez, A.L. ",
+  "Fernandez, J.L. | Et, a.l." = "Fernandez, J.L. et al.",
+  "Fernando, L." = "F.L.",
+  "CarmonaD." = "Carmona, D.",
+  "Correa Y ." = "Correa, Y.",
+  "Valle L Mazabanda, W." = "Valle-Mazabanda, L.W.",
+  "Sabedora Amanda Baron." = "Baron, A.",
+#de la
+  "De La Cruz, A." = "de la Cruz, A.",
+  "De La Hoz, T." = "de la Hoz, T.",
+  "De la Hoz, T." = "de la Hoz, T.",
+  "De la hoz, T." = "de la Hoz, T.",
+  "De la Sota, E." = "de la Sota, E.",
+  "de los rios, C." = "de los Rios, C.",
+  "Van Hardeld, C." = "van Hardeld, C.",
+  "Van der Hammen, T." = "van der Hammen, T.",
+  "Van Der Werff, H." = "van der Werff, H.",
+#iniciales
+  "U CES." = "U.C.E.S.",
+#Posiciones
+  "Sanin, D. | Florez, J. | Franco, D. | Ramirez, V. | , O.I." = "Sanin, D. | Florez, J. | Franco, D. | Ramirez, V. | O.I.",
+  "Colorado, J. | Uran V. y Grupos de caminantes O.C.A." = "Colorado, J. | Uran V. | Grupos de Caminantes (O.C.A.)",
+  "Poliquesi, C. | Da Cruz | , J.M." = "Poliquesi, C. | da Cruz. | J.M.",
+  "Silva, D. | Pena, S. | Vargas, C. | Cuadros, A. | , I.G." = "Silva, D. | Pena, S. | Vargas, C. | Cuadros, A. | I.G.",
+  "INALI-Riviere Villamizar y Cia. S. en, C." = "Riviere-Villamizar. | Cia. S. en C.",
+  "Roldan, F. | Mosquera O. Nino J. Ceballos, H." = "Roldan, F. | Mosquera O. | Nino J. | Ceballos, H.",
+  "Jaramillo, M.A. | Kato, M. | , J. | Yamaguchi, L. | Bausen, E." = "Jaramillo, M.A. | Kato, M. | J. | Yamaguchi, L. | Bausen, E.",
+  "Betancur, J. | Mejia, J. | . Uribe, C." = "Betancur, J. | Mejia, J. | Uribe, C.",
+  "C.M.H. | , E. | , L.L. | , M. | , V.P." = "C.M.H. | E. | L.I. | M. | V.P.",
+  "Campos, J. | Diaz P Pezantes, J." = "Campos, J. | Diaz-Pezantes, J.P.",
+  "Madrigal, B. | , M. | , L. | , T. | , A.C. | Blair, S." = "Madrigal, B. | M. | L. | T. | A.C. | Blair, S.",
+  "Atehortua, L. | , H.J." = "Atehortua, L. | H.J.",
+#Autores sin separador
+  "Urrea L. Gonzales, S."      = "Urrea, L. | Gonzales, S.",
+  "Gaviria L. Zapata, A."      = "Gaviria, L. | Zapata, A.",
+  "Parra R. Carmona, D."       = "Parra, R. | Carmona, D.",
+  "Churchill S. Arbelaez, M."  = "Churchill, S. | Arbelaez, M.",
+  "Arbelaez A. Cardenas, O."   = "Arbelaez, A. | Cardenas, O.",
+  "Gutierrez J. Roldan, G."    = "Gutierrez, J. | Roldan, G.",
+  "Mosquera F. Toro, J."       = "Mosquera, F. | Toro, J.",
+#Autores separados con y
+  "Ospina H. y Pena, M."        = "Ospina, H. | Pena, M.",
+  "Moreno J. y Gomez, M."       = "Moreno, J. | Gomez, M.",
+  "Arevalo R. y Zuluaga, A."    = "Arevalo, R. | Zuluaga, A.",
+  "Ospina A. y Ramirez, J."     = "Ospina, A. | Ramirez, J.",
+  "Diaz R. y Rivera, O."        = "Diaz, R. | Rivera, O.",
+  "Palacios L. y Carmona, L."   = "Palacios, L. | Carmona, L.",
+  "David H. y Hernandez, H."    = "David, H. | Hernandez, H.",
+  "Francis R. y Cristobal, H."  = "Francis, R. | Cristobal, H.",
+  "Alvarez A. y Varela, S."     = "Alvarez, A. | Varela, S.",
+  "Avila A. y Martinez, J."     = "Avila, A. | Martinez, J."
+)
+
+text_hua <- text_hua %>%
+  mutate(recordedBy = str_replace_all(recordedBy, fixed(autores_esp)))
+
+#Corregir autores tipo: Villa, s.
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(?<=,\\s|\\.)([a-zá-ÿ])(?=\\.|$|\\s)",
+      toupper
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Eliminar palabras especificas
+
+
+casos_eliminar <- c(
+  "Betancur, J. | Castro, C. | Taxonomia de Angiospermas."  = "Betancur, J. | Castro, C.",
+  "Fonnegra, R. | Castrillon, P. | Arango, A. | Gurpo de Taxonomia de Plantas Vasculares." = "Fonnegra, R. | Castrillon, P. | Arango, A.",
+  "Gentry, A. | Ortiz, R. | Students of San Marcos MS course." = "Gentry, A. | Ortiz, R.",
+  "Albert, L. | Participantes Curso Taxonomia y Evolucion de Las Gramineas." = "Albert, L.",
+  "Albert, L. | Participantes curso Taxonomia y Evolucion de Las Gramineas." = "Albert, L.",
+  "Albert, L. | Participantes curso: Taxonomia y Evolucion de las Gramineas" = "Albert, L.",
+  "Albert, L. | Participantes curso: Taxonomia y evolucion de las Gramineas" = "Albert, L.",
+  "Betancur, J. | Castro, C. | Estudantes Taxonomia Angiospermas." = "Betancur, J. | Castro, C.",
+  "Carbono, E. | Participantes del curo nacional Taxonomia y Evolucion de las Gramineas." = "Carbono, E.",
+  "Fonnegra, R. | Benavides, J. | Taxonomia de Plantas Vasculares semestre I/2002." = "Fonnegra, R. | Benavides, J.",
+  "Hammel, B. | parataxonomos del primer curso de INBio" = "Hammel, B.",
+  "Roldan, F. | Taxonomia Plantas Vasculares I-2000." = "Roldan, F.",
+  "Roldan, F. | Taxonomia de Plantas Vasculares." = "Roldan, F.",
+  "Betancur, J. | Salinas, N. | Estudianes de Sistematica Vegetal, I." = "Betancur, J. | Salinas, N.",
+  "David, H. | Giraldo, F. | Patino A. y estudiantes curso Ecologia Tropical." = "David, H. | Giraldo, F. | Patino, A.",
+  "Orozco, C. | Fernandez, J.L. | Franco, P. | Betancur, J. | Estudiante Profundizacion Floristica" =  "Orozco, C. | Fernandez, J.L. | Franco, P. | Betancur, J.",
+  "Fonnegra, R. | Castrillon, P. | Sem. II/2003." = "Fonnegra, R. | Castrillon, P.",
+  "Fonnegra, R. | Castrillon, P. | Arango, A. | sem. II/2003." = "Fonnegra, R. | Castrillon, P. | Arango, A.",
+  "Fonnegra, R. | sem.2/95."  = "Fonnegra, R.",
+  "Callejas, R. | Sem I/93" = "Callejas, R.",
+  "Fonnegra, R. | Castrillon, P. | Alejandro, A. | sem II/2003." = "Fonnegra, R. | Castrillon, P. | Alejandro, A.",
+  "Fonnegra, R. | sem II/94." = "Fonnegra, R.",
+  "Fernandez, J.L. | IV semestre 2004." = "Fernandez, J.L.",
+  "Fernandez, J.L. | IV semestre 2014." = "Fernandez, J.L.",
+  "Fonnegra, R. | Velez, G. | II/97." = "Fonnegra, R. | Velez, G.",
+  "Roldan, F. | I-2000." = "Roldan, F.",
+  "Roldan, F. | I 2000" = "Roldan, F.",
+  "Roldan, F. | I 2000." = "Roldan, F.",
+  "Ruiz, C. | Galeano, G. | 2000-I." = "Ruiz, C. | Galeano, G.",
+  "van der Werff, H. | OTS Class 1996." = "van der Werff, H.",
+  "Gentry, A. | OTS Class 84-3." = "Gentry, A.",
+  "Fonnegra, R. | Otero, R. | del Valle, G. | Nunez, V. | Evans, N. | Conde G. (Gobernador Curandero)" = "Fonnegra, R. | Otero, R. | del Valle, G. | Nunez, V. | Evans, N. | Conde G."
+)
+
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(recordedBy, fixed(casos_eliminar))
+  )
+
+#Otros casos especificos
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = case_when(
+      occurrenceID %in% c("HUA2025_61540",
+                          "HUA2025_61541",
+                          "HUA2025_61542") ~ 
+        "Dominguez, E. | Cuadros O. | Giraldo, A. | Tuberquia, D. | Bolivar, L. | Quiroz, O. | Ospina, A. | Torres, O.M. | Monica. | Calderon, D. | Velasquez, S. | Velez, C. | Alvarez, N.",
+      TRUE ~ recordedBy
+    )
+  )
+
+#Eliminar totalmente
+
+valores_a_vaciar2 <- c(
+
+  "Connplants.",
+  "sn",
+  "Anonimo"
+)
+
+text_hua$recordedBy[str_squish(text_hua$recordedBy) %in% valores_a_vaciar2] <- ""
+
 ```
 
 ```{r}
@@ -9571,21 +9728,7 @@ revisar_formato <- text_hua %>%
 
 View(revisar_formato)
 
-#Dos palabras
-
-patron_dos_palabras <- "(^|\\|\\s*)[A-Za-zÁ-ÿ]{2,}\\s+[A-Za-zÁ-ÿ]{2,}\\.?\\s*(?=\\||$)"
-
-# Filtra las filas de text_hua donde recordedBy cumple el patrón
-filas_dos_palabras <- text_hua %>%
-  filter(str_detect(recordedBy, patron_dos_palabras))
-
-View(filas_dos_palabras)
 
 
-solo_columna_df <- text_hua %>%
-  filter(str_detect(recordedBy, patron_dos_palabras)) %>%
-  select(recordedBy)
-
-View(solo_columna_df)
 ```
 
