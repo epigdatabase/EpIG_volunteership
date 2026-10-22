@@ -715,7 +715,7 @@ processed_rosero_data <- processed_rosero_data %>%
 ```
 
 ```{r}
-write.csv(processed_asissi_data, file = "../data/Georreferencing/2.Processed/georef__rosero_j_2024.csv")
+write.csv(processed_rosero_data, file = "../data/Georreferencing/2.Processed/georef__rosero_j_2024.csv")
 ```
 
 #DataFrame Peperomia
@@ -1641,7 +1641,4 @@ processed_literature2024 <- processed_literature2024 %>%
   select(-loc_clean, -loc_vacía, -es_falso_y_vacio)
 ```
 
-```{r}
-write.csv(processed_literature2024, file = "../data/Georreferencing/2.Processed/georef__literature2024.csv")
-```
 
