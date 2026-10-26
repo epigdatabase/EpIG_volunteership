@@ -9553,23 +9553,56 @@ autores_esp <- c(
   "Gurpo de Taxonomia de Plantas Vasculares sem II/2003" = "Gurpo de Taxonomia de Plantas Vasculares.",
   "Mendoça, R." = "Mendoca, R.",
   "Assunçao, P." = "Assuncao, P.",
+  "Callejas, R. | Taylor, C. | Roldan | , F. | Gomez, A." = "Callejas, R. | Taylor, C. | Roldan, F. | Gomez, A.",
+  "Castano, L.M. | Lopez, C. | Rondon A.- | Blandon, L. | Prieto, S." = "Castano, L.M. | Lopez, C. | Rondon A. | Blandon, L. | Prieto, S.",
+  "Fonnegra, R. | Uribe | , F. | Callejas, R. | Giraldo, F." = "Fonnegra, R. | Uribe, F. | Callejas, R. | Giraldo, F.",
+  "Contreras, N. | Echeverry | , D." = "Contreras, N. | Echeverry, D.",
+  "Kress, W. | Betancur, J. | Roesel, C. | EcheverryB." = "Kress, W. | Betancur, J. | Roesel, C. | Echeverry, B.",
+  "Fonnegra, R. | Villa, J. | Lobo, T. | Rodriguez, J. | Vargas, H. | Esquivel, P. | YepezR. | Ossa, F." = "Fonnegra, R. | Villa, J. | Lobo, T. | Rodriguez, J. | Vargas, H. | Esquivel, P. | Yepez, R. | Ossa, F.",
+  "Franco, P. | Giraldo, D. | Beltran, W. | PrietoA. | Rivera, O." = "Franco, P. | Giraldo, D. | Beltran, W. | Prieto, A. | Rivera, O.",
+  "Fernandez, J.L. | Rodriguez, F. | Jimenez, D. | Plaza, D. | Marino, A. | Medina, J. | Pinzon, M. | Correa, C. | Hernandez E. (Grupo 4) | ChaconA." = "Fernandez, J.L. | Rodriguez, F. | Jimenez, D. | Plaza, D. | Marino, A. | Medina, J. | Pinzon, M. | Correa, C. | Hernandez E. | Chacon, A.",
+  "Fernandez, J.L. | Garcia, J. | Pardo, W. | Torres, D. | Bonilla, E. | Otalora S.)" = "Fernandez, J.L. | Garcia, J. | Pardo, W. | Torres, D. | Bonilla, E. | Otalora, S.",
+  "Gonzalez, M.F. | Betancur, J. | Castano, N. | Otalora, A. | Laverde, O. | Andres. | Liliana. Diana." = "Gonzalez, M.F. | Betancur, J. | Castano, N. | Otalora, A. | Laverde, O. | Andres. | L.D.",
+  "Perez-Mosquera | , J.F." = "Perez-Mosquera, J.F.",
+  "Poliquesi, C. | da Cruz. | J.M." = "Poliquesi, C. | da Cruz. | J.M.",
+  "Sant', A. | Jardim, J. | , G. | Brito, H.S." = "Sant'A. | Jardim, J. | G. | Brito, H.S.",
+  "Sant', A. | Jardim, J. | , G. | Nunes, C. | da Silva C.B.C." = "Sant'A. | Jardim, J. | G. | Nunes, C. | da Silva C.B.C.",
+  "Soejarto, D. | Pino, R. | Penafiel Romero, F. et al." = "Soejarto, D. | Pino, R. | Penafiel-Romero, F. et al.",
+  "Soejarto, D. | Pinos, R. | , E. | Penafiel, S. | Romero F. et, A.L." = "Soejarto, D. | Pinos, R. | E. | Penafiel, S. | Romero F. et al.",
   "França, P." = "Franca, P.",
+  "Læssøe, T." = "Lassoe, T.",
+  "Anunciaçao, E." = "Anunciacao, E.",
+  "Bøgh, A." = "Bogh, A.",
+  "Ståhl, B." = "Stahl, B.",
+  "Mendonça, R." = "Mendonca, R.",
+  "løjtnant, B." = "Lojtnant, B.",
   "Arias-S., S." = "Arias-S, S.",
   "Leider El Tigre." = "Leider.",
   "y otros." = "et al.",
+  "Marschall &, C.O." = "Marschall | C.O.",
+  "Echeverri, D. | Uribe, A. | Isaza, R. | y otros" = "Echeverri, D. | Uribe, A. | Isaza, R. et al.",
   "Londono, E. | y otros" = "Londono, E. et al.",
   "Arbelaez, A. | , L. " = "Arbelaez, A.L. ",
   "Fernandez, J.L. | Et, a.l." = "Fernandez, J.L. et al.",
   "Fernando, L." = "F.L.",
   "CarmonaD." = "Carmona, D.",
+  "Cortes, R. | De las Salas, G." = "Cortes, R. | De las Salas, G.",
   "Correa Y ." = "Correa, Y.",
   "Valle L Mazabanda, W." = "Valle-Mazabanda, L.W.",
   "Sabedora Amanda Baron." = "Baron, A.",
+  "Hammel, B. | Morales Ramirez Aguilar Garita." = "Hammel, B. | Morales. | Ramirez. | Aguilar. | Garita.",
+  "Guillen Garvizu Soliz Huffman Saucedo." = "Guillen. | Garvizu. | Soliz. | Huffman. | Saucedo.",
+  "Filskov, P. | Søndergaard Gregesen, I." = "Filskov, P. | Sondergaard-Gregesen, I.",
+  "Kendry Rodelo Jaraba" = "Rodelo-Jaraba, K.",
+  "Folsom, J. | Dr Raul Univ at Heidlebrug." = "Folsom, J. | Raul.",
+  "Saldias, M. | Arroyo Mostacedo Guillen Zapata Pena" = "Saldias, M. | Arroyo. | Mostacedo. | Guillen. | Zapata. | Pena.",
 #de la
   "De La Cruz, A." = "de la Cruz, A.",
   "De La Hoz, T." = "de la Hoz, T.",
   "De la Hoz, T." = "de la Hoz, T.",
   "De la hoz, T." = "de la Hoz, T.",
+  "De la sota, E." = "de la Sota, E.",
+  "De la sota, E.R." = "de la Sota, E.R.",
   "De la Sota, E." = "de la Sota, E.",
   "de los rios, C." = "de los Rios, C.",
   "Van Hardeld, C." = "van Hardeld, C.",
@@ -9591,24 +9624,54 @@ autores_esp <- c(
   "Madrigal, B. | , M. | , L. | , T. | , A.C. | Blair, S." = "Madrigal, B. | M. | L. | T. | A.C. | Blair, S.",
   "Atehortua, L. | , H.J." = "Atehortua, L. | H.J.",
 #Autores sin separador
-  "Urrea L. Gonzales, S."      = "Urrea, L. | Gonzales, S.",
-  "Gaviria L. Zapata, A."      = "Gaviria, L. | Zapata, A.",
-  "Parra R. Carmona, D."       = "Parra, R. | Carmona, D.",
+  "Urrea L. Gonzales, S." = "Urrea, L. | Gonzales, S.",
+  "David, H. | Tuberquia D. Robles, C." = "David, H. | Tuberquia D. | Robles, C.",
+  "Gaviria L. Zapata, A." = "Gaviria, L. | Zapata, A.",
+  "da Silva, A. | Nascimento L.. Pimentel, D." = "da Silva, A. | Nascimento, L. | Pimentel, D.",
+  "Parra R. Carmona, D." = "Parra, R. | Carmona, D.",
+  "Croat, T. | Nunez M.hill, J." = "Croat, T. | Nunez, M. | Hill, J.",
+  "Campos, J. | Rodriguez E Pezantes, J." = "Campos, J. | Rodriguez, E. | Pezantes, J.",
+  "Callejas, R. | Churchill S. Acevedo, P. | Sastre de Jesus, I. | Castano, C." = "Callejas, R. | Churchill, S. | Acevedo, P. | Sastre de Jesus, I. | Castano, C.",
+  "Callejas, R. | Roldan F. Castano, C." = "Callejas, R. | Roldan, F. | Castano, C.",
+  "Fonnegra, R. | Roldan F. Corral B. Giron, M." = "Fonnegra, R. | Roldan, F. | Corral, B. | Giron, M.",
+  "Franco, P. | Rangel O Betancur, J." = "Franco, P. | Rangel, O. | Betancur, J.",
+  "David, H. | Tuberquia D. Robles, C." = "David, H. | Tuberquia, D. | Robles, C.",
+  "Callejas, R. | Roldan, F. | Betancurt J. Escobar, O." = "Callejas, R. | Roldan, F. | Betancurt, J. | Escobar, O.",
+  "Callejas, R. | Betancur J. Escobar, O." = "Callejas, R. | Betancur, J. | Escobar, O.",
+  "Pipoly, J. | Gharbarran. | Samuels G. Bacchus, G." = "Pipoly, J. | Gharbarran. | Samuels, G. | Bacchus, G.",
+  "Posada, A. | Gaviria, J. | Mosquera A. Ceballos, A." = "Posada, A. | Gaviria, J. | Mosquera, A. | Ceballos, A.",
+  "Sanchez, I. | Cabanillas S Sanchez, M." = "Sanchez, I. | Cabanillas, S. | Sanchez, M.",
+  "Roldan, F. | Cogollo J. Garcia, L." = "Roldan, F. | Cogollo, J. | Garcia, L.",
   "Churchill S. Arbelaez, M."  = "Churchill, S. | Arbelaez, M.",
+  "Renteria, E. | Arriaga. | Cogollo A. Hoyos. | Estrada." = "Renteria, E. | Arriaga. | Cogollo A. | Hoyos. | Estrada.",
   "Arbelaez A. Cardenas, O."   = "Arbelaez, A. | Cardenas, O.",
   "Gutierrez J. Roldan, G."    = "Gutierrez, J. | Roldan, G.",
   "Mosquera F. Toro, J."       = "Mosquera, F. | Toro, J.",
 #Autores separados con y
   "Ospina H. y Pena, M."        = "Ospina, H. | Pena, M.",
+  "Lopez, R. | Benavides, K. | Sicua, N. | Cardenas, L.M. | Saenz, F. | Avella A. y Pepe." = "Lopez, R. | Benavides, K. | Sicua, N. | Cardenas, L.M. | Saenz, F. | Avella A. | Pepe.",
   "Moreno J. y Gomez, M."       = "Moreno, J. | Gomez, M.",
+  "Callejas, R. | Cardona, F. | Alzate, F. | Idarraga A. y Roldan, F." = "Callejas, R. | Cardona, F. | Alzate, F. | Idarraga, A. | Roldan, F.",
+  "David, H. | Rivas A. y Cardona, F." = "David, H. | Rivas, A. | Cardona, F.",
+  "Fuentes, A. | Paniagua, N. | Miranda, T. | Maldonado, C. | Seidel R. y De La Quintana, D." = "Fuentes, A. | Paniagua, N. | Miranda, T. | Maldonado, C. | Seidel, R. | de La Quintana, D.",
+  "Fuertes, J. | Estrada J. y Fernandez, J." = "Fuertes, J. | Estrada, J. | Fernandez, J.",
+  "aniagua, N. | Maldonado, C. | Pariamo H. y Guili, B." = "Paniagua, N. | Maldonado, C. | Pariamo, H. | Guili, B.",
+  "Rangel, O. | Linares E. y Balcazar, M." = "Rangel, O. | Linares, E. | Balcazar, M.",
+  "Rojas, R. | Huaman, M. | Pena A. y Mateo, J." = "Rojas, R. | Huaman, M. | Pena, A. | Mateo, J.",
   "Arevalo R. y Zuluaga, A."    = "Arevalo, R. | Zuluaga, A.",
+  "Lopez, R. | Montero, I. | Mendez E. y Juan David" = "Lopez, R. | Montero, I. | Mendez E. | J.D.",
   "Ospina A. y Ramirez, J."     = "Ospina, A. | Ramirez, J.",
   "Diaz R. y Rivera, O."        = "Diaz, R. | Rivera, O.",
   "Palacios L. y Carmona, L."   = "Palacios, L. | Carmona, L.",
   "David H. y Hernandez, H."    = "David, H. | Hernandez, H.",
+  "Velasquez, P. | Venegas P. y Quintana, R." = "Velasquez, P. | Venegas, P. | Quintana, R.",
+  "Vega, M. | Pitty A. y Rincon, R." = "Vega, M. | Pitty, A. | Rincon, R.",
   "Francis R. y Cristobal, H."  = "Francis, R. | Cristobal, H.",
   "Alvarez A. y Varela, S."     = "Alvarez, A. | Varela, S.",
-  "Avila A. y Martinez, J."     = "Avila, A. | Martinez, J."
+  "Solis, P. | Ocampo, R. | Espinosa, A. | Guerra C. y el Sr. Torres, B." = "Solis, P. | Ocampo, R. | Espinosa, A. | Guerra, C. | Torres, B.",
+  "Solis, P. | Ocampo, R. | Espinosa, A. | Guerra C. y la Sra Rodriguez, E." = "Solis, P. | Ocampo, R. | Espinosa, A. | Guerra, C. | Rodriguez, E.",
+  "Stevenson, D. | Kawasaki, M. | Mueller, G. | Ramos J. y Guedes, J." = "Stevenson, D. | Kawasaki, M. | Mueller, G. | Ramos, J. | Guedes, J.",
+  "Avila A. y Martinez, J." = "Avila, A. | Martinez, J."
 )
 
 text_hua <- text_hua %>%
@@ -9627,12 +9690,36 @@ text_hua <- text_hua %>%
     recordedBy = str_trim(recordedBy)
   )
 
-#Eliminar palabras especificas
+#Casos tipo; Villera C..
 
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(^|\\|\\s*)([A-Za-zÁ-ÿ]{2,})\\s+([A-Za-zÁ-ÿ])\\.{2}(?=\\s*(\\||$))",
+      "\\1\\2, \\3."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Eliminar palabras especificas
 
 casos_eliminar <- c(
   "Betancur, J. | Castro, C. | Taxonomia de Angiospermas."  = "Betancur, J. | Castro, C.",
   "Fonnegra, R. | Castrillon, P. | Arango, A. | Gurpo de Taxonomia de Plantas Vasculares." = "Fonnegra, R. | Castrillon, P. | Arango, A.",
+  "Meier, W. | Nehlin, S. | Excursionista de Caracas." = "Meier, W. | Nehlin, S.",
+  "Ceron, C. | 3er Curso Biologia U. Central." = "Ceron, C.",
+  "Carvajal, L. | Practica integrada III-2016-III." = "Carvajal, L.",
+  "Cardona, F. | 2007-I." = "Cardona, F.",
+  "Feuillet, C. | Montagne Tortue expedition members." = "Feuillet, C.",
+  "Fonnegra, R. | I-1995." = "Fonnegra, R.",
+  "Webster, G. | with UREP participants" = "Webster, G.",
+  "Fonnegra, R. | Rodriguez, W. | Arango, A. | Castrillon, P. | I-2004." = "Fonnegra, R. | Rodriguez, W. | Arango, A. | Castrillon, P.",
+  "Tuberquia, D. | U CES 2010-II." = "Tuberquia, D.",
+  "Gonzalez, F. | Intr. Sist. Veg." = "Gonzalez, F.",
+  "Lema, C. | Coordenadas erradas. Usos: de las hojas maceradas se extrae un tinte azul | el cual se utiliza para tenir la fibra de la chambira." = "Lema, C.",
+  "Hernandez, D. | Colectada entre los meses de abril y noviembre de 2013" = "Hernandez, D.",
   "Gentry, A. | Ortiz, R. | Students of San Marcos MS course." = "Gentry, A. | Ortiz, R.",
   "Albert, L. | Participantes Curso Taxonomia y Evolucion de Las Gramineas." = "Albert, L.",
   "Albert, L. | Participantes curso Taxonomia y Evolucion de Las Gramineas." = "Albert, L.",
@@ -9641,8 +9728,14 @@ casos_eliminar <- c(
   "Betancur, J. | Castro, C. | Estudantes Taxonomia Angiospermas." = "Betancur, J. | Castro, C.",
   "Carbono, E. | Participantes del curo nacional Taxonomia y Evolucion de las Gramineas." = "Carbono, E.",
   "Fonnegra, R. | Benavides, J. | Taxonomia de Plantas Vasculares semestre I/2002." = "Fonnegra, R. | Benavides, J.",
+  "Reed, A. | Use: Vulnerary for small cuts and bruise root | apply directly?" = "Reed, A.",
+  "Palacios, W. | Quelal Aulestia Revelo Freire." = "Palacios, W.",
+  "Pohl, R. | Participantes curso Taxomonia y Evolucion de Las Gramineas." = "Pohl, R.",
+  "Morales, P. | David, D. | Barbaran, E. | Asistentes al Bioblitz Humedales del Area Metropolitana." = "Morales, P. | David, D. | Barbaran, E.",
   "Hammel, B. | parataxonomos del primer curso de INBio" = "Hammel, B.",
   "Roldan, F. | Taxonomia Plantas Vasculares I-2000." = "Roldan, F.",
+  "Fonnegra, R. | Tuberquia, D. | Proyecto Reserva Natural El Paramo de Belmira." = "Fonnegra, R. | Tuberquia, D.",
+  "Feuillet, C. | The Montagne Tortue expedition members." = "Feuillet, C.",
   "Roldan, F. | Taxonomia de Plantas Vasculares." = "Roldan, F.",
   "Betancur, J. | Salinas, N. | Estudianes de Sistematica Vegetal, I." = "Betancur, J. | Salinas, N.",
   "David, H. | Giraldo, F. | Patino A. y estudiantes curso Ecologia Tropical." = "David, H. | Giraldo, F. | Patino, A.",
@@ -9689,46 +9782,109 @@ text_hua <- text_hua %>%
 valores_a_vaciar2 <- c(
 
   "Connplants.",
+  "GP-12.",
+  "Centro de Biologia.",
   "sn",
   "Anonimo"
 )
 
 text_hua$recordedBy[str_squish(text_hua$recordedBy) %in% valores_a_vaciar2] <- ""
 
+#Poner puntos
+text_hua <- text_hua %>%
+  mutate(
+    # 1. Limpia cualquier residuo previo de puntos duplicados con o sin espacios
+    recordedBy = str_replace_all(recordedBy, "\\.\\s*\\.+", "."),
+    recordedBy = str_replace_all(recordedBy, "\\s+\\.", "."),
+    
+    # 2. PUNTO ANTES DE '|':
+    # Si termina en punto (con espacios intermedios), solo normaliza a ". |"
+    recordedBy = str_replace_all(recordedBy, "\\.\\s*\\|", ". |"),
+    # Si NO tiene punto antes de la barra, le agrega uno solo
+    recordedBy = str_replace_all(recordedBy, "([^.\\s])\\s*\\|", "\\1. |"),
+    
+    # 3. PUNTO AL FINAL DE LA CELDA:
+    # Solo si no termina en punto y no está vacía, añade punto final
+    recordedBy = str_replace(recordedBy, "([^.\\s])\\s*$", "\\1."),
+    
+    # 4. Asegura espaciado limpio en las barras y elimina espacios extremos
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
+#Punto a las letras
+
+text_hua <- text_hua %>%
+  mutate(
+    recordedBy = str_replace_all(
+      recordedBy,
+      "([A-ZÁÉÍÓÚÑ])(?=[A-ZÁÉÍÓÚÑ])",
+      "\\1."
+    ),
+    recordedBy = str_replace_all(
+      recordedBy,
+      "(\\b[A-ZÁÉÍÓÚÑ]\\.)+([A-ZÁÉÍÓÚÑ])\\b",
+      "\\0."
+    ),
+    recordedBy = str_replace_all(recordedBy, "\\.{2,}", "."),
+    recordedBy = str_replace_all(recordedBy, "\\s*\\|\\s*", " | "),
+    recordedBy = str_trim(recordedBy)
+  )
+
 ```
+
+#Especificar cambios y guardar
 
 ```{r}
-SURNAME_CORE <- "[A-Za-zÁÉÍÓÚÑáéíóúñ]+(?:-[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?(?:\\s[A-Za-zÁÉÍÓÚÑáéíóúñ]+)?"
-INITIALS     <- "(?:[A-ZÁÉÍÓÚÑ]\\.){1,6}"
 
-patron_autor_valido <- paste0("^", SURNAME_CORE, ",\\s*", INITIALS, "$")
+#institutionCode
 
-es_autor_valido <- function(autor) {
-  autor <- str_trim(autor)
-  str_detect(autor, patron_autor_valido)
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
 }
 
-cumple_estructura <- function(texto) {
-  if (is.na(texto) || str_trim(texto) == "") return(NA)
-  
-  texto <- str_trim(texto)
-  partes <- str_split(texto, "\\|")[[1]]
-  partes <- str_trim(partes)
-  
-  all(sapply(partes, es_autor_valido))
+filas_cambiadas <- !is.na(text_hua$institutionCode) & 
+                    !is.na(text_hua$verbatiminstitutionCode) &
+                    text_hua$verbatiminstitutionCode != text_hua$institutionCode
+
+text_hua$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hua$discardReason[filas_cambiadas],
+  "removed authors names in institutionCode"
+)
+
+#recordedBy
+agregar_comentario <- function(discardReason, comentario_nuevo) {
+  if (is.na(discardReason) || str_trim(discardReason) == "") {
+    return(comentario_nuevo)
+  } else {
+    return(paste(discardReason, comentario_nuevo, sep = " / "))
+  }
 }
 
-text_hua$cumple_formato <- sapply(text_hua$recordedBy, cumple_estructura)
+filas_cambiadas <- !is.na(text_hua$recordedBy) & 
+                    !is.na(text_hua$verbatimrecordedBy) &
+                    text_hua$verbatimrecordedBy != text_hua$recordedBy
 
-sum(text_hua$cumple_formato == FALSE, na.rm = TRUE)
-
-revisar_formato <- text_hua %>%
-  filter(cumple_formato == FALSE) %>%
-  count(recordedBy, sort = TRUE)
-
-View(revisar_formato)
+text_hua$discardReason[filas_cambiadas] <- mapply(
+  agregar_comentario,
+ text_hua$discardReason[filas_cambiadas],
+  "standardized authors names in recordedBy"
+)
 
 
+#Convertir columna creada de lista a caracter y guardar
+
+text_hua$discardReason <- sapply(text_hua$discardReason, function(x) {
+  if (is.null(x) || length(x) == 0) return(NA_character_)
+  if (length(x) > 1) return(paste(unlist(x), collapse = " / "))
+  return(as.character(x))
+})
+
+write.csv(text_hua, file = "data/Text/2.Processed/text__HUA2025.csv")
 
 ```
-
