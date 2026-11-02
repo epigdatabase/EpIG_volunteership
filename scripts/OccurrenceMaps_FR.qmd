@@ -8,6 +8,7 @@ format:
     toc-depth: 3
     code-fold: true
     theme: "cosmo"
+    embed-resources: true
 execute:
   warning: false
   message: false
@@ -44,7 +45,10 @@ library(dplyr)
 knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 
 # Load EpIG 2.0 complete database (1,372,136 records — full product)
-dbPath <- "C:/EpIG_v2.0_/EpIG_volunteership/data/Occurrences_visualization/db_EpIG2_clean_all.rds"
+dbPath <- here::here("data", 
+                     "Occurrences_visualization", 
+                     "db_EpIG2_clean_all.rds")
+
 db <- readRDS(here(dbPath))
 ```
 
@@ -61,9 +65,8 @@ Three spatial inputs are prepared. the dissolved Neotropical boundary, country b
 library(sf)
 library(dplyr)
 
-map_dir <- file.path(
-  "C:/EpIG_v2.0_",
-  "EpIG_volunteership",
+# Locate the spatial layers relative to the project root.
+map_dir <- here::here(
   "data",
   "Occurrences_visualization",
   "Neotropics_Morrone"
@@ -375,7 +378,7 @@ occurrence_neotropics <- occurrence_points_equal[
 
 ### Distribution by Data Source
 
-The geographic distribution of coordinate-valid records was compared among four broad source groups. Separate panels were used because repositories account for most recods and would obscure less sources in a single overlaid map. All panels use the same projection, geographic extent, point size, and transparency.
+The geographic distribution of coordinate-valid records was compared among four broad source groups. Separate panels were used because repositories account for most records and would obscure less sources in a single overlaid map. All panels use the same projection and geographic extent. Literature records are displayed with larger, more opaque points to improve visibility. Point intensity should therefore not be compared directly among panels. 
 
 ```{r}
 #| label: prepare-geographic-distribution
@@ -500,16 +503,16 @@ ggplot() +
     colour = NA
   ) +
   geom_point(
-    data = geographic_distribution_data,
-    aes(
-      x = x,
-      y = y,
-      colour = source_group
-    ),
-    size = 0.08,
-    alpha = 0.15,
-    shape = 16
-  ) +
+  data = geographic_distribution_data,
+  aes(
+    x = x,
+    y = y,
+    colour = source_group,
+    size = source_group,
+    alpha = source_group
+  ),
+  shape = 16
+) +
   geom_sf(
     data = countries_equal,
     fill = NA,
@@ -530,6 +533,25 @@ ggplot() +
     values = source_group_palette,
     guide = "none"
   ) +
+  # Set point visibility explicitly for each source group.
+scale_size_manual(
+  values = c(
+    repositories = 0.08,
+    researchers = 0.08,
+    herbaria = 0.08,
+    literature = 0.30
+  ),
+  guide = "none"
+) +
+scale_alpha_manual(
+  values = c(
+    repositories = 0.15,
+    researchers = 0.15,
+    herbaria = 0.15,
+    literature = 0.65
+  ),
+  guide = "none"
+) +
   coord_sf(
     crs = sf::st_crs(neotropics_equal),
     datum = NA,
@@ -539,9 +561,10 @@ ggplot() +
     title = "Geographic distribution of EpIG-DB records",
     subtitle = "Coordinate-valid records by source group",
     caption = paste0(
-      "Points represent occurrence records rather than unique localities. ",
-      "Overlapping records may appear as areas of greater visual intensity."
-    )
+    "Points represent occurrence records rather than unique localities.\n",
+    "Literature points are larger and more opaque for visibility; ",
+    "point intensity is not directly comparable among panels."
+  )
   ) +
   theme_void(base_size = 11) +
   theme(
@@ -553,7 +576,7 @@ ggplot() +
       size = 11
     ),
     plot.caption = element_text(
-      size = 8,
+      size = 10,
       colour = "grey35",
       hjust = 0
     ),
@@ -573,7 +596,7 @@ ggplot() +
 
 ### Spatial Aggregation
 
-Records retained within tyhe Neotropical boundary are assigned to a 100-km hexagonal grid in the Equal Earth Projection. Interior cells are spatially comparable; cells intersecting the outer biundary are clipped for display.
+Records retained within the Neotropical boundary are assigned to a 100-km hexagonal grid in the Equal Earth Projection. Interior cells are spatially comparable; cells intersecting the outer boundary are clipped for display.
 
 ```{r}
 #| label: calculate-occurrence-density
@@ -754,7 +777,7 @@ The workflow is divided into:
 3. assign eligible occurrences to province polygons;
 4. validate unmatched and multiple spatial assignments;
 5. calculate species richness while retaining provinces with zero records; and
-6. construct an interpret the choropleth.
+6. construct and interpret the choropleth.
 
 ### Stage 1: Province Layer Audit
 
@@ -1239,7 +1262,7 @@ province_taxonomy_summary <- province_taxonomy |>
 ```{r}
 #| label: tbl-province-taxonomy
 #| echo:  false
-#| tbl-cap: "Taxonomic composition of accurrence records with a unique named-province match."
+#| tbl-cap: "Taxonomic composition of occurrence records with a unique named-province match."
 
 
 province_taxonomy_summary |>
@@ -1417,7 +1440,7 @@ ggplot() +
   )
 ```
 
-### Stage 5: Species Richness per Existin 100-km Hexagonal Cell
+### Stage 5: Species Richness per Existing 100-km Hexagonal Cell
 
 We'll start with **species richness per existing 100-km hexagonal cell**. The calculation is the same count each species once but the counting unit changes from a whole province to a grid cell. 
 
@@ -1429,7 +1452,7 @@ We'll start with **species richness per existing 100-km hexagonal cell**. The ca
 
 **Grid-cell richness still dpeneds on collecting effort**. It supplements the province map; it is not a complete sampling correction. Also, cells clipped at the Neotropical boundary cover less area than interior cells. 
 
-### Stage 5: Species Richness at a Common Spatial Scale
+#### 5.1: Species Richness at a Common Spatial Scale
 
 ```{r}
 #| label: calculate-grid-species-richness
@@ -1493,6 +1516,50 @@ grid_richness_summary <- grid_species_richness |>
 #print(grid_richness_summary, width = 120)
 ```
 
+
+```{r}
+#| label: tbl-grid-richness-sampling
+#| echo: false
+#| tbl-cap: "Occurrence counts and observed species richness among hexagonal cells containing eligible formally named records."
+
+# Exclude empty cells from this summary; they remain on the map.
+occupied_cells <- grid_species_richness |>
+  filter(formal_records > 0)
+
+# Arrange the statistics into two rows for easier comparison.
+grid_sampling_table <- tibble(
+  Measure = c(
+    "Formally named occurrence records per cell",
+    "Observed species richness per cell"
+  ),
+  Minimum = c(
+    min(occupied_cells$formal_records),
+    min(occupied_cells$species_richness)
+  ),
+  Median = c(
+    median(occupied_cells$formal_records),
+    median(occupied_cells$species_richness)
+  ),
+  Maximum = c(
+    max(occupied_cells$formal_records),
+    max(occupied_cells$species_richness)
+  )
+)
+
+grid_sampling_table |>
+  knitr::kable(
+    format = "html",
+    align = c("l", "r", "r", "r"),
+    format.args = list(big.mark = ",")
+  ) |>
+  kableExtra::kable_styling(
+    bootstrap_options = c(
+      "striped", "hover", "condensed", "responsive"
+    ),
+    full_width = FALSE
+  )
+```
+
 Among the 2,136 cells containing eligible records, record counts from 1 to 62,704, with a median of 58. Observed species richness ranged from 1 to 2,343 species per occupied cell, with a median of 25. The grid provides a common spatial scale, although boundary cells cover smaller areas. Unequal collecting effort remains a limitation, and these results should not be interpreted as sampling-standardized estimates of richness. 
 
 ```{r}
@@ -1548,16 +1615,5 @@ ggplot() +
   )
 ```
 
-# Compare sampling intensity and richness among occupied cells.
-grid_species_richness |>
-  filter(formal_records > 0) |>
-  summarise(
-    minimum_records = min(formal_records),
-    median_records = median(formal_records),
-    maximum_records = max(formal_records),
-    minimum_richness = min(species_richness),
-    median_richness = median(species_richness),
-    maximum_richness = max(species_richness)
-  ) |>
-  print(width = 120)
+
 
