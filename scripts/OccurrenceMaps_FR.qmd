@@ -679,7 +679,7 @@ density_map_summary |>
   )
 ```
 
-### Sampling Density \<ap
+### Sampling Density Map
 
 Figure @fig-occurrence-density displays the number of records in each occupied cell. The logarithmic color transformation preserves differences across a highly differentiated count distribution. Light-grey cells represent sampled-area gaps with no retained occurrence records.
 
@@ -752,7 +752,7 @@ The workflow is divided into:
 1. audit the province layer and identify its province-name field;
 2. define the records and taxonomic key used to count species;
 3. assign eligible occurrences to province polygons;
-4.validate unmatched and multiple spatial assignments;
+4. validate unmatched and multiple spatial assignments;
 5. calculate species richness while retaining provinces with zero records; and
 6. construct an interpret the choropleth.
 
@@ -1185,6 +1185,8 @@ province_match_summary |>
 
 Formally named species richness will be calculated from distinct cleaned `scientificName` values. Species, subspecies, varieties, and forms are included, following the species-level name structure established in the taxonomy audit (**Section 3.2** from `ExploratoryData_FR.qmd`). Morphospecies and hybrids are reported separately from this count. 
 
+**Note**: Observed species richness was calculated as the number of distinct cleaned `scientificName` values within each province. Eligible records included those ranked as species, subspecies, variety, or form, provided that a species name was present. Inspection of name mappings indicated that `scientificName` expresses infra-specific records at species level; screening found no values containing more than two words among these ranks. Consequently, records with the same species name were counted once per province, regardless of their recorded rank. 
+We retained `scientificName` because `matchNameEpig` preserved some infra-specific names and was missing for 99,992 species-ranked records in the full database. Names were standardized by trimming and deleting any blank space and converting to lower case. 
 ```{r}
 #| label: prepare-province-species-records
 #| echo: false
@@ -1353,7 +1355,6 @@ province_richness |>
 ### Stage 4: Species Richness Map
 
 ```{r}
-
 #| label: fig-province-richness
 #| echo: false
 #| fig-cap: "Observed formally named species richness across Morrone biogeographic provinces, based on coordinate-valid records within the Neotropical area."
@@ -1415,3 +1416,148 @@ ggplot() +
     legend.position = "right"
   )
 ```
+
+### Stage 5: Species Richness per Existin 100-km Hexagonal Cell
+
+We'll start with **species richness per existing 100-km hexagonal cell**. The calculation is the same count each species once but the counting unit changes from a whole province to a grid cell. 
+
+|**Measure**|**What it describes**|
+|---|---|
+|Richness per province|Species recorded across the entire province.|
+|Richness per hexagonal cell|Species recorded at a common spatial scale.|
+|Rarefaction or coverage standardization|Diversity compared at a common sample size or sampling completeness; supported by iNEXT.|
+
+**Grid-cell richness still dpeneds on collecting effort**. It supplements the province map; it is not a complete sampling correction. Also, cells clipped at the Neotropical boundary cover less area than interior cells. 
+
+### Stage 5: Species Richness at a Common Spatial Scale
+
+```{r}
+#| label: calculate-grid-species-richness
+#| echo: false
+
+# Reuse the cell assignments calculated for the sampling-density map.
+# point_cell_id contains row positions in occurrence_grid.
+stopifnot(
+  length(point_cell_id) == nrow(occurrence_neotropics),
+  !anyNA(point_cell_id)
+)
+
+record_grid_lookup <- tibble(
+  record_index = occurrence_neotropics$record_index,
+  grid_id = occurrence_grid$grid_id[point_cell_id]
+)
+
+# Attach a cell identifier to each eligible formally named record.
+species_with_grid <- province_species_records |>
+  left_join(record_grid_lookup, by = "record_index")
+
+stopifnot(
+  nrow(species_with_grid) == nrow(province_species_records),
+  !anyNA(species_with_grid$grid_id)
+)
+
+# Count records and distinct species within each cell.
+grid_species_counts <- species_with_grid |>
+  group_by(grid_id) |>
+  summarise(
+    formal_records = n(),
+    species_richness = n_distinct(species_name),
+    .groups = "drop"
+  )
+
+# Retain all cells, including those without eligible records.
+grid_species_richness <- occurrence_grid |>
+  sf::st_drop_geometry() |>
+  select(grid_id) |>
+  left_join(grid_species_counts, by = "grid_id") |>
+  mutate(
+    formal_records = replace_na(formal_records, 0L),
+    species_richness = replace_na(species_richness, 0L)
+  )
+
+# Check that no eligible records were lost or duplicated.
+stopifnot(
+  sum(grid_species_richness$formal_records) ==
+    nrow(province_species_records)
+)
+
+# Inspect the overall range before choosing the map's colour scale.
+grid_richness_summary <- grid_species_richness |>
+  summarise(
+    total_cells = n(),
+    cells_with_formal_records = sum(formal_records > 0),
+    cells_without_formal_records = sum(formal_records == 0),
+    maximum_cell_richness = max(species_richness)
+  )
+
+#print(grid_richness_summary, width = 120)
+```
+
+Among the 2,136 cells containing eligible records, record counts from 1 to 62,704, with a median of 58. Observed species richness ranged from 1 to 2,343 species per occupied cell, with a median of 25. The grid provides a common spatial scale, although boundary cells cover smaller areas. Unequal collecting effort remains a limitation, and these results should not be interpreted as sampling-standardized estimates of richness. 
+
+```{r}
+#| label: fig-grid-species-richness
+#| echo: false
+#| fig-cap: "Observed formally named species richness within the existing 100-km equal-area hexagonal grid. Boundary cells are clipped to the Neotropical region; grey cells have no eligible records."
+#| fig-width: 10
+#| fig-height: 8
+#| fig-format: png
+#| dpi: 300
+
+# Attach species counts to the existing clipped grid.
+grid_richness_map <- occurrence_grid_plot |>
+  left_join(grid_species_richness, by = "grid_id") |>
+  mutate(
+    # Display zeros in grey while preserving the original counts.
+    richness_fill = na_if(species_richness, 0L)
+  )
+
+ggplot() +
+  geom_sf(
+    data = grid_richness_map,
+    aes(fill = richness_fill),
+    colour = "white",
+    linewidth = 0.03
+  ) +
+  geom_sf(
+    data = neotropics_equal,
+    fill = NA,
+    colour = "black",
+    linewidth = 0.4
+  ) +
+  scale_fill_viridis_c(
+    name = "Recorded\nspecies",
+    labels = scales::label_number(big.mark = ","),
+    na.value = "grey92"
+  ) +
+  coord_sf(datum = NA) +
+  labs(
+    title = "Observed species richness at a common spatial scale",
+    subtitle = "Distinct formally named species per 100-km hexagonal cell",
+    caption = paste0(
+      "Grey cells have no eligible records. Boundary cells cover less area.\n",
+      "Richness remains influenced by sampling effort."
+    )
+  ) +
+  theme_void(base_size = 11) +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    plot.caption = element_text(
+      size = 8, colour = "grey35", hjust = 0
+    )
+  )
+```
+
+# Compare sampling intensity and richness among occupied cells.
+grid_species_richness |>
+  filter(formal_records > 0) |>
+  summarise(
+    minimum_records = min(formal_records),
+    median_records = median(formal_records),
+    maximum_records = max(formal_records),
+    minimum_richness = min(species_richness),
+    median_richness = median(species_richness),
+    maximum_richness = max(species_richness)
+  ) |>
+  print(width = 120)
+
